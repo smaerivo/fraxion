@@ -1,0 +1,191 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+	<head>
+		<meta http-equiv="content-type" content="text/xhtml; charset=UTF-8" />
+		<meta name="author" content="Sven Maerivoet" />
+		<meta name="generator" content="author" />
+
+		<meta name="description" content="Fraxion Help" />
+		<meta name="robots" content="index,follow" />
+		<meta name="revisit-after" content="1 month" />
+
+		<link rel="stylesheet" type="text/css" href="../../../layout/page-screen-layout.css" media="screen" />
+		<link rel="stylesheet" type="text/css" href="../../../layout/page-screen-colours.css" media="screen" />
+
+		<title>
+			Fraxion Help
+		</title>
+	</head>
+
+	<body>
+		<h1>Kleurenschema's</h1>
+
+			<ul>
+				<li><a href="#general_coloring">Algemene informatie</a></li>
+				<li><a href="#choosing_from_available_color_maps">Kies uit beschikbare kleurenschema's</a></li>
+				<li><a href="#creating_custom_color_maps">Eigen kleurenschema's maken</a></li>
+				<li><a href="#options_for_coloring">Opties om te kleuren</a></li>
+				<li><a href="#predefined_coloring_methods">Voorafbepaalde kleurmethodes</a></li>
+				<li><a href="#enabling_post-processing_filters">Gebruik van nabewerkingsfilters</a></li>
+			</ul>
+
+		<a name="general_coloring"></a>
+		<h2>Algemene informatie</h2>
+
+			<p>
+				Kleurenschema's kunnen gekozen en aangepast worden via het <b>Kleurenschema</b> 
+				menu. Kleuren worden gebruikt bij zowel <b>binnen-</b> als <b>buiten</b>punten.
+				De eerste liggen in de fractaal, i.e., ze worden aangetrokken tot een 
+				periodieke cyclus of een enkel vast punt, de anderen ontsnappen typisch naar
+				oneindig. Voor beide types punten zijn er diverse <a 
+				href="#options_for_coloring">opties</a> om te kleuren, afhankelijk van de ontsnappingstijden,
+				de afstanden, de hoeken, enz., en ook Verschillende 
+				<a href="#predefined_coloring_methods">voorafbepaalde kleurmethodes</a>.
+				Merk op dat het mogelijk is om <b>tijgerstrepen</b> voor buitenpunten te gebruiken.
+				Afhankelijk of een punt zijn ontsnappingstijd even of oneven is, wisselt het kleurenschema
+				tussen het hoofdkleurenschema en dat voor de tijgerstrepen.
+			</p>
+
+			<p>
+				Kleurenschema's kunnen <b>omgekeerd</b> worden (e.g., van wit naar zwart in plaats
+				van zwart naar wit) of <b>rondgewikkeld</b> worden (e.g., gaande van zwart over grijs
+				naar wit en terugkeren over grijs naar zwart).
+			</p>
+
+			<p>
+				Er zijn <a href="#choosing_from_available_color_maps">diverse
+				kleurenschema's</a> beschikbaar, en deze kunnen ook
+				<a href="#creating_custom_color_maps">aangepast</a> worden.
+			</p>
+
+			<p>
+				Traditioneel worden kleuren <b>lineair ge&iuml;nterpoleerd</b> over het
+				gekozen kleurenschema, afhankelijk van de minimum en maximum waarde die optreedt
+				in de berekende fractaal. Dit kan leiden tot een onevenwicht dat we typisch zien
+				wanneer er grote gebieden met constante waarden zijn en samen optreden met snel
+				toenemende waarden nabij de rand tussen binnen- en buitenpunten. 
+				Om dit effect te compenseren, kan er een <b>schaling</b> op het kleurenschema
+				gedaan worden. Mogelijke methodes zijn <b>logaritmisch</b>, <b>exponentieel</b> en 
+				<b>vierkantswortel</b> schaling. Elke keer kunnen de parameters voor deze schalingseigenschappen
+				ingesteld worden. Een krachtigere methode die verder gaat dan de moderne
+				histogramkleuring is gebaseerd op <b>rangorde</b> schaling, waarbij
+				de kansen van het gebruik van kleuren allemaal gelijk worden gesteld. Omdat deze
+				techniek de meer extreme waarden kan uitsmeren, kan de 
+				<b>Beperk kleuren voor hoge aantallen iteraties</b> optie aangevinkt worden. Dit zal
+				een extra logaritmische schaling na de rangorde schaling toepassen.
+			</p>
+
+			<div id="example">
+				<img src="color-map-menu.png" style="border:solid; border-color:#000000; border-width:1px">
+			</div>
+
+			<p>
+				Merk op dat indien de <b>Gebruik schuivende kleuren</b> optie is aangevinkt, Fraxion 
+				door alle kleuren in real-time in het gekozen kleurenschema schuift. 
+				Dit gebruikt nogal veel rekenkracht, aangezien de 24-bitskleuren allen berekend worden
+				in plaats ze louter in een tabel op te zoeken.
+			</p>
+
+		<a name="choosing_from_available_color_maps"></a>
+		<h2>Kies uit beschikbare kleurenschema's</h2>
+
+			<p>
+				Een selectie van voorafbepaalde kleurenschema's is beschikbaar, zoals getoond in het
+				volgend submenu (alle kleuren worden lineair ge&iuml;nterpoleerd).
+			</p>
+
+			<div id="example">
+				<img src="color-maps-menu.png" style="border:solid; border-color:#000000; border-width:1px">
+			</div>
+
+		<a name="creating_custom_color_maps"></a>
+		<h2>Eigen kleurenschema's maken</h2>
+
+			<p>
+				Naast de voorafbepaalde kleurenschema's, kunnen ook eigen kleurenschema's
+				worden gemaakt. Kies hiervoor de <b>Stel aangepaste kleurkaart in</b>
+				optie uit het <b>Kies binnen/buitenkleurenschema</b> submenu. Dit geeft het volgende
+				venster waarin 10 controlepunten kunnen aangepast worden (locaties 
+				en kleuren). Indien de <b>Zet huidige kleurkaart om naar aangepaste</b> 
+				optie van het submenu wordt geselecteerd, dan kunnen ook de voorafbepaalde kleurenschema's
+				aangepast worden.
+			</p>
+
+			<div id="example">
+				<img src="custom-color-map-dialog.png" style="border:solid; border-color:#000000; border-width:1px">
+			</div>
+
+		<a name="options_for_coloring"></a>
+		<h2>Opties om te kleuren</h2>
+
+			<p>
+				Er is een ruimte vari&euml;teit aan kleurmethodes beschikbaar, met de eenvoudigste
+				gebaseerd op discrete niveausets (i.e., de ontsnappingstijden), wat in de
+				typische zichtbare banden resulteert. In het geval van Newton / Raphson fractalen, laten de
+				kleuropties ook toe om de verschillende wortels te kleuren (als deze worden gedetecteerd), zowel
+				discreet als zacht.
+			</p>
+
+			<div id="example">
+				<img src="coloring-method-menu.png" style="border:solid; border-color:#000000; border-width:1px">
+			</div>
+
+		<a name="predefined_coloring_methods"></a>
+		<h2>Voorafbepaalde kleurmethodes</h2>
+
+			<p>
+				Voor de gemakkelijkheid laat Fraxion ook toe om voorbepaalde kleurmethodes
+				te kiezen, zoals getoond in de volgende voorbeelden. Er kan altijd naar de standaardinstellingnen
+				teruggekeerd worden door de <b>Gebruik standaardinstellingen voor kleuren</b>
+				optie te selecteren in het menu. In dat geval, zal het kleurenschema
+				<b>Jet</b> gekozen worden, met genormaliseerde niveausets, geen tijgerstrepen,
+				lineaire schaling, geen omkering, rondwikkeling, herhaling, offset, of 
+				een beperkt bereik.
+			</p>
+
+			<div id="example">
+				Binaire decompositie<br />
+				<img src="example-binary-decomposition.png" style="border:solid; border-color:#000000; border-width:1px">
+			</div>
+
+			<div id="example">
+				Contouren<br />
+				<img src="example-contours.png" style="border:solid; border-color:#000000; border-width:1px">
+			</div>
+
+			<div id="example">
+				Donkere verzachtingsfilter<br />
+				<img src="example-dark-softening-filter.png" style="border:solid; border-color:#000000; border-width:1px">
+			</div>
+
+			<div id="example">
+				Binaire decompositie gevolgd door contouren<br />
+				<img src="example-binary-decomposition-contours.png" style="border:solid; border-color:#000000; border-width:1px">
+			</div>
+
+		<a name="enabling_post-processing_filters"></a>
+		<h2>Gebruik van nabewerkingsfilters</h2>
+
+			<p>
+				Eens een kleurenschema is gekozen, kan men een keten van nabewerkingsfilters
+				gebruiken op het finale beeld. Er zijn vijf filters beschikbaar, i.e., uitsmeren,
+				verscherpen, randdetectie, kleurinversie en kleurposterisatie. Voor uitsmering
+				en randdetectie kan respectievelijk de kernelgrootte en sterkte ingesteld worden.
+				Indien de <b>Automatisch tonen</b> optie is aangevinkt (dit is standaard zo),
+				dan zal de filterketen automatisch voorgetoond worden op de zichtbare fractaal.
+			</p>
+
+			<div id="example">
+				<img src="post-processing-filters-dialog.png" style="border:solid; border-color:#000000; border-width:1px">
+			</div>
+
+		<hr />
+
+		<p>
+			XHTML 1.1 Transitional | CSS2 | <a href="http://creativecommons.org/licenses/by-nc-nd/2.0/be/deed.en_GB">Creative Commons License</a>
+		</p>
+
+		<p>
+			Sven Maerivoet (<a href="http://www.maerivoet.org/">www</a>)
+		</p>
+	</body>
+</html>

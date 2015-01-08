@@ -1,0 +1,193 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+	<head>
+		<meta http-equiv="content-type" content="text/xhtml; charset=UTF-8" />
+		<meta name="author" content="Sven Maerivoet" />
+		<meta name="generator" content="author" />
+
+		<meta name="description" content="Fraxion Help" />
+		<meta name="robots" content="index,follow" />
+		<meta name="revisit-after" content="1 month" />
+
+		<link rel="stylesheet" type="text/css" href="../../../layout/page-screen-layout.css" media="screen" />
+		<link rel="stylesheet" type="text/css" href="../../../layout/page-screen-colours.css" media="screen" />
+
+		<title>
+			Fraxion Help
+		</title>
+	</head>
+
+	<body>
+		<h1>Colouring schemes</h1>
+
+			<ul>
+				<li><a href="#general_coloring">General colouring</a></li>
+				<li><a href="#choosing_from_available_color_maps">Choosing from available colour maps</a></li>
+				<li><a href="#creating_custom_color_maps">Creating custom colour maps</a></li>
+				<li><a href="#options_for_coloring">Options for colouring</a></li>
+				<li><a href="#predefined_coloring_methods">Predefined colouring methods</a></li>
+				<li><a href="#enabling_post-processing_filters">Enabling post-processing filters</a></li>
+			</ul>
+
+		<a name="general_coloring"></a>
+		<h2>General colouring</h2>
+
+			<p>
+				Colour schemes can be selected and customised via the <b>Colour map</b> 
+				menu. Colouring is applied to both <b>interior</b> and <b>exterior</b> 
+				points. The former lie inside the fractal, i.e., they are attracted to a 
+				cycle or a single fixed point, whereas the latter typically escape to 
+				infinity. For both types of points there are various <a 
+				href="#options_for_coloring">options</a> for colouring, depending on the 
+				escape times, the distances, the angles, and so forth, as well as 
+				various <a href="#predefined_coloring_methods">predefined colouring 
+				methods</a>. Note that it is possible to define <b>tiger stripes</b> for 
+				exterior points. Depending on whether or not a point's escape time is 
+				even or odd, the colour map switches between the main one and the tiger 
+				striping one.
+			</p>
+
+			<p>
+				Colour maps can be <b>inverted</b> (e.g., going from white to black instead 
+				of black to white) or <b>wrapped around</b> (e.g., going from black over 
+				gray to white, returning over gray to black).
+			</p>
+
+			<p>
+				There is a <a href="#choosing_from_available_color_maps">range of 
+				default colour maps</a> available, and it is possible to modify these or 
+				create a <a href="#creating_custom_color_maps">custom colour map</a>.
+			</p>
+
+			<p>
+				Traditionally, colours are <b>linearly interpolated</b> across the 
+				specified colour map, based on the minimum and maximum value occurring 
+				within the calculated fractal. This can lead to an inbalance typically 
+				seen when there are vast regions of constant values with rapidly 
+				increasing values near the border between interior and exterior points. 
+				In order to compensate for this effect, you can <b>scale</b> the colour 
+				map. Possible methods are <b>logarithmic</b>, <b>exponential</b>, and 
+				<b>square root</b> scaling. Each time, you can specify the parameters 
+				for these scaling properties. A more powerful method that superseeds 
+				modern histogram colouring is based on <b>rank order</b> scaling, in 
+				which the probabilities of using the colours are all equal. Because this 
+				technique can smear out the more extreme high values, you can select the 
+				<b>Restrict high iteration count colours</b> option. This will 
+				effectively apply a logarithmic scaling after the rank order scaling.
+			</p>
+
+			<div id="example">
+				<img src="color-map-menu.png" style="border:solid; border-color:#000000; border-width:1px">
+			</div>
+
+			<p>
+				Note that when the <b>Cycle colours</b> menu option is selected, Fraxion 
+				will cycle through all the colours in the chosen colour map in real-time. 
+				This is a rather time consuming process, as the 24-bit colours are 
+				calculated instead of just being taken from a lookup table.
+			</p>
+
+		<a name="choosing_from_available_color_maps"></a>
+		<h2>Choosing from available colour maps</h2>
+
+			<p>
+				A selection of predefined colour maps is available, as shown in the 
+				following submenu (all colours are linearly interpolated).
+			</p>
+
+			<div id="example">
+				<img src="color-maps-menu.png" style="border:solid; border-color:#000000; border-width:1px">
+			</div>
+
+		<a name="creating_custom_color_maps"></a>
+		<h2>Creating custom colour maps</h2>
+
+			<p>
+				Aside from using one of the predefined colour maps, you can also create 
+				your own custom colour map. To that end, select the <b>Set custom colour 
+				map components</b> option from the <b>Specify interior/exterior colour map</b> submenu. This will give the 
+				following dialog, allowing you to modify 10 control points (locations 
+				and colours). By selecting the <b>Convert current colour map to custom</b> 
+				option from the submenu, you can modify one of the predefined colour 
+				maps.
+			</p>
+
+			<div id="example">
+				<img src="custom-color-map-dialog.png" style="border:solid; border-color:#000000; border-width:1px">
+			</div>
+
+		<a name="options_for_coloring"></a>
+		<h2>Options for colouring</h2>
+
+			<p>
+				There is a wide variety of colouring methods available, with the simplest 
+				one based on discrete level sets (i.e., the escape times), resulting in 
+				typical visible banding. In case of Newton / Raphson fractals, the colour 
+				options will also enable colouring of roots (if they are tracked), both 
+				discrete and smooth.
+			</p>
+
+			<div id="example">
+				<img src="coloring-method-menu.png" style="border:solid; border-color:#000000; border-width:1px">
+			</div>
+
+		<a name="predefined_coloring_methods"></a>
+		<h2>Predefined colouring methods</h2>
+
+			<p>
+				For quick reference, Fraxion also allows you to select a predefined 
+				colouring method, as shown in the following examples. You can always go 
+				back to the default by selecting the <b>Reset to default colour map 
+				settings</b> option from the menu. In that case, the colour map reverts 
+				to the <b>Jet</b> colour map, and using normalised level sets, no tiger 
+				striping, linear scaling, no inversion, wrapping, repetition, offset, or 
+				limited range.
+			</p>
+
+			<div id="example">
+				Binary decomposition<br />
+				<img src="example-binary-decomposition.png" style="border:solid; border-color:#000000; border-width:1px">
+			</div>
+
+			<div id="example">
+				Contours<br />
+				<img src="example-contours.png" style="border:solid; border-color:#000000; border-width:1px">
+			</div>
+
+			<div id="example">
+				Dark softening filter<br />
+				<img src="example-dark-softening-filter.png" style="border:solid; border-color:#000000; border-width:1px">
+			</div>
+
+			<div id="example">
+				Binary decomposition followed by contours<br />
+				<img src="example-binary-decomposition-contours.png" style="border:solid; border-color:#000000; border-width:1px">
+			</div>
+
+		<a name="enabling_post-processing_filters"></a>
+		<h2>Enabling post-processing filters</h2>
+
+			<p>
+				Once an colouring scheme is selected, you can apply a chain of post-
+				processing filters to the final image. There are five filters available, 
+				i.e., blurring, sharpening, edge/contour detection, colour inversion, and 
+				colour posterising. For blurring and edge/contour detection you can 
+				specify the kernel size and strength, respectively. If the <b>Auto 
+				proof</b> checkbox is ticked (by default), then the filter chain is 
+				automatically previewed on the visible fractal.
+			</p>
+
+			<div id="example">
+				<img src="post-processing-filters-dialog.png" style="border:solid; border-color:#000000; border-width:1px">
+			</div>
+
+		<hr />
+
+		<p>
+			XHTML 1.1 Transitional | CSS2 | <a href="http://creativecommons.org/licenses/by-nc-nd/2.0/be/deed.en_GB">Creative Commons License</a>
+		</p>
+
+		<p>
+			Sven Maerivoet (<a href="http://www.maerivoet.org/">www</a>)
+		</p>
+	</body>
+</html>

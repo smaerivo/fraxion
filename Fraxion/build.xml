@@ -1,0 +1,103 @@
+<?xml version="1.1" encoding="UTF-8"?>
+<project name="Fraxion" default="build" basedir=".">
+	<property name="srcDir" location="src" />
+	<property name="binDir" location="bin" />
+	<property name="docDir" location="doc" />
+
+	<target name="clean">
+		<delete dir="${binDir}" />
+		<delete dir="${docDir}" />
+		<delete file="fraxion.jar" />
+		<delete file="application-resources.zip" />
+	</target>
+
+	<target name="initialise">
+		<mkdir dir="${binDir}" />
+		<mkdir dir="${docDir}" />
+	</target>
+
+	<target name="compile" depends="initialise">
+		<javac srcdir="${srcDir}" destdir="${binDir}" includeantruntime="false">
+			<classpath>
+	    	<pathelement location="smtools.jar" />
+	    	<pathelement location="D:/Eclipse GIT Repositories/SMToolsRepository/SMTools/smtools.jar" />
+	    	<pathelement location="D:/Eclipse Workspace/Software Development/Log4j/log4j-all-1.3alpha-8.jar" />
+	    	<pathelement location="D:/Eclipse Workspace/Software Development/JLayer/jl1.0.1.jar" />
+	    	<pathelement location="D:/Eclipse Workspace/Software Development/Java Native Access 3.5.1/jna-3.5.1.jar" />
+	    	<pathelement location="D:/Eclipse Workspace/Software Development/Java Native Access 3.5.1/platform-3.5.1.jar" />
+	    		    	<pathelement location="D:/Eclipse Workspace/Software Development/Java Help 2.0/javahelp/lib/jhbasic.jar" />
+	    </classpath>
+			<compilerarg value="-Xlint:deprecation" />
+			<compilerarg value="-Xlint:unchecked" />
+			<compilerarg value="-deprecation" />
+		</javac>
+	</target>
+
+	<target name="jar" depends="compile">
+		<jar destfile="fraxion.jar" basedir="${binDir}">
+			<fileset file="${srcDir}/LICENSE.txt" />
+			<fileset file="${srcDir}/NOTICE.txt" />
+			<manifest>
+			  <attribute name="Built-By" value="Sven Maerivoet" />
+	      <attribute name="Implementation-Title" value="Fraxion" />
+	      <attribute name="Implementation-Version" value="1.1" />
+				<attribute name="Main-Class" value="org.sm.fraxion.gui.FraxionGUI" />
+			</manifest>
+		</jar>
+	</target>
+
+	<target name="jarhelp">
+		<delete file="fraxion-help.jar" />
+		<jar destfile="fraxion-help.jar" basedir="${binDir}">
+			<fileset dir="help" />
+			<manifest>
+			  <attribute name="Built-By" value="Sven Maerivoet" />
+	      <attribute name="Implementation-Title" value="Fraxion" />
+  	    <attribute name="Implementation-Version" value="1.1" />
+			</manifest>
+		</jar>
+	</target>
+
+	<target name="zip">
+		<delete file="application-resources.zip" />
+		<zip destfile="application-resources.zip">
+			<fileset dir="application-resources" />
+		</zip>
+	</target>
+
+	<target name="javadoc" depends="initialise">
+		<delete dir="${docDir}" />
+		<mkdir dir="${docDir}" />
+		<javadoc
+			sourcepath="${srcDir}"
+			destdir="${docDir}"
+			doctitle="Fraxion"
+			header="&lt;B&gt;Fraxion&lt;/B&gt;&lt;BR&gt;&lt;I&gt;Sven Maerivoet&lt;/I&gt;"
+			windowtitle="Sven Maerivoet - Fraxion"
+			splitindex="true"
+			nodeprecated="true"
+			package="true"
+			author="true"
+			version="true"
+			overview="${srcDir}/org/sm/fraxion/overview.html" >
+			<group title="Multithreaded calculations" packages="fraxion.concurrent" />
+			<group title="GUI" packages="fraxion.gui:fraxion.gui.dialogs:fraxion.gui.filters:fraxion.gui.util" />
+			<group title="Fractals" packages="fraxion.fractals:fraxion.fractals.util" />
+		  <classpath>
+		    <pathelement path="${classpath}"/>
+	    	<pathelement location="D:/Eclipse Workspace/Software Development/Java Help 2.0/javahelp/lib/jhbasic.jar" />
+		    <pathelement location="D:/Eclipse GIT Repositories/SMToolsRepository/SMTools/smtools.jar" />
+	    	<pathelement location="D:/Eclipse Workspace/Software Development/Log4j/log4j-all-1.3alpha-8.jar" />
+		  </classpath>
+		</javadoc>
+	</target>
+
+	<target name="build">
+		<antcall target="clean" />
+		<antcall target="initialise" />
+		<antcall target="compile" />
+		<antcall target="jar" />
+		<antcall target="zip" />
+		<antcall target="javadoc" />
+	</target>
+</project>

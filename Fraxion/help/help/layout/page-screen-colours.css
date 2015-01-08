@@ -1,0 +1,40 @@
+/******************************************
+ * Filename:      page-screen-colours.css *
+ * Author:        Sven Maerivoet          *
+ * Last modified: 26/12/2014              *
+ * Target:        CSS 2                   *
+ *                                        *
+ * All rights reserved.                   *
+ ******************************************/
+
+/*************
+ * MAIN BODY *
+ *************/
+
+body {
+	background: #f4f07e;
+}
+
+hr {
+	color: #220055;
+	border-color: #220055;
+	background-color: #220055;
+}
+
+a:link, a:visited, a:hover, a:active {
+	color: #0000ff;
+}
+
+h1 {
+	color: #000022;
+}
+
+th.tableheader {
+	background-color: #000020;
+	color: #ffffff;
+}
+
+tr.tabledatahighlight {
+	background-color: #cccccc;
+	color: #000000;
+}

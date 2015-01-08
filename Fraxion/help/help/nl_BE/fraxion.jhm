@@ -1,0 +1,79 @@
+<?xml version='1.0' encoding='ISO-8859-1' ?>
+<!DOCTYPE map
+  PUBLIC "-//Sun Microsystems Inc.//DTD JavaHelp Map Version 1.0//EN"
+         "http://java.sun.com/products/javahelp/map_1_0.dtd">
+
+<map version="1.0">
+	<mapID target="general_information_overview" url="content/general_information/overview.html"></mapID>
+	<mapID target="general_information_getting_started" url="content/general_information/getting_started.html"></mapID>
+	<mapID target="coloring_schemes" url="content/coloring_schemes/coloring_schemes.html"></mapID>
+	<mapID target="resizing_for_quality_printing" url="content/resizing_for_quality_printing/resizing_for_quality_printing.html"></mapID>
+	<mapID target="keyboard_shortcuts" url="content/keyboard_shortcuts/keyboard_shortcuts.html"></mapID>
+
+	<mapID target="fractal_types_mandelbrot_julia" url="content/fractal_types/classic/fractal_types_mandelbrot_julia.html"></mapID>
+	<mapID target="fractal_types_mandelbar" url="content/fractal_types/classic/fractal_types_mandelbar.html"></mapID>
+	<mapID target="fractal_types_randelbrot" url="content/fractal_types/classic/fractal_types_randelbrot.html"></mapID>
+	<mapID target="fractal_types_original_julia" url="content/fractal_types/classic/fractal_types_original_julia.html"></mapID>
+	<mapID target="fractal_types_lambda" url="content/fractal_types/classic/fractal_types_lambda.html"></mapID>
+	<mapID target="fractal_types_inverse_lambda" url="content/fractal_types/classic/fractal_types_inverse_lambda.html"></mapID>
+	<mapID target="fractal_types_burning_ship" url="content/fractal_types/classic/fractal_types_burning_ship.html"></mapID>
+	<mapID target="fractal_types_bird_of_prey" url="content/fractal_types/classic/fractal_types_bird_of_prey.html"></mapID>
+	<mapID target="fractal_types_glynn" url="content/fractal_types/classic/fractal_types_glynn.html"></mapID>
+	<mapID target="fractal_types_spider" url="content/fractal_types/classic/fractal_types_spider.html"></mapID>
+
+	<mapID target="fractal_types_multibrot" url="content/fractal_types/power/multibrot/fractal_types_multibrot.html"></mapID>
+	<mapID target="fractal_types_multibrot_polynomial" url="content/fractal_types/power/multibrot/fractal_types_multibrot_polynomial.html"></mapID>
+	<mapID target="fractal_types_multibrot_parameter" url="content/fractal_types/power/multibrot/fractal_types_multibrot_parameter.html"></mapID>
+	<mapID target="fractal_types_multibrot_inverted_parameter" url="content/fractal_types/power/multibrot/fractal_types_multibrot_inverted_parameter.html"></mapID>
+
+	<mapID target="fractal_types_multibar" url="content/fractal_types/power/multibar/fractal_types_multibar.html"></mapID>
+	<mapID target="fractal_types_multibar_polynomial" url="content/fractal_types/power/multibar/fractal_types_multibar_polynomial.html"></mapID>
+	<mapID target="fractal_types_multibar_parameter" url="content/fractal_types/power/multibar/fractal_types_multibar_parameter.html"></mapID>
+	<mapID target="fractal_types_multibar_inverted_parameter" url="content/fractal_types/power/multibar/fractal_types_multibar_inverted_parameter.html"></mapID>
+
+	<mapID target="fractal_types_multiproductexpelbrot" url="content/fractal_types/power/exponential/fractal_types_multiproductexpelbrot.html"></mapID>
+	<mapID target="fractal_types_multisumexpelbrot" url="content/fractal_types/power/exponential/fractal_types_multisumexpelbrot.html"></mapID>
+	<mapID target="fractal_types_multiproductexparbrot" url="content/fractal_types/power/exponential/fractal_types_multiproductexparbrot.html"></mapID>
+	<mapID target="fractal_types_multisumexparbrot" url="content/fractal_types/power/exponential/fractal_types_multisumexparbrot.html"></mapID>
+
+	<mapID target="fractal_types_trigonometric_power_sine" url="content/fractal_types/power/trigonometric/fractal_types_trigonometric_power_sine.html"></mapID>
+	<mapID target="fractal_types_trigonometric_power_cosine" url="content/fractal_types/power/trigonometric/fractal_types_trigonometric_power_cosine.html"></mapID>
+	<mapID target="fractal_types_trigonometric_power_tangent" url="content/fractal_types/power/trigonometric/fractal_types_trigonometric_power_tangent.html"></mapID>
+	<mapID target="fractal_types_trigonometric_power_cotangent" url="content/fractal_types/power/trigonometric/fractal_types_trigonometric_power_cotangent.html"></mapID>
+
+	<mapID target="fractal_types_trigonometric_power_multisine" url="content/fractal_types/power/trigonometric/fractal_types_trigonometric_power_multisine.html"></mapID>
+	<mapID target="fractal_types_trigonometric_power_multicosine" url="content/fractal_types/power/trigonometric/fractal_types_trigonometric_power_multicosine.html"></mapID>
+	<mapID target="fractal_types_trigonometric_power_multitangent" url="content/fractal_types/power/trigonometric/fractal_types_trigonometric_power_multitangent.html"></mapID>
+	<mapID target="fractal_types_trigonometric_power_multicotangent" url="content/fractal_types/power/trigonometric/fractal_types_trigonometric_power_multicotangent.html"></mapID>
+
+	<mapID target="fractal_types_cactus" url="content/fractal_types/special/fractal_types_cactus.html"></mapID>
+	<mapID target="fractal_types_beauty1" url="content/fractal_types/special/fractal_types_beauty1.html"></mapID>
+	<mapID target="fractal_types_beauty2" url="content/fractal_types/special/fractal_types_beauty2.html"></mapID>
+	<mapID target="fractal_types_ducks" url="content/fractal_types/special/fractal_types_ducks.html"></mapID>
+	<mapID target="fractal_types_barnsley_tree" url="content/fractal_types/special/fractal_types_barnsley_tree.html"></mapID>
+	<mapID target="fractal_types_collatz" url="content/fractal_types/special/fractal_types_collatz.html"></mapID>
+	<mapID target="fractal_types_phoenix" url="content/fractal_types/special/fractal_types_phoenix.html"></mapID>
+	<mapID target="fractal_types_man_o_war" url="content/fractal_types/special/fractal_types_man_o_war.html"></mapID>
+
+	<mapID target="fractal_types_newton_raphson_power" url="content/fractal_types/newton_raphson/fractal_types_newton_raphson_power.html"></mapID>
+	<mapID target="fractal_types_newton_raphson_power_polynomial" url="content/fractal_types/newton_raphson/fractal_types_newton_raphson_power_polynomial.html"></mapID>
+	<mapID target="fractal_types_newton_raphson_fixed_polynomial1" url="content/fractal_types/newton_raphson/fractal_types_newton_raphson_fixed_polynomial1.html"></mapID>
+	<mapID target="fractal_types_newton_raphson_fixed_polynomial2" url="content/fractal_types/newton_raphson/fractal_types_newton_raphson_fixed_polynomial2.html"></mapID>
+	<mapID target="fractal_types_newton_raphson_fixed_polynomial3" url="content/fractal_types/newton_raphson/fractal_types_newton_raphson_fixed_polynomial3.html"></mapID>
+	<mapID target="fractal_types_newton_raphson_fixed_polynomial4" url="content/fractal_types/newton_raphson/fractal_types_newton_raphson_fixed_polynomial4.html"></mapID>
+
+	<mapID target="fractal_types_newton_raphson_trigonometric_power_sine" url="content/fractal_types/newton_raphson/fractal_types_newton_raphson_trigonometric_power_sine.html"></mapID>
+	<mapID target="fractal_types_newton_raphson_trigonometric_power_multisine" url="content/fractal_types/newton_raphson/fractal_types_newton_raphson_trigonometric_power_multisine.html"></mapID>
+	<mapID target="fractal_types_newton_raphson_trigonometric_power_sine_offset" url="content/fractal_types/newton_raphson/fractal_types_newton_raphson_trigonometric_power_sine_offset.html"></mapID>
+	<mapID target="fractal_types_newton_raphson_trigonometric_power_multisine_offset" url="content/fractal_types/newton_raphson/fractal_types_newton_raphson_trigonometric_power_multisine_offset.html"></mapID>
+
+	<mapID target="fractal_types_nova" url="content/fractal_types/nova/fractal_types_nova.html"></mapID>
+
+	<mapID target="fractal_types_magnet_type_i" url="content/fractal_types/magnet/fractal_types_magnet_type_i.html"></mapID>
+	<mapID target="fractal_types_magnet_type_ii" url="content/fractal_types/magnet/fractal_types_magnet_type_ii.html"></mapID>
+
+	<mapID target="fractal_types_markus_lyapunov" url="content/fractal_types/markus_lyapunov/fractal_types_markus_lyapunov.html"></mapID>
+	<mapID target="fractal_types_markus_lyapunov_logistic_bifurcation" url="content/fractal_types/markus_lyapunov/fractal_types_markus_lyapunov_logistic_bifurcation.html"></mapID>
+	<mapID target="fractal_types_markus_lyapunov_jellyfish" url="content/fractal_types/markus_lyapunov/fractal_types_markus_lyapunov_jellyfish.html"></mapID>
+	<mapID target="fractal_types_markus_lyapunov_zircon_zity" url="content/fractal_types/markus_lyapunov/fractal_types_markus_lyapunov_zircon_zity.html"></mapID>
+</map>

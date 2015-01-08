@@ -1,0 +1,209 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+	<head>
+		<meta http-equiv="content-type" content="text/xhtml; charset=UTF-8" />
+		<meta name="author" content="Sven Maerivoet" />
+		<meta name="generator" content="author" />
+
+		<meta name="description" content="Fraxion Help" />
+		<meta name="robots" content="index,follow" />
+		<meta name="revisit-after" content="1 month" />
+
+		<link rel="stylesheet" type="text/css" href="../../../layout/page-screen-layout.css" media="screen" />
+		<link rel="stylesheet" type="text/css" href="../../../layout/page-screen-colours.css" media="screen" />
+
+		<title>
+			Fraxion Help
+		</title>
+	</head>
+
+	<body>
+		<h1>General information</h1>
+
+		<h2>Overview</h2>
+
+			<p>
+				Fraxion is a multi-threaded fractal exploration application, mainly 
+				providing <b>Mandelbrot/Julia</b>-type, <b>Newton/Raphson</b>-type, 
+				<b>Magnet</b>-type, and <b>Markus/Lyapunov</b>-type fractals. It started 
+				as a way for plotting the classic Mandelbrot and interactively viewing 
+				the various dual Julia sets, by iterating the following equations:
+			</p>
+
+			<div id="example">
+				<img src="overview/mandelbrot-julia-equations.png" style="border:solid; border-color:#000000; border-width:1px">
+			</div>
+
+			<p>
+				To construct the <b>Mandelbrot</b> set as a <b>main fractal</b>, we 
+				iterate over all pixels in the shown region, each time starting with 
+				<i>z0</i> equal to zero and <i>c</i> equal to the relative location of 
+				the screen pixel in the complex plane. So during iterations, <i>z</i> is 
+				variable and <i>c</i> is taking as a constant.
+			</p>
+
+			<p>
+				Similarly, the <b>Julia</b> set as a <b>dual fractal</b> is constructed 
+				by fixing <i>c</i> to a constant value and iterating over all pixels in 
+				the shown region, each time starting with <i>z0</i> equal to the 
+				relative location of the screen pixel in the complex plane. Note that we 
+				typically speak of the <b>filled-in Julia</b> set, as the Julia set 
+				itself is the boundary of the latter. The complement of a Julia set is 
+				called a <b>Fatou</b> set. The Mandelbrot set is located in the <i>c</i> 
+				complex parameter plane, the Julia set in the <i>z</i> complex dynamic 
+				plane. The <b>fundamental dichotomy</b> states that Julia sets are 
+				either connected, or composed of infinitely many separate points (i.e., 
+				a <b>Cantor</b> set). More so, if a point lies inside the Mandelbrot 
+				set, its corresponding Julia set is connected (becaues of a bound 
+				orbit). If conversely a point lies outside the Mandelbrot set, then its 
+				corresponding Julia set dissolves into fractal dust (because of a 
+				diverging orbit).
+			</p>
+
+			<p>
+				Every point is thus classified as being either inside or outside the 
+				Mandelbrot and Julia sets, depending on whether or not its orbit never escapes 
+				(<b>converging</b>), implying that it is attracted to a single fixed 
+				point or enters a periodic cycle, or in constract escapes to infinity 
+				(<b>diverging</b>). This is shown in the following examples, whereby we 
+				each time show the <b>forward orbit</b> in the complex plane for the 
+				Mandelbrot set and an <b>analysis panel</b> containing the time series 
+				of the log-log <b>modulus</b> (upper part) and the <b>angle</b> (lower 
+				part).
+			<p>
+
+			<div id="example">
+				Single fixed point attractor<br />
+				<img src="overview/orbit-single-fixed-point-attractor.png" style="border:solid; border-color:#000000; border-width:1px">
+			</div>
+
+			<div id="example">
+				Periodic cycle (polygon-shaped)<br />
+				<img src="overview/orbit-periodic-cycle-polygon.png" style="border:solid; border-color:#000000; border-width:1px">
+			</div>
+
+			<div id="example">
+				Periodic cycle (star-shaped)<br />
+				<img src="overview/orbit-periodic-cycle-star.png" style="border:solid; border-color:#000000; border-width:1px">
+			</div>
+
+			<div id="example">
+				Escaping to infinity<br />
+				<img src="overview/orbit-escaping-to-infinity.png" style="border:solid; border-color:#000000; border-width:1px">
+			</div>
+
+			<p>
+				Behind the scenes, the Fraxion application divides the screen into 
+				equally sized <b>blocks</b> (the amount can be controlled via the <b>Set 
+				number of blocks to use</b> option in the <b>Multithreading</b> menu). 
+				Each block is then randomly selected, so as to spread the load between 
+				rapidly diverging and slowly converging regions. Fraxion then spawns 
+				<b>multiple threads</b> that are executed on the available number of CPU 
+				cores in the system, including hyperthreads (the amount can be 
+				controlled via the <b>Set number of CPU cores to use</b> option in the 
+				<b>Multithreading</b> menu). All results are stored in an <b>iteration 
+				result buffer</b>. Subsequently, the application uses the selected 
+				coloring algorithms to create an <b>image buffer</b>, which is then 
+				displayed on the screen. If the coloring is changed later on, then the 
+				application only needs to recreate the image buffer instead of 
+				recalculating the entire result buffer.
+			</p>
+
+			<p>
+				Fraxion currently supports <b>converging</b> algorithms (based on escape 
+				times) for Mandelbrot/Julia-type fractals, <b>diverging</b> algorithms 
+				(based on root detection) for Newton/Raphson-type fractals, <b>both 
+				converging/diverging</b> algorithms for Magnet-type fractals, and 
+				explicit bifurcation calculations for Markus/Lyapunov-type fractals.
+			</p>
+
+		<h2>Contact</h2>
+
+			<p>
+				The Fraxion (version 1.1) application was designed for the Java 2 
+				Platform Standard Edition 1.8.0 or higher. When using this application, 
+				please use the following reference:
+			</p>
+
+			<div id="example">
+				Fraxion (2003-2015)<br />
+				Sven Maerivoet<br />
+				URL: <a href="http://fraxion.maerivoet.org/">http://fraxion.maerivoet.org/</a><br />
+				E-mail: <a href="mailto:sven.maerivoet@gmail.com">sven.maerivoet@gmail.com</a><br />
+				Copyright 2003-2015 Sven Maerivoet
+			</div>
+
+			<p>
+				Licensed under the Apache License, Version 2.0 (the "License"); you may 
+				not use this file except in compliance with the License. You may obtain 
+				a copy of the License at http://www.apache.org/licenses/LICENSE-2.0<br />
+				Unless required by applicable law or agreed to in writing, software 
+				distributed under the License is distributed on an "AS IS" BASIS, 
+				WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+				See the License for the specific language governing permissions and 
+				limitations under the License.
+			</p>
+
+		<h2>References</h2>
+
+			<ul>
+				<li>Benoit B. Mandelbrot, <b>Fractals and the Geometry of Nature</b>, Yale University</li>
+				<li>Benoit B. Mandelbrot, <b>The Fractal Geometry of Nature</b>, W.H. Freeman and Company, 1983</li>
+				<li>Heinz-Otto Peitgen and Peter H. Richter, <b>The Beauty of Fractals: Images of Complex Dynamical Systems</b>, Springer-Verlag, 1986</li>
+				<li>Michael F. Barnsley, Robert L. Devaney, Benoit B. Mandelbrot, Heinz-Otto Peitgen, Dietmar Saupe, Richard F. Voss, <b>The Science of Fractal Images</b>, Springer-Verlag, 1988</li>
+				<li>Steven G. Krantz, <b>Fractals Geometry</b>, The Mathematical Intelligencer, vol. 11, nr. 4, 1989</li>
+				<li>Robert L. Devaney, Thomas J. Osler, <b>An Introduction to Chaotical Dynamical Systems</b>, Addison-Wesley Publishing Company, Inc., 1989</li>
+				<li>James Gleick, <b>Chaos</b>, Uitgeverij Contact, 1990</li>
+				<li>Ian Stewart, <b>Does God Play Dice? The Mathematics of Chaos</b>, Aula, 1991</li>
+				<li>Earl F. Glynn, <b>The Evolution of the Gingerbread Man</b>, Chaos and Graphics, vol. 15, nr. 4, pages 579-582, 1991</li>
+				<li>Thomas J. Osler, <b>A Quick Look at Lyapunov Space</b>, Mathematics and Computer Education, vol. 28, pages 183-197, 1994</li>
+				<li>John Ewing, <b>Can We See the Mandelbrot Set?</b>, The College Mathematics Journal, vol. 26, nr. 2, pages 90-99, March 1995</li>
+				<li>Simon Letherman, Dierk Schleicher, Reg Wood<b>The 3n+1 Problem and Holomorphic Dynamics</b>, Experimental Mathematics, vol. 8, nr. 3, pages 241-251, 1999</li>
+				<li>Heinz-Otto Peitgen, Hartmut J&uuml;rgens, Dietmar Saupe, <b>Chaos and Fractals: New Frontiers of Science</b>, Springer, 2004</li>
+				<li>Jussi H&auml;rk&ouml;nen, <b>On Fractal Coloring Techniques</b>, Abo Akademi University, 2007</li>
+				<li>Iain Parris, <b>Fractals don't have to be scary</b>, MSC Dissertation, University of Edinburgh, August 2008</li>
+				<li>Francisco Garcia, Angel Fernandez, Javier Barrallo, Luis Martin, <b>Coloring Dynamical Systems in the Complex Plane</b>, The University of the Basque Country, 2008</li>
+				<li>Kenneth Falconer, <b>Fractals: A Very Short Introduction</b>, Oxford University Press, 2013</li>
+			</ul>
+
+		<h2>Future work</h2>
+
+		<ul>
+			<li>Generating zoom thumbnails</li>
+			<li>Automatically selecting the maximum number of iterations</li>
+			<li>Pressing ESCAPE to interrupt calculations and revert to previous buffer</li>
+			<li>Layering with alpha channel</li>
+			<li>Saving zoom sequences as AVI frames (frame-zzzz.png)</li>
+			<li>Aliasing via stochastic supersampling</li>
+			<li>Moving JCustomColorMapChooser's sliders around</li>
+			<li>Showing progress updates on coloring</li>
+			<li>On-the-fly compilation of custom fractal formulas</li>
+			<li>Overlay complex plane grid lines</li>
+		</ul>
+
+		<h2>The original Mandelbrot</h2>
+
+			<p>
+				<i>Images reproduced after Heinz-Otto Peitgen and Peter H. Richter, <b>The Beauty of Fractals: Images of Complex Dynamical Systems</b>, Springer-Verlag, 1986.</i>
+			</p>
+
+			<div id="example">
+				First Mandelbrot island molecule (1 March 1980)<br />
+				<img src="../../../fractalimglib/original_mandelbrot/1980-03-01-first_mandelbrot_island_molecule.jpg" style="border:solid; border-color:#000000; border-width:1px">
+			</div>
+
+			<div id="example">
+				Successive zooms in the Mandelbrot set (April 1980)<br />
+				<img src="../../../fractalimglib/original_mandelbrot/1980-04-mandelbrot_set_successive_zooms.jpg" style="border:solid; border-color:#000000; border-width:1px">
+			</div>
+
+		<hr />
+
+		<p>
+			XHTML 1.1 Transitional | CSS2 | <a href="http://creativecommons.org/licenses/by-nc-nd/2.0/be/deed.en_GB">Creative Commons License</a>
+		</p>
+
+		<p>
+			Sven Maerivoet (<a href="http://www.maerivoet.org/">www</a>)
+		</p>
+	</body>
+</html>

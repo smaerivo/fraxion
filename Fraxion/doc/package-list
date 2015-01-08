@@ -1,0 +1,7 @@
+org.sm.fraxion.concurrent
+org.sm.fraxion.fractals
+org.sm.fraxion.fractals.util
+org.sm.fraxion.gui
+org.sm.fraxion.gui.dialogs
+org.sm.fraxion.gui.filters
+org.sm.fraxion.gui.util

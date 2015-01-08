@@ -1,0 +1,89 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+	<head>
+		<meta http-equiv="content-type" content="text/xhtml; charset=UTF-8" />
+		<meta name="author" content="Sven Maerivoet" />
+		<meta name="generator" content="author" />
+
+		<meta name="description" content="Fraxion Help" />
+		<meta name="robots" content="index,follow" />
+		<meta name="revisit-after" content="1 month" />
+
+		<link rel="stylesheet" type="text/css" href="../../../layout/page-screen-layout.css" media="screen" />
+		<link rel="stylesheet" type="text/css" href="../../../layout/page-screen-colours.css" media="screen" />
+
+		<title>
+			Fraxion Help
+		</title>
+	</head>
+
+	<body>
+		<h1>Resizing for quality printing</h1>
+
+			<ul>
+				<li><a href="#resizing_based_on_screen_dimension">Resizing based on screen dimension</a></li>
+				<li><a href="#resizing_based_on_paper_size">Resizing based on paper size</a></li>
+			</ul>
+
+		<a name="resizing_based_on_screen_dimension"></a>
+		<h2>Resizing based on screen dimension</h2>
+
+			<p>
+				In Fraxion, it is possible to directly specify the screen size. This can 
+				be done via the <b>Specify screen size</b> option in the 
+				<b>Navigation</b> menu. You can explicitly set the <b>width</b> or 
+				<b>height</b> expressed in <b>pixels</b>, or select from a preset going 
+				from QVGA to WHQD. If the selected size is larger than the size of the 
+				application's window, then the GUI automatically adds scrollbars to 
+				navigate around the complex plane.
+			</p>
+
+			<p>
+				If the <b>Use physical window size</b> button is clicked, then the width 
+				and height are automatically determined to fit within the visible window 
+				on screen, taking into account small margins.
+			</p>
+
+			<p>
+				Note that the <b>required memory</b> is estimated (in Mebibyte) after 
+				selecting a paper size; it is displayed in red if there is not enough 
+				memory available. The memory usage takes into account all space necessary 
+				for storing all the detailed iteration results, as well as the image 
+				buffers for colouring.
+			</p>
+
+			<div id="example">
+				<img src="specify-screen-size.png" style="border:solid; border-color:#000000; border-width:1px">
+			</div>
+
+		<a name="resizing_based_on_paper_size"></a>
+		<h2>Resizing based on paper size</h2>
+
+			<p>
+				You can also specify a target paper size, either as an explicit 
+				<b>width</b> and <b>height</b> expressed in <b>millimetres</b>, or 
+				selecting the size from a preset ranging over DIN A7 to DIN A0, DIN B7 to 
+				DIN B0, and Letter and Ledger/Tabloid. The <b>orientation</b> can either 
+				be portrait or landscape.
+			</p>
+
+			<p>
+				In addition, it is also necessary to specify a <b>resolution</b>, 
+				expressed in pixels-per-inch (<b>PPI</b>), selectable from 72, 96, 150, 
+				300, 600, or 1200 PPI.
+			</p>
+
+			<div id="example">
+				<img src="specify-paper-size.png" style="border:solid; border-color:#000000; border-width:1px">
+			</div>
+
+		<hr />
+
+		<p>
+			XHTML 1.1 Transitional | CSS2 | <a href="http://creativecommons.org/licenses/by-nc-nd/2.0/be/deed.en_GB">Creative Commons License</a>
+		</p>
+
+		<p>
+			Sven Maerivoet (<a href="http://www.maerivoet.org/">www</a>)
+		</p>
+	</body>
+</html>

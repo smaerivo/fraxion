@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/SMTools"/>
+	<classpathentry kind="lib" path="/Log4j/log4j-all-1.3alpha-8.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Log4j"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="/BigDecimalMath/bigdecimalmath.jar"/>
+	<classpathentry kind="lib" path="/SMTools/smtools.jar"/>
+	<classpathentry kind="lib" path="/Java Help 2.0/javahelp/lib/jhbasic.jar"/>
+	<classpathentry kind="lib" path="/Java Native Access 3.5.1/jna-3.5.1.jar"/>
+	<classpathentry kind="lib" path="/Java Native Access 3.5.1/platform-3.5.1.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

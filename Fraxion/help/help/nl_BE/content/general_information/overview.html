@@ -1,0 +1,212 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+	<head>
+		<meta http-equiv="content-type" content="text/xhtml; charset=UTF-8" />
+		<meta name="author" content="Sven Maerivoet" />
+		<meta name="generator" content="author" />
+
+		<meta name="description" content="Fraxion Help" />
+		<meta name="robots" content="index,follow" />
+		<meta name="revisit-after" content="1 month" />
+
+		<link rel="stylesheet" type="text/css" href="../../../layout/page-screen-layout.css" media="screen" />
+		<link rel="stylesheet" type="text/css" href="../../../layout/page-screen-colours.css" media="screen" />
+
+		<title>
+			Fraxion Help
+		</title>
+	</head>
+
+	<body>
+		<h1>Algemene informatie</h1>
+
+		<h2>Overzicht</h2>
+
+			<p>
+				Fraxion is een multi-threaded verkenner voor fractalen, hoofdzakelijk 
+				gebaseerd op <b>Mandelbrot/Julia</b>-type, <b>Newton/Raphson</b>-type, 
+				<b>Magneet</b>-type en <b>Markus/Lyapunov</b>-type fractalen. Het begon 
+				als een manier om de klassieke Mandelbrot verzameling te tonen en 
+				daarbij interactief verschillende duale Julia verzamelingen te bekijken, 
+				door de iteratie van volgende vergelijking:
+			</p>
+
+			<div id="example">
+				<img src="overview/mandelbrot-julia-equations.png" style="border:solid; border-color:#000000; border-width:1px">
+			</div>
+
+			<p>
+				Om de <b>Mandelbrot</b> verzameling als een <b>hoofdfractaal</b> te 
+				maken, itereren we over alle pixels in het getoonde gebied, daarbij 
+				telkens startend met <i>z0</i> gelijk aan nul en <i>c</i> gelijk aan de 
+				relatieve locatie van de schermpixel in het complexe vlak. Tijdens de 
+				iteraties is <i>z</i> dus variabel en wordt <i>c</i> als constante 
+				genomen.
+			</p>
+
+			<p>
+				Gelijklopend, wordt de <b>Julia</b> verzameling als een <b>duale 
+				fractaal</b> geconstrueerd door <i>c</i> als een constante waarde te 
+				nemen en over alle pixels in het getoonde gebied te itereren, daarbij 
+				telkens startend met <i>z0</i> gelijk aan de relatieve locatie van de 
+				schermpixel in het complexe vlak. Merk op dat we meestal de <b>ingevulde 
+				Julia</b> verzameling bedoelen, aangezien de Julia verzameling zelf de 
+				grens van deze laatste is. Het complement van een ingevulde Julia 
+				verzameling wordt een <b>Fatou</b> verzameling genoemd. De Mandelbrot 
+				verzameling bevindt zich in het <i>c</i> complexe parameter vlak, de 
+				Julia verzameling in het <i>z</i> complexe dynamische vlak. De 
+				<b>fundamentele dichotomie</b> stelt dat Julia verzamelingen ofwel 
+				verbonden zijn, ofwel uit oneindig veel losse punten (i.e., een 
+				<b>Cantor</b> verzameling) bestaan. Sterker nog, als een punt in de 
+				Mandelbrot verzameling ligt, dan is de corresponderende Julia 
+				verzameling verbonden (wegens een gebonden orbit). Als daarentegen een 
+				punt buiten de Mandelbrot verzameling ligt, dan is de corresponderende 
+				Julia verzameling fractaal stof (wegens een divergerende orbit).
+			</p>
+
+			<p>
+				Elk punt wordt dus geklasseerd als zijnde binnen dan wel buiten de 
+				Mandelbrot en Julia verzamelingen, afhankelijk van het feit of diens orbit nooit 
+				ontsnapt (<b>convergeren</b>), wat betekent dat de orbit tot een enkel 
+				vast punt wordt aangetrokken of in een periodieke cyclus terechtkomt, of 
+				daarentegen naar oneindig ontsnapt (<b>divergeren</b>). Dit wordt 
+				getoond in de volgende voorbeelden, waar we telkens de <b>voorwaartse 
+				orbit</b> in het complexe vlak voor de Mandelbrot verzameling tonen, 
+				samen met een <b>analysepaneel</b> dat de tijdsreeksen bevat van de log-log
+				<b>modulus</b> (bovenste gedeelte) en de <b>hoek</b> (onderste gedeelte).
+			<p>
+
+			<div id="example">
+				Enkel vast punt attractor<br />
+				<img src="overview/orbit-single-fixed-point-attractor.png" style="border:solid; border-color:#000000; border-width:1px">
+			</div>
+
+			<div id="example">
+				Periodieke cyclus (veelhoekvorm)<br />
+				<img src="overview/orbit-periodic-cycle-polygon.png" style="border:solid; border-color:#000000; border-width:1px">
+			</div>
+
+			<div id="example">
+				Periodieke cyclus (stervorm)<br />
+				<img src="overview/orbit-periodic-cycle-star.png" style="border:solid; border-color:#000000; border-width:1px">
+			</div>
+
+			<div id="example">
+				Ontsnappend naar oneindig<br />
+				<img src="overview/orbit-escaping-to-infinity.png" style="border:solid; border-color:#000000; border-width:1px">
+			</div>
+
+			<p>
+				Achter de schermen verdeelt de Fraxion toepassing het scherm in evengrote
+				<b>blokken</b> (het aantal kan aangepast worden met de <b>Stel aantal te gebruiken
+				blokken in</b> optie in het <b>Multithreading</b> menu). 
+				Elk blok wordt dan willekeurig gekozen, opdat de werklast van snel divergerende
+				en langzaam convergerende gebieden verdeeld wordt. Fraxion start dan 
+				<b>verschillende threads</b> die op het aantal beschikbare CPU 
+				cores in het systeem worden uitgevoerd, inclusief hyperthreads (het aantal kan
+				aangepast worden met de <b>Stel aantal te gebruiken CPU cores in</b> optie in het
+				<b>Multithreading</b> menu). Alle resultaten worden in een <b>iteratie
+				resultatenbuffer</b> bewaard. Vervolgens gebruikt de toepassing de gekozen
+				kleuralgoritmes om een <b>beeldbuffer</b> te construeren, die dan op het scherm
+				wordt getoond. Als de kleuren later aangepast worden, dan hoeft de toepassing enkel de
+				beeldbuffer aan te passen, in plaats van de hele resultaatbuffer opnieuw te moeten berekenen.
+			</p>
+
+			<p>
+				Fraxion ondersteunt momenteel <b>convergerende</b> algoritmes (gebaseerd op ontsnappingstijden)
+				voor Mandelbrot/Julia-type fractalen, <b>divergerende</b> algoritmes
+				(gebaseerd op worteldetectie) voor Newton/Raphson-type fractalen, <b>zowel
+				convergerende als divergerende</b> algoritmes voor Magneet-type fractalen en
+				expliciete bifurcatieberekeningen voor Markus/Lyapunov-type fractalen.
+			</p>
+
+		<h2>Contact</h2>
+
+			<p>
+				Fraxion (versie 1.1) werd ontworpen voor de Java 2 
+				Platform Standaard Editie 1.8.0 of hoger. Gebruik volgende referentie voor
+				deze toepassing:
+			</p>
+
+			<div id="example">
+				Fraxion (2003-2015)<br />
+				Sven Maerivoet<br />
+				URL: <a href="http://fraxion.maerivoet.org/">http://fraxion.maerivoet.org/</a><br />
+				E-mail: <a href="mailto:sven.maerivoet@gmail.com">sven.maerivoet@gmail.com</a><br />
+				Copyright 2003-2015 Sven Maerivoet
+			</div>
+
+			<p>
+				Licensed under the Apache License, Version 2.0 (the "License"); you may 
+				not use this file except in compliance with the License. You may obtain 
+				a copy of the License at http://www.apache.org/licenses/LICENSE-2.0<br />
+				Unless required by applicable law or agreed to in writing, software 
+				distributed under the License is distributed on an "AS IS" BASIS, 
+				WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+				See the License for the specific language governing permissions and 
+				limitations under the License.
+			</p>
+
+		<h2>Referenties</h2>
+
+			<ul>
+				<li>Benoit B. Mandelbrot, <b>Fractals and the Geometry of Nature</b>, Yale University</li>
+				<li>Benoit B. Mandelbrot, <b>The Fractal Geometry of Nature</b>, W.H. Freeman and Company, 1983</li>
+				<li>Heinz-Otto Peitgen en Peter H. Richter, <b>The Beauty of Fractals: Images of Complex Dynamical Systems</b>, Springer-Verlag, 1986</li>
+				<li>Michael F. Barnsley, Robert L. Devaney, Benoit B. Mandelbrot, Heinz-Otto Peitgen, Dietmar Saupe, Richard F. Voss, <b>The Science of Fractal Images</b>, Springer-Verlag, 1988</li>
+				<li>Steven G. Krantz, <b>Fractals Geometry</b>, The Mathematical Intelligencer, vol. 11, nr. 4, 1989</li>
+				<li>Robert L. Devaney, Thomas J. Osler, <b>An Introduction to Chaotical Dynamical Systems</b>, Addison-Wesley Publishing Company, Inc., 1989</li>
+				<li>James Gleick, <b>Chaos</b>, Uitgeverij Contact, 1990</li>
+				<li>Ian Stewart, <b>Does God Play Dice? The Mathematics of Chaos</b>, Aula, 1991</li>
+				<li>Earl F. Glynn, <b>The Evolution of the Gingerbread Man</b>, Chaos and Graphics, vol. 15, nr. 4, pagina's 579-582, 1991</li>
+				<li>Thomas J. Osler, <b>A Quick Look at Lyapunov Space</b>, Mathematics and Computer Education, vol. 28, pagina's 183-197, 1994</li>
+				<li>John Ewing, <b>Can We See the Mandelbrot Set?</b>, The College Mathematics Journal, vol. 26, nr. 2, pagina's 90-99, Maart 1995</li>
+				<li>Simon Letherman, Dierk Schleicher, Reg Wood<b>The 3n+1 Problem and Holomorphic Dynamics</b>, Experimental Mathematics, vol. 8, nr. 3, pagina's 241-251, 1999</li>
+				<li>Heinz-Otto Peitgen, Hartmut J&uuml;rgens, Dietmar Saupe, <b>Chaos and Fractals: New Frontiers of Science</b>, Springer, 2004</li>
+				<li>Jussi H&auml;rk&ouml;nen, <b>On Fractal Coloring Techniques</b>, Abo Akademi University, 2007</li>
+				<li>Iain Parris, <b>Fractals don't have to be scary</b>, MSC Dissertation, University of Edinburgh, Augustus 2008</li>
+				<li>Francisco Garcia, Angel Fernandez, Javier Barrallo, Luis Martin, <b>Coloring Dynamical Systems in the Complex Plane</b>, The University of the Basque Country, 2008</li>
+				<li>Kenneth Falconer, <b>Fractals: A Very Short Introduction</b>, Oxford University Press, 2013</li>
+			</ul>
+
+		<h2>Toekomstig werk</h2>
+
+		<ul>
+			<li>Maken van zoomprentjes</li>
+			<li>Automatisch kiezen van het maximum aantal iteraties</li>
+			<li>ESCAPE indrukken om berekeningen te onderbreken en terug naar de vorige buffer te keren</li>
+			<li>Lagen met alfa kanaal</li>
+			<li>Zoom sequenties als AVI frames bewaren (frame-zzzz.png)</li>
+			<li>Aliasing door stochastisch supersamplen</li>
+			<li>Bewegen van JCustomColorMapChooser's schuivers</li>
+			<li>Voortgang tonen tijdens het kleuren</li>
+			<li>Compilatie van willekeurige fractaalformules</li>
+			<li>Gridlijnen van het complexe vlak</li>
+		</ul>
+
+		<h2>De originele Mandelbrot</h2>
+
+			<p>
+				<i>Beelden gereproduceerd naar Heinz-Otto Peitgen en Peter H. Richter, <b>The Beauty of Fractals: Images of Complex Dynamical Systems</b>, Springer-Verlag, 1986.</i>
+			</p>
+
+			<div id="example">
+				Eerste Mandelbrot eilandmolecule (1 Maart 1980)<br />
+				<img src="../../../fractalimglib/original_mandelbrot/1980-03-01-first_mandelbrot_island_molecule.jpg" style="border:solid; border-color:#000000; border-width:1px">
+			</div>
+
+			<div id="example">
+				Opeenvolgende zooms in de Mandelbrot verzameling (April 1980)<br />
+				<img src="../../../fractalimglib/original_mandelbrot/1980-04-mandelbrot_set_successive_zooms.jpg" style="border:solid; border-color:#000000; border-width:1px">
+			</div>
+
+		<hr />
+
+		<p>
+			XHTML 1.1 Transitional | CSS2 | <a href="http://creativecommons.org/licenses/by-nc-nd/2.0/be/deed.en_GB">Creative Commons License</a>
+		</p>
+
+		<p>
+			Sven Maerivoet (<a href="http://www.maerivoet.org/">www</a>)
+		</p>
+	</body>
+</html>

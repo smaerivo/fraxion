@@ -1,0 +1,109 @@
+<?xml version='1.0' encoding='ISO-8859-1'  ?>
+<!DOCTYPE toc
+  PUBLIC "-//Sun Microsystems Inc.//DTD JavaHelp TOC Version 1.0//EN"
+         "http://java.sun.com/products/javahelp/toc_2_0.dtd">
+
+<toc version="2.0" categoryclosedimage="chapter" topicimage="topic">
+
+	<tocitem text="General information" expand="true">
+		<tocitem text="Overview" target="general_information_overview" />
+		<tocitem text="Getting started" target="general_information_getting_started" />
+	</tocitem>
+
+	<tocitem text="Coloring schemes" expand="true" target="coloring_schemes">
+	</tocitem>
+
+	<tocitem text="Resizing for quality printing" expand="true" target="resizing_for_quality_printing">
+	</tocitem>
+
+	<tocitem text="Keyboard shortcuts" expand="true" target="keyboard_shortcuts">
+	</tocitem>
+
+	<tocitem text="Fractal types" expand="true">
+		<tocitem text="Classic">
+			<tocitem text="Mandelbrot / Julia" target="fractal_types_mandelbrot_julia" />
+			<tocitem text="Mandelbar" target="fractal_types_mandelbar" />
+			<tocitem text="Randelbrot" target="fractal_types_randelbrot" />
+			<tocitem text="Original Julia" target="fractal_types_original_julia" />
+			<tocitem text="Lambda" target="fractal_types_lambda" />
+			<tocitem text="Inverse Lambda" target="fractal_types_inverse_lambda" />
+			<tocitem text="Burning Ship" target="fractal_types_burning_ship" />
+			<tocitem text="Bird of Prey" target="fractal_types_bird_of_prey" />
+			<tocitem text="Glynn" target="fractal_types_glynn" />
+			<tocitem text="Spider" target="fractal_types_spider" />
+		</tocitem>
+
+		<tocitem text="Power">
+			<tocitem text="Multibrot">
+				<tocitem text="Multibrot" target="fractal_types_multibrot" />
+				<tocitem text="Multibrot Polynomial" target="fractal_types_multibrot_polynomial" />
+				<tocitem text="Multibrot Parameter" target="fractal_types_multibrot_parameter" />
+				<tocitem text="Multibrot Inverted Parameter" target="fractal_types_multibrot_inverted_parameter" />
+			</tocitem>
+
+			<tocitem text="Multibar">
+				<tocitem text="Multibar" target="fractal_types_multibar" />
+				<tocitem text="Multibar Polynomial" target="fractal_types_multibar_polynomial" />
+				<tocitem text="Multibar Parameter" target="fractal_types_multibar_parameter" />
+				<tocitem text="Multibar Inverted Parameter" target="fractal_types_multibar_inverted_parameter" />
+			</tocitem>
+
+			<tocitem text="Exponential">
+				<tocitem text="Multi Product Expelbrot" target="fractal_types_multiproductexpelbrot" />
+				<tocitem text="Multi Sum Expelbrot" target="fractal_types_multisumexpelbrot" />
+				<tocitem text="Multi Product Exparbrot" target="fractal_types_multiproductexparbrot" />
+				<tocitem text="Multi Sum Exparbrot" target="fractal_types_multisumexparbrot" />
+			</tocitem>
+
+			<tocitem text="Trigonometric">
+				<tocitem text="Trigonometric Power (Sine)" target="fractal_types_trigonometric_power_sine" />
+				<tocitem text="Trigonometric Power (Imaginary Cosine)" target="fractal_types_trigonometric_power_cosine" />
+				<tocitem text="Trigonometric Power (Tangent)" target="fractal_types_trigonometric_power_tangent" />
+				<tocitem text="Trigonometric Power (Cotangent)" target="fractal_types_trigonometric_power_cotangent" />
+				<tocitem text="Trigonometric Power (Multisine)" target="fractal_types_trigonometric_power_multisine" />
+				<tocitem text="Trigonometric Power (Imaginary Multicosine)" target="fractal_types_trigonometric_power_multicosine" />
+				<tocitem text="Trigonometric Power (Multitangent)" target="fractal_types_trigonometric_power_multitangent" />
+				<tocitem text="Trigonometric Power (Multicotangent)" target="fractal_types_trigonometric_power_multicotangent" />
+			</tocitem>
+		</tocitem>
+
+		<tocitem text="Special">
+			<tocitem text="Cactus" target="fractal_types_cactus" />
+			<tocitem text="Beauty 1" target="fractal_types_beauty1" />
+			<tocitem text="Beauty 2" target="fractal_types_beauty2" />
+			<tocitem text="Ducks" target="fractal_types_ducks" />
+			<tocitem text="Barnsley Tree" target="fractal_types_barnsley_tree" />
+			<tocitem text="Collatz" target="fractal_types_collatz" />
+			<tocitem text="Phoenix" target="fractal_types_phoenix" />
+			<tocitem text="Man 'o War" target="fractal_types_man_o_war" />
+		</tocitem>
+
+		<tocitem text="Newton / Raphson">
+			<tocitem text="Newton / Raphson Power" target="fractal_types_newton_raphson_power" />
+			<tocitem text="Newton / Raphson Power Polynomial" target="fractal_types_newton_raphson_power_polynomial" />
+			<tocitem text="Newton / Raphson Fixed Polynomial 1" target="fractal_types_newton_raphson_fixed_polynomial1" />
+			<tocitem text="Newton / Raphson Fixed Polynomial 2" target="fractal_types_newton_raphson_fixed_polynomial2" />
+			<tocitem text="Newton / Raphson Fixed Polynomial 3" target="fractal_types_newton_raphson_fixed_polynomial3" />
+			<tocitem text="Newton / Raphson Fixed Polynomial 4" target="fractal_types_newton_raphson_fixed_polynomial4" />
+			<tocitem text="Newton / Raphson Trigonometric Power (Sine)" target="fractal_types_newton_raphson_trigonometric_power_sine" />
+			<tocitem text="Newton / Raphson Trigonometric Power (Multisine)" target="fractal_types_newton_raphson_trigonometric_power_multisine" />
+			<tocitem text="Newton / Raphson Trigonometric Power (Sine Offset)" target="fractal_types_newton_raphson_trigonometric_power_sine_offset" />
+			<tocitem text="Newton / Raphson Trigonometric Power (Multisine Offset)" target="fractal_types_newton_raphson_trigonometric_power_multisine_offset" />
+		</tocitem>
+
+		<tocitem text="Nova" target="fractal_types_nova">
+		</tocitem>
+
+		<tocitem text="Magnet">
+			<tocitem text="Magnet type I" target="fractal_types_magnet_type_i" />
+			<tocitem text="Magnet type II" target="fractal_types_magnet_type_ii" />
+		</tocitem>
+
+		<tocitem text="Markus / Lyapunov">
+			<tocitem text="Markus / Lyapunov" target="fractal_types_markus_lyapunov" />
+			<tocitem text="Markus / Lyapunov (Logistic Bifurcation)" target="fractal_types_markus_lyapunov_logistic_bifurcation" />
+			<tocitem text="Markus / Lyapunov (Jellyfish)" target="fractal_types_markus_lyapunov_jellyfish" />
+			<tocitem text="Markus / Lyapunov (Zircon Zity)" target="fractal_types_markus_lyapunov_zircon_zity" />
+		</tocitem>
+	</tocitem>
+</toc>
