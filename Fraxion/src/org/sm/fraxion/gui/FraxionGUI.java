@@ -460,8 +460,6 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 	{
 		super(argv,null);
 
-		PropertyConfigurator.configure("log4j.properties");
-
 		// post initalisation
 		fMenuItems.get(kActionCommandMenuItemNavigationInvertYAxis).setSelected(fIteratorController.getFractalIterator().getInvertYAxis());
 		adjustGUIToFractal();
