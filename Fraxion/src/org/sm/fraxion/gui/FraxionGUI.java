@@ -464,6 +464,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 		// post initalisation
 		fMenuItems.get(kActionCommandMenuItemNavigationInvertYAxis).setSelected(fIteratorController.getFractalIterator().getInvertYAxis());
 		adjustGUIToFractal();
+		setupMarkusLyapunovFractal();
 	}
 
 	/******************
@@ -1334,6 +1335,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 				AFractalIterator fractalIterator = fIteratorController.getFractalIterator();
 
 				adjustGUIToFractal();
+				setupMarkusLyapunovFractal();
 
 				// if necessary switch to the dual fractal
 				if ((fractalIterator instanceof GlynnFractalIterator) ||
@@ -2368,6 +2370,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			fFractalPanel.setUsePostProcessingFilters(false);
 
 			adjustGUIToFractal();
+			setupMarkusLyapunovFractal();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapUseLinearScaling)) {
 			fFractalPanel.setColorMapScaling(ColoringParameters.EColorMapScaling.kLinear);
@@ -5551,26 +5554,6 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 
 		fMenuItems.get(kActionCommandMenuItemFractalFamilyMagnetSetConvergenceParameters).setEnabled(fractalIterator instanceof AMagnetFractalIterator);
 
-		if (isMarkusLyapunovFractalIterator) {
-			fFractalPanel.setInteriorColoringMethod(ColoringParameters.EColoringMethod.kLyapunovExponent);
-			fMenuItems.get(kActionCommandMenuItemColorMapInteriorUseLyapunovExponent).setSelected(true);
-			fFractalPanel.setExteriorColoringMethod(ColoringParameters.EColoringMethod.kLyapunovExponent);
-			fMenuItems.get(kActionCommandMenuItemColorMapExteriorUseLyapunovExponent).setSelected(true);
-
-			fFractalPanel.setExteriorColorMap(JGradientColorMap.EColorMap.kCopper,false,false);
-			fMenuItems.get(kActionCommandMenuItemColorMapExteriorCopper).setSelected(true);
-			fMenuItems.get(kActionCommandMenuItemColorMapExteriorInvertColorMap).setSelected(false);
-			fMenuItems.get(kActionCommandMenuItemColorMapExteriorWrapAroundColorMap).setSelected(false);
-
-			fFractalPanel.setInteriorColorMap(JGradientColorMap.EColorMap.kBlue,false,false);
-			fMenuItems.get(kActionCommandMenuItemColorMapInteriorBlue).setSelected(true);
-			fMenuItems.get(kActionCommandMenuItemColorMapInteriorInvertColorMap).setSelected(false);
-			fMenuItems.get(kActionCommandMenuItemColorMapInteriorWrapAroundColorMap).setSelected(false);
-
-			fFractalPanel.setColorMapScaling(ColoringParameters.EColorMapScaling.kRankOrder);
-			fMenuItems.get(kActionCommandMenuItemColorMapUseRankOrderScaling).setSelected(true);
-		}
-
 		// check if the inset should be disabled
 		if ((fractalIterator instanceof SpiderFractalIterator) ||
 				(fractalIterator instanceof CollatzFractalIterator) ||
@@ -5761,6 +5744,33 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 
 	/**
 	 */
+	private void setupMarkusLyapunovFractal()
+	{
+		AFractalIterator fractalIterator = fIteratorController.getFractalIterator();
+
+		if (fractalIterator instanceof MarkusLyapunovFractalIterator) {
+			fFractalPanel.setInteriorColoringMethod(ColoringParameters.EColoringMethod.kLyapunovExponent);
+			fMenuItems.get(kActionCommandMenuItemColorMapInteriorUseLyapunovExponent).setSelected(true);
+			fFractalPanel.setExteriorColoringMethod(ColoringParameters.EColoringMethod.kLyapunovExponent);
+			fMenuItems.get(kActionCommandMenuItemColorMapExteriorUseLyapunovExponent).setSelected(true);
+
+			fFractalPanel.setExteriorColorMap(JGradientColorMap.EColorMap.kCopper,false,false);
+			fMenuItems.get(kActionCommandMenuItemColorMapExteriorCopper).setSelected(true);
+			fMenuItems.get(kActionCommandMenuItemColorMapExteriorInvertColorMap).setSelected(false);
+			fMenuItems.get(kActionCommandMenuItemColorMapExteriorWrapAroundColorMap).setSelected(false);
+
+			fFractalPanel.setInteriorColorMap(JGradientColorMap.EColorMap.kBlue,false,false);
+			fMenuItems.get(kActionCommandMenuItemColorMapInteriorBlue).setSelected(true);
+			fMenuItems.get(kActionCommandMenuItemColorMapInteriorInvertColorMap).setSelected(false);
+			fMenuItems.get(kActionCommandMenuItemColorMapInteriorWrapAroundColorMap).setSelected(false);
+
+			fFractalPanel.setColorMapScaling(ColoringParameters.EColorMapScaling.kRankOrder);
+			fMenuItems.get(kActionCommandMenuItemColorMapUseRankOrderScaling).setSelected(true);
+		}
+	}
+
+	/**
+	 */
 	private void changeLocationMouseCursor()
 	{
 		if (fMenuItems.get(kActionCommandMenuItemNavigationShowCurrentLocation).isSelected() && fFractalPanel.isMouseInsideComplexPlane()) {
@@ -5813,7 +5823,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			fHelpBroker.setDisplayed(true);
 		}
 		catch (Exception exc) {
-			// ignore
+			kLogger.error(I18NL10N.translate("error.HelpInformationNotFound"));
 		}
 	}
 
@@ -5823,7 +5833,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 
 	/**
 	 * @author  Sven Maerivoet
-	 * @version 06/12/2014
+	 * @version 14/01/2015
 	 */
 	private final class FractalLoaderTask extends SwingWorker<Void,Integer>
 	{
