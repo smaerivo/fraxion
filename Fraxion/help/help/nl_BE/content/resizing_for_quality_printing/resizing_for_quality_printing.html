@@ -22,6 +22,7 @@
 			<ul>
 				<li><a href="#resizing_based_on_screen_dimension">Vergroten gebaseerd op schermgrootte</a></li>
 				<li><a href="#resizing_based_on_paper_size">Vergroten gebaseerd op papiergrootte</a></li>
+				<li><a href="#floating_point_precision">Opmerking inzake drijvende komma precisie</a></li>
 			</ul>
 
 		<a name="resizing_based_on_screen_dimension"></a>
@@ -72,6 +73,58 @@
 
 			<div id="example">
 				<img src="specify-paper-size.png" style="border:solid; border-color:#000000; border-width:1px">
+			</div>
+
+		<a name="floating_point_precision"></a>
+		<h2>Opmerking inzake drijvende komma precisie</h2>
+
+			<p>
+				Elke keer we verder in de verschillende gebieden in het complexe domein 
+				van fractalen zoomen, zal Fraxion het huidige zoomniveau bijhouden en 
+				advies omtrent de nauwkeurigheid geven. Vermits Fraxion intern <b>64-bit 
+				IEEE 754 drijvende komma</b> berekeningen gebruikt, is er een inherente 
+				bovengrens aan de haalbare visuele nauwkeurigheid. Voor Fraxion ligt die 
+				grens rond zoomniveaus die 1E-15 naderen, zoals getoond in de volgende 
+				opeenvolgende zooms rond het punt <i>z</i> = -1.8 + 0 i.
+			</p>
+
+			<div id="example">
+				<img src="specify-complex-bounds.png" style="border:solid; border-color:#000000; border-width:1px">
+			</div>
+
+			<div id="example">
+				Straal = 1E-12<br />
+				<img src="../../../fractalimglib/zoom_precision/zooma-1E-12.png" style="border:solid; border-color:#000000; border-width:1px">
+			</div>
+
+			<div id="example">
+				Straal = 5E-13<br />
+				<img src="../../../fractalimglib/zoom_precision/zoomb-5E-13.png" style="border:solid; border-color:#000000; border-width:1px">
+			</div>
+
+			<div id="example">
+				Straal = 1E-13<br />
+				<img src="../../../fractalimglib/zoom_precision/zoomc-1E-13.png" style="border:solid; border-color:#000000; border-width:1px">
+			</div>
+
+			<div id="example">
+				Straal = 5E-14<br />
+				<img src="../../../fractalimglib/zoom_precision/zoomd-5E-14.png" style="border:solid; border-color:#000000; border-width:1px">
+			</div>
+
+			<div id="example">
+				Straal = 1E-14<br />
+				<img src="../../../fractalimglib/zoom_precision/zoome-1E-14.png" style="border:solid; border-color:#000000; border-width:1px">
+			</div>
+
+			<div id="example">
+				Straal = 5E-15<br />
+				<img src="../../../fractalimglib/zoom_precision/zoomf-5E-15.png" style="border:solid; border-color:#000000; border-width:1px">
+			</div>
+
+			<div id="example">
+				Straal = 1E-15<br />
+				<img src="../../../fractalimglib/zoom_precision/zoomg-1E-15.png" style="border:solid; border-color:#000000; border-width:1px">
 			</div>
 
 		<hr />
