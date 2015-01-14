@@ -1,7 +1,7 @@
 // -----------------------------------------
 // Filename      : IteratorTaskExecutor.java
 // Author        : Sven Maerivoet
-// Last modified : 20/11/2014
+// Last modified : 14/01/2015
 // Target        : Java VM (1.8)
 // -----------------------------------------
 
@@ -41,7 +41,7 @@ import org.sm.smtools.util.*;
  * <B>Note that this class cannot be subclassed!</B>
  *
  * @author  Sven Maerivoet
- * @version 20/11/2014
+ * @version 14/01/2015
  */
 public class IteratorTaskExecutor extends TaskExecutor
 {
@@ -157,10 +157,10 @@ public class IteratorTaskExecutor extends TaskExecutor
 	@Override
 	protected void finishTasks()
 	{
+		// assembling partial iteration results into the fractal result buffer
 		int width = fFractalIterator.getScreenWidth();
 		int height = fFractalIterator.getScreenHeight();
 		fFractalResultBuffer = new IterationBuffer(width,height);
-
 		// assemble partial iteration results into the fractal result buffer
 		for (ATask aTask : getTasks()) {
 			IteratorTask task = (IteratorTask) aTask;
@@ -170,8 +170,8 @@ public class IteratorTaskExecutor extends TaskExecutor
 			ScreenLocation s2 = task.getS2();
 			for (int x = s1.fX; x <= s2.fX; ++x) {
 				for (int y = s1.fY; y <= s2.fY; ++y) {
-					int index = (x * height) + y;
-					int lookupIndex = ((x - s1.fX) * partialResult.fHeight) + (y - s1.fY);
+					int index = x + (y * width);
+					int lookupIndex = (x - s1.fX) + ((y - s1.fY) * partialResult.fWidth);
 					fFractalResultBuffer.fBuffer[index] = partialResult.fBuffer[lookupIndex];
 				}
 			}
@@ -191,40 +191,42 @@ public class IteratorTaskExecutor extends TaskExecutor
 		if (fFractalIterator instanceof AConvergentFractalIterator) {
 
 			if (((AConvergentFractalIterator) fFractalIterator).getAutomaticRootDetectionEnabled()) {
+//XXX
+System.out.println("Autodetect roots of convergent fractals...");
+Chrono chrono = new Chrono();
+chrono.start();
 
 				ArrayList<ComplexNumber> roots = new ArrayList<ComplexNumber>();
 				double maxObservedExponentialIterationCount = 0.0;
 				double rootTolerance = ((AConvergentFractalIterator) fFractalIterator).getRootTolerance();
 
-				for (int x = 0; x < width; ++x) {
-					for (int y = 0; y < height; ++y) {
-						int index = (x * height) + y;
-						IterationResult iterationResult = fFractalResultBuffer.fBuffer[index];
+				for (int index = 0; index < fFractalResultBuffer.fBuffer.length; ++index) {
+					IterationResult iterationResult = fFractalResultBuffer.fBuffer[index];
 
-						// did we converge on a root?
-						if ((iterationResult != null) && (iterationResult.fRootIndex > 0)) {
-							ComplexNumber z = new ComplexNumber(iterationResult.fRealComponent,iterationResult.fImaginaryComponent);
+					// did we converge on a root?
+					if ((iterationResult != null) && (iterationResult.fRootIndex > 0)) {
+						ComplexNumber z = new ComplexNumber(iterationResult.fRealComponent,iterationResult.fImaginaryComponent);
 
-							// try to find root
-							boolean rootFound = false;
-							for (int rootIndex = 0; rootIndex < roots.size(); ++rootIndex) {
-								ComplexNumber candidateRoot = roots.get(rootIndex);
-								if (z.subtract(candidateRoot).modulus() < rootTolerance) {
-									iterationResult.fRootIndex = rootIndex + 1;
-									if (iterationResult.fExponentialIterationCount > maxObservedExponentialIterationCount) {
-										maxObservedExponentialIterationCount = iterationResult.fExponentialIterationCount;
-									}
-									rootFound = true;
+						// try to find root
+						boolean rootFound = false;
+						for (int rootIndex = 0; rootIndex < roots.size(); ++rootIndex) {
+							ComplexNumber candidateRoot = roots.get(rootIndex);
+							if (z.subtract(candidateRoot).modulus() < rootTolerance) {
+								iterationResult.fRootIndex = rootIndex + 1;
+								if (iterationResult.fExponentialIterationCount > maxObservedExponentialIterationCount) {
+									maxObservedExponentialIterationCount = iterationResult.fExponentialIterationCount;
 								}
+								rootFound = true;
 							}
-							if (!rootFound) {
-								roots.add(z);
-							}
-						} // if ((iterationResult != null) && (iterationResult.fRootIndex > 0))
-					} // for y
-				} // for x
+						}
+						if (!rootFound) {
+							roots.add(z);
+						}
+					} // if ((iterationResult != null) && (iterationResult.fRootIndex > 0))
+				} // for index
 
 				((AConvergentFractalIterator) fFractalIterator).setMaxObservedExponentialIterationCount(maxObservedExponentialIterationCount);
+System.out.println("  Done: " + String.valueOf(chrono.getElapsedTimeInMilliseconds()) + "ms needed");
 			} // if (((AConvergentFractalIterator) fFractalIterator).getAutomaticRootDetectionEnabled())
 		} // if (fFractalIterator instanceof AConvergentFractalIterator)
 
@@ -232,19 +234,17 @@ public class IteratorTaskExecutor extends TaskExecutor
 			// estimate PDF of the iterations
 			double maxNrOfIterations = fFractalIterator.getMaxNrOfIterations();
 			double[] fIterationsRawPDFData = new double[width * height];
-			for (int x = 0; x < width; ++x) {
-				for (int y = 0; y < height; ++y) {
-					int index = (x * height) + y;
-					if (fFractalResultBuffer.fBuffer[index] != null) {
-						if (fFractalResultBuffer.fBuffer[index].fNrOfIterations < IterationResult.kInfinity) {
-							fIterationsRawPDFData[x + (y * width)] = fFractalResultBuffer.fBuffer[index].fNrOfIterations;
-						}
-						else {
-							fIterationsRawPDFData[x + (y * width)] = maxNrOfIterations;
-						}
+
+			for (int index = 0; index < fIterationsRawPDFData.length; ++index) {
+				if (fFractalResultBuffer.fBuffer[index] != null) {
+					if (fFractalResultBuffer.fBuffer[index].fNrOfIterations < IterationResult.kInfinity) {
+						fIterationsRawPDFData[index] = fFractalResultBuffer.fBuffer[index].fNrOfIterations;
 					}
-				} // for y
-			} // for x
+					else {
+					fIterationsRawPDFData[index] = maxNrOfIterations;
+					}
+				}
+			} // for index
 
 			// estimate PDF for the number of iterations needed
 			fIterationsEmpiricalDistribution = new EmpiricalDistribution(fIterationsRawPDFData);

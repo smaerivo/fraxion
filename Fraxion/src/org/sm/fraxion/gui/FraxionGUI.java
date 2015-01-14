@@ -1,7 +1,7 @@
 // -------------------------------
 // Filename      : FraxionGUI.java
 // Author        : Sven Maerivoet
-// Last modified : 09/01/2015
+// Last modified : 14/01/2015
 // Target        : Java VM (1.8)
 // -------------------------------
 
@@ -53,7 +53,7 @@ import org.sm.smtools.util.*;
  * <B>Note that this class cannot be subclassed!</B>
  *
  * @author  Sven Maerivoet
- * @version 09/01/2015
+ * @version 14/01/2015
  */
 public final class FraxionGUI extends JStandardGUIApplication implements ActionListener, MouseListener, MouseMotionListener, KeyListener
 {
@@ -441,7 +441,8 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 	 *************************/
 
 	static {
-		DevelopMode.deactivate();
+//XXX
+		DevelopMode.activate();
 
 		// hack for JDK7 and above
 		System.setProperty("java.util.Arrays.useLegacyMergeSort","true");
@@ -1715,7 +1716,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 				if (discreteColorRange == fIteratorController.getFractalIterator().getMaxNrOfIterations()) {
 					discreteColorRange = maxNrOfIterations;
 				}
-				fFractalPanel.setColorMapDiscreteColorRange(discreteColorRange);
+				fFractalPanel.getColoringParameters().fColorMapDiscreteColorRange = discreteColorRange;
 
 				// 	adjust colourmap iteration range to comply with the selected maximum number of iterations
 				int colorMapIterationLowRange = fFractalPanel.getColorMapIterationLowRange();
@@ -1732,7 +1733,8 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 					colorMapIterationHighRange = maxNrOfIterations;
 				}
 
-				fFractalPanel.setColorMapIterationRange(colorMapIterationLowRange,colorMapIterationHighRange);
+				fFractalPanel.getColoringParameters().fLowIterationRange = colorMapIterationLowRange;
+				fFractalPanel.getColoringParameters().fHighIterationRange = colorMapIterationHighRange;
 				fFractalPanel.setMaxNrOfIterations(maxNrOfIterations);
 			}
 		}
@@ -6062,17 +6064,15 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 				int height = fIteratorController.getFractalIterator().getScreenHeight();
 				IterationBuffer fractalResultBuffer = new IterationBuffer(width,height);
 				fProgressUpdateGlassPane.setTotalNrOfProgressUpdates(width * height);
-				for (int x = 0; x < width; ++x) {
-					for (int y = 0; y < height; ++y) {
-						int index = (x * height) + y;
-						fractalResultBuffer.fBuffer[index] = new IterationResult();
-						boolean resultAvailable = fractalResultBuffer.fBuffer[index].load(tfp);
-						if (!resultAvailable) {
-							fractalResultBuffer.fBuffer[index] = null;
-						}
-						publish(1);
+
+				for (int index = 0; index < fractalResultBuffer.fBuffer.length; ++index) {
+					fractalResultBuffer.fBuffer[index] = new IterationResult();
+					boolean resultAvailable = fractalResultBuffer.fBuffer[index].load(tfp);
+					if (!resultAvailable) {
+						fractalResultBuffer.fBuffer[index] = null;
 					}
-				}
+					publish(1);
+				} // for index
 
 				// install loaded fractal
 				fIteratorController.setFractalResultBuffer(fractalResultBuffer);
@@ -6196,20 +6196,16 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 				int height = fIteratorController.getFractalIterator().getScreenHeight();
 				IterationBuffer fractalResultBuffer = fIteratorController.getFractalResultBuffer();
 				fProgressUpdateGlassPane.setTotalNrOfProgressUpdates(width * height);
-				for (int x = 0; x < width; ++x) {
-					for (int y = 0; y < height; ++y) {
-						int index = (x * height) + y;
-
-						if (fractalResultBuffer.fBuffer[index] == null) {
-							tfw.writeString("null");
-							tfw.writeLn();
-						}
-						else{
-							fractalResultBuffer.fBuffer[index].save(tfw);
-						}
-						publish(1);
+				for (int index = 0; index < fractalResultBuffer.fBuffer.length; ++index) {
+					if (fractalResultBuffer.fBuffer[index] == null) {
+						tfw.writeString("null");
+						tfw.writeLn();
 					}
-				}
+					else{
+						fractalResultBuffer.fBuffer[index].save(tfw);
+					}
+					publish(1);
+				} // for index
 			}
 			catch (FileCantBeCreatedException | FileWriteException exc) {
 				fException = exc;
