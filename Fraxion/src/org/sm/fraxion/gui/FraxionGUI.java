@@ -1007,8 +1007,8 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 				centerRadius = centerRadiusY;
 			}
 
-			ZoomCoordinatesChooser zoomCoordinatesChooser = new ZoomCoordinatesChooser(this,centerOrigin,centerRadius,p1,p2);
-			if (!zoomCoordinatesChooser.isCancelled()) {
+			ComplexBoundsChooser complexBoundsChooser = new ComplexBoundsChooser(this,centerOrigin,centerRadius,p1,p2);
+			if (!complexBoundsChooser.isCancelled()) {
 				boolean proceed = true;
 				if (fFractalPanel.getZoomStack().getZoomLevel() > 1) {
 					proceed = JConfirmationDialog.confirm(this,I18NL10N.translate("text.Navigation.ZoomStack.OverwriteZoomStack"));
@@ -1018,7 +1018,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 					// reset zoomstack and create new top
 					fFractalPanel.getZoomStack().clear();
 					fFractalPanel.getZoomStack().push(fIteratorController.getFractalIterator().getDefaultP1(),fIteratorController.getFractalIterator().getDefaultP2());
-					fFractalPanel.zoomIn(zoomCoordinatesChooser.getSelectedP1(),zoomCoordinatesChooser.getSelectedP2());
+					fFractalPanel.zoomIn(complexBoundsChooser.getSelectedP1(),complexBoundsChooser.getSelectedP2());
 				}
 			}
 		}
