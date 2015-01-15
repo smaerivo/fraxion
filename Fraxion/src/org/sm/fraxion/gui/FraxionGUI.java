@@ -1,7 +1,7 @@
 // -------------------------------
 // Filename      : FraxionGUI.java
 // Author        : Sven Maerivoet
-// Last modified : 09/01/2015
+// Last modified : 14/01/2015
 // Target        : Java VM (1.8)
 // -------------------------------
 
@@ -53,7 +53,7 @@ import org.sm.smtools.util.*;
  * <B>Note that this class cannot be subclassed!</B>
  *
  * @author  Sven Maerivoet
- * @version 09/01/2015
+ * @version 14/01/2015
  */
 public final class FraxionGUI extends JStandardGUIApplication implements ActionListener, MouseListener, MouseMotionListener, KeyListener
 {
@@ -463,6 +463,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 		// post initalisation
 		fMenuItems.get(kActionCommandMenuItemNavigationInvertYAxis).setSelected(fIteratorController.getFractalIterator().getInvertYAxis());
 		adjustGUIToFractal();
+		setupMarkusLyapunovFractal();
 	}
 
 	/******************
@@ -1006,8 +1007,8 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 				centerRadius = centerRadiusY;
 			}
 
-			ZoomCoordinatesChooser zoomCoordinatesChooser = new ZoomCoordinatesChooser(this,centerOrigin,centerRadius,p1,p2);
-			if (!zoomCoordinatesChooser.isCancelled()) {
+			ComplexBoundsChooser complexBoundsChooser = new ComplexBoundsChooser(this,centerOrigin,centerRadius,p1,p2);
+			if (!complexBoundsChooser.isCancelled()) {
 				boolean proceed = true;
 				if (fFractalPanel.getZoomStack().getZoomLevel() > 1) {
 					proceed = JConfirmationDialog.confirm(this,I18NL10N.translate("text.Navigation.ZoomStack.OverwriteZoomStack"));
@@ -1017,7 +1018,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 					// reset zoomstack and create new top
 					fFractalPanel.getZoomStack().clear();
 					fFractalPanel.getZoomStack().push(fIteratorController.getFractalIterator().getDefaultP1(),fIteratorController.getFractalIterator().getDefaultP2());
-					fFractalPanel.zoomIn(zoomCoordinatesChooser.getSelectedP1(),zoomCoordinatesChooser.getSelectedP2());
+					fFractalPanel.zoomIn(complexBoundsChooser.getSelectedP1(),complexBoundsChooser.getSelectedP2());
 				}
 			}
 		}
@@ -1333,6 +1334,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 				AFractalIterator fractalIterator = fIteratorController.getFractalIterator();
 
 				adjustGUIToFractal();
+				setupMarkusLyapunovFractal();
 
 				// if necessary switch to the dual fractal
 				if ((fractalIterator instanceof GlynnFractalIterator) ||
@@ -1715,7 +1717,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 				if (discreteColorRange == fIteratorController.getFractalIterator().getMaxNrOfIterations()) {
 					discreteColorRange = maxNrOfIterations;
 				}
-				fFractalPanel.setColorMapDiscreteColorRange(discreteColorRange);
+				fFractalPanel.getColoringParameters().fColorMapDiscreteColorRange = discreteColorRange;
 
 				// 	adjust colourmap iteration range to comply with the selected maximum number of iterations
 				int colorMapIterationLowRange = fFractalPanel.getColorMapIterationLowRange();
@@ -1732,7 +1734,8 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 					colorMapIterationHighRange = maxNrOfIterations;
 				}
 
-				fFractalPanel.setColorMapIterationRange(colorMapIterationLowRange,colorMapIterationHighRange);
+				fFractalPanel.getColoringParameters().fLowIterationRange = colorMapIterationLowRange;
+				fFractalPanel.getColoringParameters().fHighIterationRange = colorMapIterationHighRange;
 				fFractalPanel.setMaxNrOfIterations(maxNrOfIterations);
 			}
 		}
@@ -2366,6 +2369,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			fFractalPanel.setUsePostProcessingFilters(false);
 
 			adjustGUIToFractal();
+			setupMarkusLyapunovFractal();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapUseLinearScaling)) {
 			fFractalPanel.setColorMapScaling(ColoringParameters.EColorMapScaling.kLinear);
@@ -5549,26 +5553,6 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 
 		fMenuItems.get(kActionCommandMenuItemFractalFamilyMagnetSetConvergenceParameters).setEnabled(fractalIterator instanceof AMagnetFractalIterator);
 
-		if (isMarkusLyapunovFractalIterator) {
-			fFractalPanel.setInteriorColoringMethod(ColoringParameters.EColoringMethod.kLyapunovExponent);
-			fMenuItems.get(kActionCommandMenuItemColorMapInteriorUseLyapunovExponent).setSelected(true);
-			fFractalPanel.setExteriorColoringMethod(ColoringParameters.EColoringMethod.kLyapunovExponent);
-			fMenuItems.get(kActionCommandMenuItemColorMapExteriorUseLyapunovExponent).setSelected(true);
-
-			fFractalPanel.setExteriorColorMap(JGradientColorMap.EColorMap.kCopper,false,false);
-			fMenuItems.get(kActionCommandMenuItemColorMapExteriorCopper).setSelected(true);
-			fMenuItems.get(kActionCommandMenuItemColorMapExteriorInvertColorMap).setSelected(false);
-			fMenuItems.get(kActionCommandMenuItemColorMapExteriorWrapAroundColorMap).setSelected(false);
-
-			fFractalPanel.setInteriorColorMap(JGradientColorMap.EColorMap.kBlue,false,false);
-			fMenuItems.get(kActionCommandMenuItemColorMapInteriorBlue).setSelected(true);
-			fMenuItems.get(kActionCommandMenuItemColorMapInteriorInvertColorMap).setSelected(false);
-			fMenuItems.get(kActionCommandMenuItemColorMapInteriorWrapAroundColorMap).setSelected(false);
-
-			fFractalPanel.setColorMapScaling(ColoringParameters.EColorMapScaling.kRankOrder);
-			fMenuItems.get(kActionCommandMenuItemColorMapUseRankOrderScaling).setSelected(true);
-		}
-
 		// check if the inset should be disabled
 		if ((fractalIterator instanceof SpiderFractalIterator) ||
 				(fractalIterator instanceof CollatzFractalIterator) ||
@@ -5759,6 +5743,33 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 
 	/**
 	 */
+	private void setupMarkusLyapunovFractal()
+	{
+		AFractalIterator fractalIterator = fIteratorController.getFractalIterator();
+
+		if (fractalIterator instanceof MarkusLyapunovFractalIterator) {
+			fFractalPanel.setInteriorColoringMethod(ColoringParameters.EColoringMethod.kLyapunovExponent);
+			fMenuItems.get(kActionCommandMenuItemColorMapInteriorUseLyapunovExponent).setSelected(true);
+			fFractalPanel.setExteriorColoringMethod(ColoringParameters.EColoringMethod.kLyapunovExponent);
+			fMenuItems.get(kActionCommandMenuItemColorMapExteriorUseLyapunovExponent).setSelected(true);
+
+			fFractalPanel.setExteriorColorMap(JGradientColorMap.EColorMap.kCopper,false,false);
+			fMenuItems.get(kActionCommandMenuItemColorMapExteriorCopper).setSelected(true);
+			fMenuItems.get(kActionCommandMenuItemColorMapExteriorInvertColorMap).setSelected(false);
+			fMenuItems.get(kActionCommandMenuItemColorMapExteriorWrapAroundColorMap).setSelected(false);
+
+			fFractalPanel.setInteriorColorMap(JGradientColorMap.EColorMap.kBlue,false,false);
+			fMenuItems.get(kActionCommandMenuItemColorMapInteriorBlue).setSelected(true);
+			fMenuItems.get(kActionCommandMenuItemColorMapInteriorInvertColorMap).setSelected(false);
+			fMenuItems.get(kActionCommandMenuItemColorMapInteriorWrapAroundColorMap).setSelected(false);
+
+			fFractalPanel.setColorMapScaling(ColoringParameters.EColorMapScaling.kRankOrder);
+			fMenuItems.get(kActionCommandMenuItemColorMapUseRankOrderScaling).setSelected(true);
+		}
+	}
+
+	/**
+	 */
 	private void changeLocationMouseCursor()
 	{
 		if (fMenuItems.get(kActionCommandMenuItemNavigationShowCurrentLocation).isSelected() && fFractalPanel.isMouseInsideComplexPlane()) {
@@ -5811,7 +5822,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			fHelpBroker.setDisplayed(true);
 		}
 		catch (Exception exc) {
-			// ignore
+			kLogger.error(I18NL10N.translate("error.HelpInformationNotFound"));
 		}
 	}
 
@@ -5821,7 +5832,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 
 	/**
 	 * @author  Sven Maerivoet
-	 * @version 06/12/2014
+	 * @version 14/01/2015
 	 */
 	private final class FractalLoaderTask extends SwingWorker<Void,Integer>
 	{
@@ -6062,17 +6073,15 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 				int height = fIteratorController.getFractalIterator().getScreenHeight();
 				IterationBuffer fractalResultBuffer = new IterationBuffer(width,height);
 				fProgressUpdateGlassPane.setTotalNrOfProgressUpdates(width * height);
-				for (int x = 0; x < width; ++x) {
-					for (int y = 0; y < height; ++y) {
-						int index = (x * height) + y;
-						fractalResultBuffer.fBuffer[index] = new IterationResult();
-						boolean resultAvailable = fractalResultBuffer.fBuffer[index].load(tfp);
-						if (!resultAvailable) {
-							fractalResultBuffer.fBuffer[index] = null;
-						}
-						publish(1);
+
+				for (int index = 0; index < fractalResultBuffer.fBuffer.length; ++index) {
+					fractalResultBuffer.fBuffer[index] = new IterationResult();
+					boolean resultAvailable = fractalResultBuffer.fBuffer[index].load(tfp);
+					if (!resultAvailable) {
+						fractalResultBuffer.fBuffer[index] = null;
 					}
-				}
+					publish(1);
+				} // for index
 
 				// install loaded fractal
 				fIteratorController.setFractalResultBuffer(fractalResultBuffer);
@@ -6196,20 +6205,16 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 				int height = fIteratorController.getFractalIterator().getScreenHeight();
 				IterationBuffer fractalResultBuffer = fIteratorController.getFractalResultBuffer();
 				fProgressUpdateGlassPane.setTotalNrOfProgressUpdates(width * height);
-				for (int x = 0; x < width; ++x) {
-					for (int y = 0; y < height; ++y) {
-						int index = (x * height) + y;
-
-						if (fractalResultBuffer.fBuffer[index] == null) {
-							tfw.writeString("null");
-							tfw.writeLn();
-						}
-						else{
-							fractalResultBuffer.fBuffer[index].save(tfw);
-						}
-						publish(1);
+				for (int index = 0; index < fractalResultBuffer.fBuffer.length; ++index) {
+					if (fractalResultBuffer.fBuffer[index] == null) {
+						tfw.writeString("null");
+						tfw.writeLn();
 					}
-				}
+					else{
+						fractalResultBuffer.fBuffer[index].save(tfw);
+					}
+					publish(1);
+				} // for index
 			}
 			catch (FileCantBeCreatedException | FileWriteException exc) {
 				fException = exc;

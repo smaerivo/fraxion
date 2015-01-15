@@ -22,6 +22,7 @@
 			<ul>
 				<li><a href="#resizing_based_on_screen_dimension">Resizing based on screen dimension</a></li>
 				<li><a href="#resizing_based_on_paper_size">Resizing based on paper size</a></li>
+				<li><a href="#floating_point_precision">A note on floating-point precision</a></li>
 			</ul>
 
 		<a name="resizing_based_on_screen_dimension"></a>
@@ -74,6 +75,58 @@
 
 			<div id="example">
 				<img src="specify-paper-size.png" style="border:solid; border-color:#000000; border-width:1px">
+			</div>
+
+		<a name="floating_point_precision"></a>
+		<h2>A note on floating-point precision</h2>
+
+			<p>
+				Each time you zoom further into the various areas in the fractals' 
+				complex domains, Fraxion keeps track of the current zoom level and 
+				advises on its accuracy. Because Fraxion uses <b>64-bit IEEE 754 
+				floating point</b> calculations, there is an inherent upper limit to the 
+				visual accuracy that is attainable. For Fraxion, that limit lies around 
+				zoom levels approaching 1E-15, as shown in the following successive 
+				zooms around the point <i>z</i> = -1.8 + 0 i.
+			</p>
+
+			<div id="example">
+				<img src="specify-complex-bounds.png" style="border:solid; border-color:#000000; border-width:1px">
+			</div>
+
+			<div id="example">
+				Radius = 1E-12<br />
+				<img src="../../../fractalimglib/zoom_precision/zooma-1E-12.png" style="border:solid; border-color:#000000; border-width:1px">
+			</div>
+
+			<div id="example">
+				Radius = 5E-13<br />
+				<img src="../../../fractalimglib/zoom_precision/zoomb-5E-13.png" style="border:solid; border-color:#000000; border-width:1px">
+			</div>
+
+			<div id="example">
+				Radius = 1E-13<br />
+				<img src="../../../fractalimglib/zoom_precision/zoomc-1E-13.png" style="border:solid; border-color:#000000; border-width:1px">
+			</div>
+
+			<div id="example">
+				Radius = 5E-14<br />
+				<img src="../../../fractalimglib/zoom_precision/zoomd-5E-14.png" style="border:solid; border-color:#000000; border-width:1px">
+			</div>
+
+			<div id="example">
+				Radius = 1E-14<br />
+				<img src="../../../fractalimglib/zoom_precision/zoome-1E-14.png" style="border:solid; border-color:#000000; border-width:1px">
+			</div>
+
+			<div id="example">
+				Radius = 5E-15<br />
+				<img src="../../../fractalimglib/zoom_precision/zoomf-5E-15.png" style="border:solid; border-color:#000000; border-width:1px">
+			</div>
+
+			<div id="example">
+				Radius = 1E-15<br />
+				<img src="../../../fractalimglib/zoom_precision/zoomg-1E-15.png" style="border:solid; border-color:#000000; border-width:1px">
 			</div>
 
 		<hr />

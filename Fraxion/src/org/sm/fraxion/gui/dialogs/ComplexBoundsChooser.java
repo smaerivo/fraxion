@@ -1,9 +1,9 @@
-// -------------------------------------------
-// Filename      : ZoomCoordinatesChooser.java
+// -----------------------------------------
+// Filename      : ComplexBoundsChooser.java
 // Author        : Sven Maerivoet
 // Last modified : 04/12/2014
 // Target        : Java VM (1.8)
-// -------------------------------------------
+// -----------------------------------------
 
 /**
  * Copyright 2003-2015 Sven Maerivoet
@@ -31,14 +31,14 @@ import org.sm.smtools.swing.dialogs.*;
 import org.sm.smtools.swing.util.*;
 
 /**
- * The <CODE>ZoomCoordinatesChooser</CODE> class provides a dialog for choosing zooming coordinates in the complex plane.
+ * The <CODE>ComplexBoundsChooser</CODE> class provides a dialog for choosing zooming coordinates in the complex plane.
  * <P>
  * <B>Note that this class cannot be subclassed!</B>
  *
  * @author  Sven Maerivoet
  * @version 04/12/2014
  */
-public final class ZoomCoordinatesChooser extends JDefaultDialog implements ActionListener
+public final class ComplexBoundsChooser extends JDefaultDialog implements ActionListener
 {
 	// the action commands
 	private static final String kActionCommandSpecifyCircularRegion = "rb.SpecifyCircularRegion";
@@ -73,7 +73,7 @@ public final class ZoomCoordinatesChooser extends JDefaultDialog implements Acti
 	 ****************/
 
 	/**
-	 * Constructs a <CODE>ZoomCoordinatesChooser</CODE> object.
+	 * Constructs a <CODE>ComplexBoundsChooser</CODE> object.
 	 *
 	 * @param owner         the owning frame
 	 * @param centerOrigin  the origin of the circular region
@@ -81,7 +81,7 @@ public final class ZoomCoordinatesChooser extends JDefaultDialog implements Acti
 	 * @param p1            the lower-left corner
 	 * @param p2            the upper-right corner
 	 */
-	public ZoomCoordinatesChooser(JFrame owner, ComplexNumber centerOrigin, double centerRadius, ComplexNumber p1, ComplexNumber p2)
+	public ComplexBoundsChooser(JFrame owner, ComplexNumber centerOrigin, double centerRadius, ComplexNumber p1, ComplexNumber p2)
 	{
 		super(owner,
 			JDefaultDialog.EModality.kModal,

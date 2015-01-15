@@ -1,7 +1,7 @@
 // ---------------------------------
 // Filename      : IteratorTask.java
 // Author        : Sven Maerivoet
-// Last modified : 20/11/2014
+// Last modified : 14/01/2015
 // Target        : Java VM (1.8)
 // ---------------------------------
 
@@ -34,7 +34,7 @@ import org.sm.smtools.math.complex.*;
  * <B>Note that this class cannot be subclassed!</B>
  *
  * @author  Sven Maerivoet
- * @version 20/11/2014
+ * @version 14/01/2015
  */
 public final class IteratorTask extends ATask
 {
@@ -120,7 +120,7 @@ public final class IteratorTask extends ATask
 
 		for (int x = 0; x < fFractalResultBuffer.fWidth; ++x) {
 			for (int y = 0; y < fFractalResultBuffer.fHeight; ++y) {
-				int index = (x * fFractalResultBuffer.fHeight) + y;
+				int index = x + (y * fFractalResultBuffer.fWidth);
 				if (fractalType == AFractalIterator.EFractalType.kMainFractal) {
 					fFractalResultBuffer.fBuffer[index] = fFractalIterator.iterateMainFractal(new ScreenLocation(x + fS1.fX,y + fS1.fY),false);
 				}

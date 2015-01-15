@@ -1,7 +1,7 @@
 // ---------------------------------
 // Filename      : FractalPanel.java
 // Author        : Sven Maerivoet
-// Last modified : 01/01/2015
+// Last modified : 15/01/2015
 // Target        : Java VM (1.8)
 // ---------------------------------
 
@@ -37,6 +37,7 @@ import org.sm.fraxion.fractals.*;
 import org.sm.fraxion.fractals.util.*;
 import org.sm.fraxion.gui.dialogs.*;
 import org.sm.fraxion.gui.filters.*;
+import org.sm.fraxion.gui.util.*;
 import org.sm.smtools.application.util.*;
 import org.sm.smtools.math.*;
 import org.sm.smtools.math.complex.*;
@@ -56,7 +57,7 @@ import org.sm.smtools.util.*;
  * <B>Note that this class cannot be subclassed!</B>
  * 
  * @author  Sven Maerivoet
- * @version 01/01/2015
+ * @version 15/01/2015
  */
 public final class FractalPanel extends JPanel
 {
@@ -431,7 +432,7 @@ public final class FractalPanel extends JPanel
 
 		// preserve discrete colour map range
 		double colorMapRangeFraction = (double) fColoringParameters.fColorMapDiscreteColorRange / (double) previousMaxNrOfIterations;
-		setColorMapDiscreteColorRange((int) Math.round(colorMapRangeFraction * maxNrOfIterations));
+		fColoringParameters.fColorMapDiscreteColorRange = (int) Math.round(colorMapRangeFraction * maxNrOfIterations);
 		fIteratorController.recalc();
 	}
 
@@ -1551,222 +1552,213 @@ public final class FractalPanel extends JPanel
 		fractalIterationRangeInformation.fExteriorMaxNrOfIterations = -IterationResult.kInfinity;
 		fractalIterationRangeInformation.fExteriorMaxNrOfIntegralIterations = fractalIterationRangeInformation.fExteriorMaxNrOfIterations;
 
-		ArrayList<Double> interiorRankColoringHistogram = new ArrayList<Double>();
-		ArrayList<Double> exteriorRankColoringHistogram = new ArrayList<Double>();
-		fractalIterationRangeInformation.fInteriorRankColoringHistogramLookupTable = new Hashtable<Double,Double>();
-		fractalIterationRangeInformation.fExteriorRankColoringHistogramLookupTable = new Hashtable<Double,Double>();
+		// manual code optimisation: arrays provide a fast store and lookup mechanism; we construct them with the maximum possible size needed
+		double[] interiorRankColoringHistogram = new double[fractalResultBuffer.fWidth * fractalResultBuffer.fHeight];
+		double[] exteriorRankColoringHistogram = new double[fractalResultBuffer.fWidth * fractalResultBuffer.fHeight];
+		fractalIterationRangeInformation.fInteriorRankColoringHistogramNrOfPoints = 0;
+		fractalIterationRangeInformation.fExteriorRankColoringHistogramNrOfPoints = 0;
 
 		// first pass: determine minimum and maximum iteration counts (for interior and exterior colouring)
-		for (int x = 0; x < fractalResultBuffer.fWidth; ++x) {
-			for (int y = 0; y < fractalResultBuffer.fHeight; ++y) {
-				int index = (x * fractalResultBuffer.fHeight) + y;
+		for (int index = 0; index < fractalResultBuffer.fBuffer.length; ++index) {
+			if (fractalResultBuffer.fBuffer[index] != null) {
 
-				if (fractalResultBuffer.fBuffer[index] != null) {
+				if (fractalResultBuffer.fBuffer[index].liesInInterior()) {
+					// determine extrema for interior colouring
+					if (fColoringParameters.fInteriorColoringMethod != ColoringParameters.EColoringMethod.kFixedColor) {
+						if (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kSmoothEICLevelSets) {
+							fractalIterationRangeInformation.fInteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fInteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fExponentialIterationCount);
+							fractalIterationRangeInformation.fInteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fInteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fExponentialIterationCount);
+							interiorRankColoringHistogram[fractalIterationRangeInformation.fInteriorRankColoringHistogramNrOfPoints++] = fractalResultBuffer.fBuffer[index].fExponentialIterationCount;
+						}
+						else if (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kSectorDecomposition) {
+							fractalIterationRangeInformation.fInteriorMinNrOfIterations = 1.0;
+							fractalIterationRangeInformation.fInteriorMaxNrOfIterations = fColoringParameters.fColorMapInteriorSectorDecompositionRange;
+							interiorRankColoringHistogram[fractalIterationRangeInformation.fInteriorRankColoringHistogramNrOfPoints++] = fractalResultBuffer.fBuffer[index].getSector(fColoringParameters.fColorMapInteriorSectorDecompositionRange);
+						}
+						else if (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kRealComponent) {
+							fractalIterationRangeInformation.fInteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fInteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fRealComponent);
+							fractalIterationRangeInformation.fInteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fInteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fRealComponent);
+							interiorRankColoringHistogram[fractalIterationRangeInformation.fInteriorRankColoringHistogramNrOfPoints++] = fractalResultBuffer.fBuffer[index].fRealComponent;
+						}
+						else if (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kImaginaryComponent) {
+							fractalIterationRangeInformation.fInteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fInteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fImaginaryComponent);
+							fractalIterationRangeInformation.fInteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fInteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fImaginaryComponent);
+							interiorRankColoringHistogram[fractalIterationRangeInformation.fInteriorRankColoringHistogramNrOfPoints++] = fractalResultBuffer.fBuffer[index].fImaginaryComponent;
+						}
+						else if (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kModulus) {
+							fractalIterationRangeInformation.fInteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fInteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fModulus);
+							fractalIterationRangeInformation.fInteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fInteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fModulus);
+							interiorRankColoringHistogram[fractalIterationRangeInformation.fInteriorRankColoringHistogramNrOfPoints++] = fractalResultBuffer.fBuffer[index].fModulus;
+						}
+						else if (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kAngle) {
+							fractalIterationRangeInformation.fInteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fInteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fAngle);
+							fractalIterationRangeInformation.fInteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fInteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fAngle);
+							interiorRankColoringHistogram[fractalIterationRangeInformation.fInteriorRankColoringHistogramNrOfPoints++] = fractalResultBuffer.fBuffer[index].fAngle;
+						}
+						else if (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kMaxModulus) {
+							fractalIterationRangeInformation.fInteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fInteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fMaxModulus);
+							fractalIterationRangeInformation.fInteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fInteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fMaxModulus);
+							interiorRankColoringHistogram[fractalIterationRangeInformation.fInteriorRankColoringHistogramNrOfPoints++] = fractalResultBuffer.fBuffer[index].fMaxModulus;
+						}
+						else if (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kTotalDistance) {
+							fractalIterationRangeInformation.fInteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fInteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fTotalDistance);
+							fractalIterationRangeInformation.fInteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fInteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fTotalDistance);
+							interiorRankColoringHistogram[fractalIterationRangeInformation.fInteriorRankColoringHistogramNrOfPoints++] = fractalResultBuffer.fBuffer[index].fTotalDistance;
+						}
+						else if (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kAverageDistance) {
+							fractalIterationRangeInformation.fInteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fInteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fAverageDistance);
+							fractalIterationRangeInformation.fInteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fInteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fAverageDistance);
+							interiorRankColoringHistogram[fractalIterationRangeInformation.fInteriorRankColoringHistogramNrOfPoints++] = fractalResultBuffer.fBuffer[index].fAverageDistance;
+						}
+						else if (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kTotalAngle) {
+							fractalIterationRangeInformation.fInteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fInteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fTotalAngle);
+							fractalIterationRangeInformation.fInteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fInteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fTotalAngle);
+							interiorRankColoringHistogram[fractalIterationRangeInformation.fInteriorRankColoringHistogramNrOfPoints++] = fractalResultBuffer.fBuffer[index].fTotalAngle;
+						}
+						else if (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kLyapunovExponent) {
+							fractalIterationRangeInformation.fInteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fInteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fLyapunovExponent);
+							fractalIterationRangeInformation.fInteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fInteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fLyapunovExponent);
+							interiorRankColoringHistogram[fractalIterationRangeInformation.fInteriorRankColoringHistogramNrOfPoints++] = fractalResultBuffer.fBuffer[index].fLyapunovExponent;
+						}
+						else if (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kCurvature) {
+							fractalIterationRangeInformation.fInteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fInteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fCurvature);
+							fractalIterationRangeInformation.fInteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fInteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fCurvature);
+							interiorRankColoringHistogram[fractalIterationRangeInformation.fInteriorRankColoringHistogramNrOfPoints++] = fractalResultBuffer.fBuffer[index].fCurvature;
+						}
+						else if (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kStriping) {
+							fractalIterationRangeInformation.fInteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fInteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fStriping);
+							fractalIterationRangeInformation.fInteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fInteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fStriping);
+							interiorRankColoringHistogram[fractalIterationRangeInformation.fInteriorRankColoringHistogramNrOfPoints++] = fractalResultBuffer.fBuffer[index].fStriping;
+						}
+						else if (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kMinimumGaussianIntegersDistance) {
+							fractalIterationRangeInformation.fInteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fInteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fMinimumGaussianIntegersDistance);
+							fractalIterationRangeInformation.fInteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fInteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fMinimumGaussianIntegersDistance);
+							interiorRankColoringHistogram[fractalIterationRangeInformation.fInteriorRankColoringHistogramNrOfPoints++] = fractalResultBuffer.fBuffer[index].fMinimumGaussianIntegersDistance;
+						}
+						else if (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kAverageGaussianIntegersDistance) {
+							fractalIterationRangeInformation.fInteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fInteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fAverageGaussianIntegersDistance);
+							fractalIterationRangeInformation.fInteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fInteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fAverageGaussianIntegersDistance);
+							interiorRankColoringHistogram[fractalIterationRangeInformation.fInteriorRankColoringHistogramNrOfPoints++] = fractalResultBuffer.fBuffer[index].fAverageGaussianIntegersDistance;
+						}
+					} // if (fInteriorColoringMethod != EColoringMethod.kFixedColor)
+				} // if (fractalResultBuffer.fBuffer[index].liesInInterior())
+				else {
+					// determine extrema for exterior colouring
+					fractalIterationRangeInformation.fExteriorMaxNrOfIntegralIterations = Math.max(fractalIterationRangeInformation.fExteriorMaxNrOfIntegralIterations,fractalResultBuffer.fBuffer[index].fNrOfIterations);
 
-					if (fractalResultBuffer.fBuffer[index].liesInInterior()) {
-						// determine extrema for interior colouring
-						if (fColoringParameters.fInteriorColoringMethod != ColoringParameters.EColoringMethod.kFixedColor) {
-							if (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kSmoothEICLevelSets) {
-								fractalIterationRangeInformation.fInteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fInteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fExponentialIterationCount);
-								fractalIterationRangeInformation.fInteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fInteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fExponentialIterationCount);
-								interiorRankColoringHistogram.add(fractalResultBuffer.fBuffer[index].fExponentialIterationCount);
-							}
-							else if (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kSectorDecomposition) {
-								fractalIterationRangeInformation.fInteriorMinNrOfIterations = 1.0;
-								fractalIterationRangeInformation.fInteriorMaxNrOfIterations = fColoringParameters.fColorMapInteriorSectorDecompositionRange;
-								interiorRankColoringHistogram.add((double) fractalResultBuffer.fBuffer[index].getSector(fColoringParameters.fColorMapInteriorSectorDecompositionRange));
-							}
-							else if (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kRealComponent) {
-								fractalIterationRangeInformation.fInteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fInteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fRealComponent);
-								fractalIterationRangeInformation.fInteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fInteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fRealComponent);
-								interiorRankColoringHistogram.add(fractalResultBuffer.fBuffer[index].fRealComponent);
-							}
-							else if (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kImaginaryComponent) {
-								fractalIterationRangeInformation.fInteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fInteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fImaginaryComponent);
-								fractalIterationRangeInformation.fInteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fInteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fImaginaryComponent);
-								interiorRankColoringHistogram.add(fractalResultBuffer.fBuffer[index].fImaginaryComponent);
-							}
-							else if (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kModulus) {
-								fractalIterationRangeInformation.fInteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fInteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fModulus);
-								fractalIterationRangeInformation.fInteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fInteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fModulus);
-								interiorRankColoringHistogram.add(fractalResultBuffer.fBuffer[index].fModulus);
-							}
-							else if (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kAngle) {
-								fractalIterationRangeInformation.fInteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fInteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fAngle);
-								fractalIterationRangeInformation.fInteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fInteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fAngle);
-								interiorRankColoringHistogram.add(fractalResultBuffer.fBuffer[index].fAngle);
-							}
-							else if (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kMaxModulus) {
-								fractalIterationRangeInformation.fInteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fInteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fMaxModulus);
-								fractalIterationRangeInformation.fInteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fInteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fMaxModulus);
-								interiorRankColoringHistogram.add(fractalResultBuffer.fBuffer[index].fMaxModulus);
-							}
-							else if (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kTotalDistance) {
-								fractalIterationRangeInformation.fInteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fInteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fTotalDistance);
-								fractalIterationRangeInformation.fInteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fInteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fTotalDistance);
-								interiorRankColoringHistogram.add(fractalResultBuffer.fBuffer[index].fTotalDistance);
-							}
-							else if (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kAverageDistance) {
-								fractalIterationRangeInformation.fInteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fInteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fAverageDistance);
-								fractalIterationRangeInformation.fInteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fInteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fAverageDistance);
-								interiorRankColoringHistogram.add(fractalResultBuffer.fBuffer[index].fAverageDistance);
-							}
-							else if (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kTotalAngle) {
-								fractalIterationRangeInformation.fInteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fInteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fTotalAngle);
-								fractalIterationRangeInformation.fInteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fInteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fTotalAngle);
-								interiorRankColoringHistogram.add(fractalResultBuffer.fBuffer[index].fTotalAngle);
-							}
-							else if (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kLyapunovExponent) {
-								fractalIterationRangeInformation.fInteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fInteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fLyapunovExponent);
-								fractalIterationRangeInformation.fInteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fInteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fLyapunovExponent);
-								interiorRankColoringHistogram.add(fractalResultBuffer.fBuffer[index].fLyapunovExponent);
-							}
-							else if (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kCurvature) {
-								fractalIterationRangeInformation.fInteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fInteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fCurvature);
-								fractalIterationRangeInformation.fInteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fInteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fCurvature);
-								interiorRankColoringHistogram.add(fractalResultBuffer.fBuffer[index].fCurvature);
-							}
-							else if (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kStriping) {
-								fractalIterationRangeInformation.fInteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fInteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fStriping);
-								fractalIterationRangeInformation.fInteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fInteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fStriping);
-								interiorRankColoringHistogram.add(fractalResultBuffer.fBuffer[index].fStriping);
-							}
-							else if (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kMinimumGaussianIntegersDistance) {
-								fractalIterationRangeInformation.fInteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fInteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fMinimumGaussianIntegersDistance);
-								fractalIterationRangeInformation.fInteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fInteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fMinimumGaussianIntegersDistance);
-								interiorRankColoringHistogram.add(fractalResultBuffer.fBuffer[index].fMinimumGaussianIntegersDistance);
-							}
-							else if (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kAverageGaussianIntegersDistance) {
-								fractalIterationRangeInformation.fInteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fInteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fAverageGaussianIntegersDistance);
-								fractalIterationRangeInformation.fInteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fInteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fAverageGaussianIntegersDistance);
-								interiorRankColoringHistogram.add(fractalResultBuffer.fBuffer[index].fAverageGaussianIntegersDistance);
-							}
-						} // if (fInteriorColoringMethod != EColoringMethod.kFixedColor)
-					} // if (fractalResultBuffer.fBuffer[index].liesInInterior())
-					else {
-						// determine extrema for exterior colouring
-						fractalIterationRangeInformation.fExteriorMaxNrOfIntegralIterations = Math.max(fractalIterationRangeInformation.fExteriorMaxNrOfIntegralIterations,fractalResultBuffer.fBuffer[index].fNrOfIterations);
+					if (fColoringParameters.fExteriorColoringMethod != ColoringParameters.EColoringMethod.kFixedColor) {
+						if (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kDiscreteLevelSets) {
+							fractalIterationRangeInformation.fExteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fExteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fNrOfIterations);
+							fractalIterationRangeInformation.fExteriorMaxNrOfIterations = fractalIterationRangeInformation.fExteriorMaxNrOfIntegralIterations;
+							exteriorRankColoringHistogram[fractalIterationRangeInformation.fExteriorRankColoringHistogramNrOfPoints++] = fractalResultBuffer.fBuffer[index].fNrOfIterations;
+						}
+						else if (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kSmoothNICLevelSets) {
+							fractalIterationRangeInformation.fExteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fExteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fNormalisedIterationCount);
+							fractalIterationRangeInformation.fExteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fExteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fNormalisedIterationCount);
+							exteriorRankColoringHistogram[fractalIterationRangeInformation.fExteriorRankColoringHistogramNrOfPoints++] = fractalResultBuffer.fBuffer[index].fNormalisedIterationCount;
+						}
+						else if (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kSmoothEICLevelSets) {
+							fractalIterationRangeInformation.fExteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fExteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fExponentialIterationCount);
+							fractalIterationRangeInformation.fExteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fExteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fExponentialIterationCount);
+							exteriorRankColoringHistogram[fractalIterationRangeInformation.fExteriorRankColoringHistogramNrOfPoints++] = fractalResultBuffer.fBuffer[index].fExponentialIterationCount;
+						}
+						else if (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kSectorDecomposition) {
+							fractalIterationRangeInformation.fExteriorMinNrOfIterations = 1.0;
+							fractalIterationRangeInformation.fExteriorMaxNrOfIterations = fColoringParameters.fColorMapExteriorSectorDecompositionRange;
+							exteriorRankColoringHistogram[fractalIterationRangeInformation.fExteriorRankColoringHistogramNrOfPoints++] = (double) fractalResultBuffer.fBuffer[index].getSector(fColoringParameters.fColorMapExteriorSectorDecompositionRange);
+						}
+						else if (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kRealComponent) {
+							fractalIterationRangeInformation.fExteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fExteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fRealComponent);
+							fractalIterationRangeInformation.fExteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fExteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fRealComponent);
+							exteriorRankColoringHistogram[fractalIterationRangeInformation.fExteriorRankColoringHistogramNrOfPoints++] = fractalResultBuffer.fBuffer[index].fRealComponent;
+						}
+						else if (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kImaginaryComponent) {
+							fractalIterationRangeInformation.fExteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fExteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fImaginaryComponent);
+							fractalIterationRangeInformation.fExteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fExteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fImaginaryComponent);
+							exteriorRankColoringHistogram[fractalIterationRangeInformation.fExteriorRankColoringHistogramNrOfPoints++] = fractalResultBuffer.fBuffer[index].fImaginaryComponent;
+						}
+						else if (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kModulus) {
+							fractalIterationRangeInformation.fExteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fExteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fModulus);
+							fractalIterationRangeInformation.fExteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fExteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fModulus);
+							exteriorRankColoringHistogram[fractalIterationRangeInformation.fExteriorRankColoringHistogramNrOfPoints++] = fractalResultBuffer.fBuffer[index].fModulus;
+						}
+						else if (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kAngle) {
+							fractalIterationRangeInformation.fExteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fExteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fAngle);
+							fractalIterationRangeInformation.fExteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fExteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fAngle);
+							exteriorRankColoringHistogram[fractalIterationRangeInformation.fExteriorRankColoringHistogramNrOfPoints++] = fractalResultBuffer.fBuffer[index].fAngle;
+						}
+						else if (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kMaxModulus) {
+							fractalIterationRangeInformation.fExteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fExteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fMaxModulus);
+							fractalIterationRangeInformation.fExteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fExteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fMaxModulus);
+							exteriorRankColoringHistogram[fractalIterationRangeInformation.fExteriorRankColoringHistogramNrOfPoints++] = fractalResultBuffer.fBuffer[index].fMaxModulus;
+						}
+						else if (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kTotalDistance) {
+							fractalIterationRangeInformation.fExteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fExteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fTotalDistance);
+							fractalIterationRangeInformation.fExteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fExteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fTotalDistance);
+							exteriorRankColoringHistogram[fractalIterationRangeInformation.fExteriorRankColoringHistogramNrOfPoints++] = fractalResultBuffer.fBuffer[index].fTotalDistance;
+						}
+						else if (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kAverageDistance) {
+							fractalIterationRangeInformation.fExteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fExteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fAverageDistance);
+							fractalIterationRangeInformation.fExteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fExteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fAverageDistance);
+							exteriorRankColoringHistogram[fractalIterationRangeInformation.fExteriorRankColoringHistogramNrOfPoints++] = fractalResultBuffer.fBuffer[index].fAverageDistance;
+						}
+						else if (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kTotalAngle) {
+							fractalIterationRangeInformation.fExteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fExteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fTotalAngle);
+							fractalIterationRangeInformation.fExteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fExteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fTotalAngle);
+							exteriorRankColoringHistogram[fractalIterationRangeInformation.fExteriorRankColoringHistogramNrOfPoints++] = fractalResultBuffer.fBuffer[index].fTotalAngle;
+						}
+						else if (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kLyapunovExponent) {
+							fractalIterationRangeInformation.fExteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fExteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fLyapunovExponent);
+							fractalIterationRangeInformation.fExteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fExteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fLyapunovExponent);
+							exteriorRankColoringHistogram[fractalIterationRangeInformation.fExteriorRankColoringHistogramNrOfPoints++] = fractalResultBuffer.fBuffer[index].fLyapunovExponent;
+						}
+						else if (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kCurvature) {
+							fractalIterationRangeInformation.fExteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fExteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fCurvature);
+							fractalIterationRangeInformation.fExteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fExteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fCurvature);
+							exteriorRankColoringHistogram[fractalIterationRangeInformation.fExteriorRankColoringHistogramNrOfPoints++] = fractalResultBuffer.fBuffer[index].fCurvature;
+						}
+						else if (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kStriping) {
+							fractalIterationRangeInformation.fExteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fExteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fStriping);
+							fractalIterationRangeInformation.fExteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fExteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fStriping);
+							exteriorRankColoringHistogram[fractalIterationRangeInformation.fExteriorRankColoringHistogramNrOfPoints++] = fractalResultBuffer.fBuffer[index].fStriping;
+						}
+						else if (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kMinimumGaussianIntegersDistance) {
+							fractalIterationRangeInformation.fExteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fExteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fMinimumGaussianIntegersDistance);
+							fractalIterationRangeInformation.fExteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fExteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fMinimumGaussianIntegersDistance);
+							exteriorRankColoringHistogram[fractalIterationRangeInformation.fExteriorRankColoringHistogramNrOfPoints++] = fractalResultBuffer.fBuffer[index].fMinimumGaussianIntegersDistance;
+						}
+						else if (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kAverageGaussianIntegersDistance) {
+							fractalIterationRangeInformation.fExteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fExteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fAverageGaussianIntegersDistance);
+							fractalIterationRangeInformation.fExteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fExteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fAverageGaussianIntegersDistance);
+							exteriorRankColoringHistogram[fractalIterationRangeInformation.fExteriorRankColoringHistogramNrOfPoints++] = fractalResultBuffer.fBuffer[index].fAverageGaussianIntegersDistance;
+						}
+						else if ((fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kDiscreteRoots) ||
+										 (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kSmoothRoots)) {
+							fractalIterationRangeInformation.fExteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fExteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fRootIndex);
+							fractalIterationRangeInformation.fExteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fExteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fRootIndex);
+							exteriorRankColoringHistogram[fractalIterationRangeInformation.fExteriorRankColoringHistogramNrOfPoints++] = fractalResultBuffer.fBuffer[index].fRootIndex;
+						}
+					} // if (fExteriorColoringMethod != EColoringMethod.kFixedColor)
+				} // if (!fractalResultBuffer.fBuffer[index].liesInInterior())
+			} // if (fractalResultBuffer.fBuffer[index] != null)
+		} // for index
 
-						if (fColoringParameters.fExteriorColoringMethod != ColoringParameters.EColoringMethod.kFixedColor) {
-							if (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kDiscreteLevelSets) {
-								fractalIterationRangeInformation.fExteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fExteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fNrOfIterations);
-								fractalIterationRangeInformation.fExteriorMaxNrOfIterations = fractalIterationRangeInformation.fExteriorMaxNrOfIntegralIterations;
-								exteriorRankColoringHistogram.add(fractalResultBuffer.fBuffer[index].fNrOfIterations);
-							}
-							else if (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kSmoothNICLevelSets) {
-								fractalIterationRangeInformation.fExteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fExteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fNormalisedIterationCount);
-								fractalIterationRangeInformation.fExteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fExteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fNormalisedIterationCount);
-								exteriorRankColoringHistogram.add(fractalResultBuffer.fBuffer[index].fNormalisedIterationCount);
-							}
-							else if (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kSmoothEICLevelSets) {
-								fractalIterationRangeInformation.fExteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fExteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fExponentialIterationCount);
-								fractalIterationRangeInformation.fExteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fExteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fExponentialIterationCount);
-								exteriorRankColoringHistogram.add(fractalResultBuffer.fBuffer[index].fExponentialIterationCount);
-							}
-							else if (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kSectorDecomposition) {
-								fractalIterationRangeInformation.fExteriorMinNrOfIterations = 1.0;
-								fractalIterationRangeInformation.fExteriorMaxNrOfIterations = fColoringParameters.fColorMapExteriorSectorDecompositionRange;
-								exteriorRankColoringHistogram.add((double) fractalResultBuffer.fBuffer[index].getSector(fColoringParameters.fColorMapExteriorSectorDecompositionRange));
-							}
-							else if (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kRealComponent) {
-								fractalIterationRangeInformation.fExteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fExteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fRealComponent);
-								fractalIterationRangeInformation.fExteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fExteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fRealComponent);
-								exteriorRankColoringHistogram.add(fractalResultBuffer.fBuffer[index].fRealComponent);
-							}
-							else if (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kImaginaryComponent) {
-								fractalIterationRangeInformation.fExteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fExteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fImaginaryComponent);
-								fractalIterationRangeInformation.fExteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fExteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fImaginaryComponent);
-								exteriorRankColoringHistogram.add(fractalResultBuffer.fBuffer[index].fImaginaryComponent);
-							}
-							else if (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kModulus) {
-								fractalIterationRangeInformation.fExteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fExteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fModulus);
-								fractalIterationRangeInformation.fExteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fExteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fModulus);
-								exteriorRankColoringHistogram.add(fractalResultBuffer.fBuffer[index].fModulus);
-							}
-							else if (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kAngle) {
-								fractalIterationRangeInformation.fExteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fExteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fAngle);
-								fractalIterationRangeInformation.fExteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fExteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fAngle);
-								exteriorRankColoringHistogram.add(fractalResultBuffer.fBuffer[index].fAngle);
-							}
-							else if (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kMaxModulus) {
-								fractalIterationRangeInformation.fExteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fExteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fMaxModulus);
-								fractalIterationRangeInformation.fExteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fExteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fMaxModulus);
-								exteriorRankColoringHistogram.add(fractalResultBuffer.fBuffer[index].fMaxModulus);
-							}
-							else if (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kTotalDistance) {
-								fractalIterationRangeInformation.fExteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fExteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fTotalDistance);
-								fractalIterationRangeInformation.fExteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fExteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fTotalDistance);
-								exteriorRankColoringHistogram.add(fractalResultBuffer.fBuffer[index].fTotalDistance);
-							}
-							else if (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kAverageDistance) {
-								fractalIterationRangeInformation.fExteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fExteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fAverageDistance);
-								fractalIterationRangeInformation.fExteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fExteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fAverageDistance);
-								exteriorRankColoringHistogram.add(fractalResultBuffer.fBuffer[index].fAverageDistance);
-							}
-							else if (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kTotalAngle) {
-								fractalIterationRangeInformation.fExteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fExteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fTotalAngle);
-								fractalIterationRangeInformation.fExteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fExteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fTotalAngle);
-								exteriorRankColoringHistogram.add(fractalResultBuffer.fBuffer[index].fTotalAngle);
-							}
-							else if (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kLyapunovExponent) {
-								fractalIterationRangeInformation.fExteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fExteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fLyapunovExponent);
-								fractalIterationRangeInformation.fExteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fExteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fLyapunovExponent);
-								exteriorRankColoringHistogram.add(fractalResultBuffer.fBuffer[index].fLyapunovExponent);
-							}
-							else if (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kCurvature) {
-								fractalIterationRangeInformation.fExteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fExteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fCurvature);
-								fractalIterationRangeInformation.fExteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fExteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fCurvature);
-								exteriorRankColoringHistogram.add(fractalResultBuffer.fBuffer[index].fCurvature);
-							}
-							else if (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kStriping) {
-								fractalIterationRangeInformation.fExteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fExteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fStriping);
-								fractalIterationRangeInformation.fExteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fExteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fStriping);
-								exteriorRankColoringHistogram.add(fractalResultBuffer.fBuffer[index].fStriping);
-							}
-							else if (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kMinimumGaussianIntegersDistance) {
-								fractalIterationRangeInformation.fExteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fExteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fMinimumGaussianIntegersDistance);
-								fractalIterationRangeInformation.fExteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fExteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fMinimumGaussianIntegersDistance);
-								exteriorRankColoringHistogram.add(fractalResultBuffer.fBuffer[index].fMinimumGaussianIntegersDistance);
-							}
-							else if (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kAverageGaussianIntegersDistance) {
-								fractalIterationRangeInformation.fExteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fExteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fAverageGaussianIntegersDistance);
-								fractalIterationRangeInformation.fExteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fExteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fAverageGaussianIntegersDistance);
-								exteriorRankColoringHistogram.add(fractalResultBuffer.fBuffer[index].fAverageGaussianIntegersDistance);
-							}
-							else if ((fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kDiscreteRoots) ||
-											 (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kSmoothRoots)) {
-								fractalIterationRangeInformation.fExteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fExteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fRootIndex);
-								fractalIterationRangeInformation.fExteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fExteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fRootIndex);
-								exteriorRankColoringHistogram.add(fractalResultBuffer.fBuffer[index].fRootIndex);
-							}
-						} // if (fExteriorColoringMethod != EColoringMethod.kFixedColor)
-					} // if (!fractalResultBuffer.fBuffer[index].liesInInterior())
-				} // if (fractalResultBuffer.fBuffer[index] != null)
-			} // for (int y = 0; y < fractalResultBuffer.fHeight; ++y)
-		} // for (int x = 0; x < fractalResultBuffer.fWidth; ++x)
-
-		// second pass: construct histogram for ranked colours
-		fractalIterationRangeInformation.fInteriorRankColoringHistogramLookupTable = new Hashtable<Double,Double>();
-		fractalIterationRangeInformation.fExteriorRankColoringHistogramLookupTable = new Hashtable<Double,Double>();
-
+		// second pass: construct histogram for ranked colours (containing values between 0 and 1)
 		if (fColoringParameters.fColorMapScaling == ColoringParameters.EColorMapScaling.kRankOrder) {
-//XXX
-//System.out.println("Taking my time?");
-			if (fColoringParameters.fInteriorColoringMethod != ColoringParameters.EColoringMethod.kFixedColor) {
-				Collections.sort(interiorRankColoringHistogram);
-				for (int n = 0; n < interiorRankColoringHistogram.size(); ++n) {
-					fractalIterationRangeInformation.fInteriorRankColoringHistogramLookupTable.put(interiorRankColoringHistogram.get(n),(double) n / ((double) interiorRankColoringHistogram.size() - 1.0));
-				}
+
+			if ((fColoringParameters.fInteriorColoringMethod != ColoringParameters.EColoringMethod.kFixedColor) && (fractalIterationRangeInformation.fInteriorRankColoringHistogramNrOfPoints > 0)) {
+				// manual code optimisation: we copy the retained part of the histogram and sort it
+				fractalIterationRangeInformation.fInteriorRankColoringHistogramLookupTable = new double[fractalIterationRangeInformation.fInteriorRankColoringHistogramNrOfPoints];
+				System.arraycopy(interiorRankColoringHistogram,0,fractalIterationRangeInformation.fInteriorRankColoringHistogramLookupTable,0,fractalIterationRangeInformation.fInteriorRankColoringHistogramNrOfPoints);
+				Arrays.parallelSort(fractalIterationRangeInformation.fInteriorRankColoringHistogramLookupTable);
 			}
 
-			if (fColoringParameters.fExteriorColoringMethod != ColoringParameters.EColoringMethod.kFixedColor) {
-				Collections.sort(exteriorRankColoringHistogram);
-				for (int n = 0; n < exteriorRankColoringHistogram.size(); ++n) {
-					fractalIterationRangeInformation.fExteriorRankColoringHistogramLookupTable.put(exteriorRankColoringHistogram.get(n),(double) n / ((double) exteriorRankColoringHistogram.size() - 1.0));
-				}
+			if ((fColoringParameters.fExteriorColoringMethod != ColoringParameters.EColoringMethod.kFixedColor) && (fractalIterationRangeInformation.fExteriorRankColoringHistogramNrOfPoints > 0)) {
+				// manual code optimisation: we copy the retained part of the histogram and sort it
+				fractalIterationRangeInformation.fExteriorRankColoringHistogramLookupTable = new double[fractalIterationRangeInformation.fExteriorRankColoringHistogramNrOfPoints];
+				System.arraycopy(exteriorRankColoringHistogram,0,fractalIterationRangeInformation.fExteriorRankColoringHistogramLookupTable,0,fractalIterationRangeInformation.fExteriorRankColoringHistogramNrOfPoints);
+				Arrays.parallelSort(fractalIterationRangeInformation.fExteriorRankColoringHistogramLookupTable);
 			}
-//XXX
-//System.out.println("Well?");
 		}
 	}
 
@@ -1799,287 +1791,289 @@ public final class FractalPanel extends JPanel
 		}
 
 		// third pass: draw all colour-mapped iteration counts to the rendering buffer
-		for (int x = 0; x < fractalResultBuffer.fWidth; ++x) {
-			for (int y = 0; y < fractalResultBuffer.fHeight; ++y) {
-				int index = (x * fractalResultBuffer.fHeight) + y;
+		for (int index = 0; index < (fractalResultBuffer.fWidth * fractalResultBuffer.fHeight); ++index) {
 
-				// set the default colour to black
-				Color color = Color.BLACK;
+			// set the default colour to black
+			Color color = Color.BLACK;
 
-				IterationResult iterationResult = fractalResultBuffer.fBuffer[index];
-				if (iterationResult != null) {
+			IterationResult iterationResult = fractalResultBuffer.fBuffer[index];
+			if (iterationResult != null) {
 
-					// early check for fixed colouring
-					if (iterationResult.liesInInterior() && (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kFixedColor)) {
-						color = fColoringParameters.fInteriorColor;
+				// early check for fixed colouring
+				if (iterationResult.liesInInterior() && (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kFixedColor)) {
+					color = fColoringParameters.fInteriorColor;
+				}
+				else if (!iterationResult.liesInInterior() && (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kFixedColor)) {
+					color = fColoringParameters.fExteriorColor;
+				}
+				else {
+					// determine values based on selected colouring method
+					double nrOfIterations = 0.0;
+					double minNrOfIterations = fractalIterationRangeInformation.fExteriorMinNrOfIterations;
+					double maxNrOfIterations = fractalIterationRangeInformation.fExteriorMaxNrOfIterations;
+					if (iterationResult.liesInInterior()) {
+						minNrOfIterations = fractalIterationRangeInformation.fInteriorMinNrOfIterations;
+						maxNrOfIterations = fractalIterationRangeInformation.fInteriorMaxNrOfIterations;
 					}
-					else if (!iterationResult.liesInInterior() && (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kFixedColor)) {
-						color = fColoringParameters.fExteriorColor;
+
+					if (!iterationResult.liesInInterior() && (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kDiscreteLevelSets)) {
+						nrOfIterations = iterationResult.fNrOfIterations;
 					}
-					else {
-						// determine values based on selected colouring method
-						double nrOfIterations = 0.0;
-						double minNrOfIterations = fractalIterationRangeInformation.fExteriorMinNrOfIterations;
-						double maxNrOfIterations = fractalIterationRangeInformation.fExteriorMaxNrOfIterations;
-						if (iterationResult.liesInInterior()) {
-							minNrOfIterations = fractalIterationRangeInformation.fInteriorMinNrOfIterations;
-							maxNrOfIterations = fractalIterationRangeInformation.fInteriorMaxNrOfIterations;
+					else if (!iterationResult.liesInInterior() && (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kSmoothNICLevelSets)) {
+						nrOfIterations = iterationResult.fNormalisedIterationCount;
+					}
+					else if ((iterationResult.liesInInterior() && (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kSmoothEICLevelSets)) ||
+									(!iterationResult.liesInInterior() && (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kSmoothEICLevelSets))) {
+						nrOfIterations = iterationResult.fExponentialIterationCount;
+					}
+					else if (iterationResult.liesInInterior() && (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kSectorDecomposition)) {
+						nrOfIterations = iterationResult.getSector(fColoringParameters.fColorMapInteriorSectorDecompositionRange);
+					}
+					else if (!iterationResult.liesInInterior() && (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kSectorDecomposition)) {
+						nrOfIterations = iterationResult.getSector(fColoringParameters.fColorMapExteriorSectorDecompositionRange);
+					}
+					else if ((iterationResult.liesInInterior() && (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kRealComponent)) ||
+									(!iterationResult.liesInInterior() && (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kRealComponent))) {
+						nrOfIterations = iterationResult.fRealComponent;
+					}
+					else if ((iterationResult.liesInInterior() && (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kImaginaryComponent)) ||
+									(!iterationResult.liesInInterior() && (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kImaginaryComponent))) {
+						nrOfIterations = iterationResult.fImaginaryComponent;
+					}
+					else if ((iterationResult.liesInInterior() && (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kModulus)) ||
+									(!iterationResult.liesInInterior() && (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kModulus))) {
+						nrOfIterations = iterationResult.fModulus;
+					}
+					else if ((iterationResult.liesInInterior() && (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kAngle)) ||
+									(!iterationResult.liesInInterior() && (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kAngle))) {
+						nrOfIterations = iterationResult.fAngle;
+					}
+					else if ((iterationResult.liesInInterior() && (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kMaxModulus)) ||
+									(!iterationResult.liesInInterior() && (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kMaxModulus))) {
+						nrOfIterations = iterationResult.fMaxModulus;
+					}
+					else if ((iterationResult.liesInInterior() && (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kTotalDistance)) ||
+									(!iterationResult.liesInInterior() && (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kTotalDistance))) {
+						nrOfIterations = iterationResult.fTotalDistance;
+					}
+					else if ((iterationResult.liesInInterior() && (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kAverageDistance)) ||
+									(!iterationResult.liesInInterior() && (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kAverageDistance))) {
+						nrOfIterations = iterationResult.fAverageDistance;
+					}
+					else if ((iterationResult.liesInInterior() && (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kTotalAngle)) ||
+									(!iterationResult.liesInInterior() && (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kTotalAngle))) {
+						nrOfIterations = iterationResult.fTotalAngle;
+					}
+					else if ((iterationResult.liesInInterior() && (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kLyapunovExponent)) ||
+									(!iterationResult.liesInInterior() && (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kLyapunovExponent))) {
+						nrOfIterations = iterationResult.fLyapunovExponent;
+					}
+					else if ((iterationResult.liesInInterior() && (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kCurvature)) ||
+									(!iterationResult.liesInInterior() && (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kCurvature))) {
+						nrOfIterations = iterationResult.fCurvature;
+					}
+					else if ((iterationResult.liesInInterior() && (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kStriping)) ||
+									(!iterationResult.liesInInterior() && (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kStriping))) {
+						nrOfIterations = iterationResult.fStriping;
+					}
+					else if ((iterationResult.liesInInterior() && (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kMinimumGaussianIntegersDistance)) ||
+							(!iterationResult.liesInInterior() && (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kMinimumGaussianIntegersDistance))) {
+						nrOfIterations = iterationResult.fMinimumGaussianIntegersDistance;
+					}
+					else if ((iterationResult.liesInInterior() && (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kAverageGaussianIntegersDistance)) ||
+							(!iterationResult.liesInInterior() && (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kAverageGaussianIntegersDistance))) {
+						nrOfIterations = iterationResult.fAverageGaussianIntegersDistance;
+					}
+					else if (!iterationResult.liesInInterior() && ((fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kDiscreteRoots) ||
+																													(fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kSmoothRoots))) {
+						nrOfIterations = iterationResult.fRootIndex;
+					}
+
+					// bound the shown iterations
+					if (iterationResult.liesInInterior() ||
+							(!iterationResult.liesInInterior() &&
+							(iterationResult.fNrOfIterations <= fractalIterationRangeInformation.fExteriorMaxNrOfIntegralIterations) &&
+							(iterationResult.fNrOfIterations >= fColoringParameters.fLowIterationRange) &&
+							(iterationResult.fNrOfIterations <= fColoringParameters.fHighIterationRange))) {
+
+						// apply colour map scaling (transform the argument and function by using the multipliers)
+						double colorMapDiscreteColorRange = (double) fColoringParameters.fColorMapDiscreteColorRange;
+						if (fColoringParameters.fColorMapScaling == ColoringParameters.EColorMapScaling.kLinear) {
+							fColoringParameters.fColorMapContinuousColorRange = fColoringParameters.fColorMapScalingArgumentMultiplier * fColoringParameters.fColorMapContinuousColorRange;
+							colorMapDiscreteColorRange = fColoringParameters.fColorMapScalingArgumentMultiplier * colorMapDiscreteColorRange;
+							nrOfIterations = fColoringParameters.fColorMapScalingArgumentMultiplier * nrOfIterations;
+						}
+						else if (fColoringParameters.fColorMapScaling == ColoringParameters.EColorMapScaling.kLogarithmic) {
+							fColoringParameters.fColorMapContinuousColorRange = fColoringParameters.fColorMapScalingFunctionMultiplier * Math.log(fColoringParameters.fColorMapScalingArgumentMultiplier * fColoringParameters.fColorMapContinuousColorRange);
+							colorMapDiscreteColorRange = fColoringParameters.fColorMapScalingFunctionMultiplier * Math.log(fColoringParameters.fColorMapScalingArgumentMultiplier * colorMapDiscreteColorRange);
+							nrOfIterations = fColoringParameters.fColorMapScalingFunctionMultiplier * Math.log(fColoringParameters.fColorMapScalingArgumentMultiplier * nrOfIterations);
+							minNrOfIterations = Math.log(minNrOfIterations);
+							maxNrOfIterations = Math.log(maxNrOfIterations);
+						}
+						else if (fColoringParameters.fColorMapScaling == ColoringParameters.EColorMapScaling.kExponential) {
+							fColoringParameters.fColorMapContinuousColorRange = fColoringParameters.fColorMapScalingFunctionMultiplier * Math.exp(fColoringParameters.fColorMapScalingArgumentMultiplier * fColoringParameters.fColorMapContinuousColorRange);
+							colorMapDiscreteColorRange = fColoringParameters.fColorMapScalingFunctionMultiplier * Math.exp(fColoringParameters.fColorMapScalingArgumentMultiplier * colorMapDiscreteColorRange);
+							nrOfIterations = fColoringParameters.fColorMapScalingFunctionMultiplier * Math.exp(fColoringParameters.fColorMapScalingArgumentMultiplier * nrOfIterations);
+							minNrOfIterations = Math.exp(minNrOfIterations);
+							maxNrOfIterations = Math.exp(maxNrOfIterations);
+						}
+						else if (fColoringParameters.fColorMapScaling == ColoringParameters.EColorMapScaling.kSqrt) {
+							fColoringParameters.fColorMapContinuousColorRange = fColoringParameters.fColorMapScalingFunctionMultiplier * Math.sqrt(fColoringParameters.fColorMapScalingArgumentMultiplier * fColoringParameters.fColorMapContinuousColorRange);
+							colorMapDiscreteColorRange = fColoringParameters.fColorMapScalingFunctionMultiplier * Math.sqrt(fColoringParameters.fColorMapScalingArgumentMultiplier * colorMapDiscreteColorRange);
+							nrOfIterations = fColoringParameters.fColorMapScalingFunctionMultiplier * Math.sqrt(fColoringParameters.fColorMapScalingArgumentMultiplier * nrOfIterations);
+							minNrOfIterations = Math.sqrt(minNrOfIterations);
+							maxNrOfIterations = Math.sqrt(maxNrOfIterations);
 						}
 
-						if (!iterationResult.liesInInterior() && (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kDiscreteLevelSets)) {
-							nrOfIterations = iterationResult.fNrOfIterations;
-						}
-						else if (!iterationResult.liesInInterior() && (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kSmoothNICLevelSets)) {
-							nrOfIterations = iterationResult.fNormalisedIterationCount;
-						}
-						else if ((iterationResult.liesInInterior() && (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kSmoothEICLevelSets)) ||
-										(!iterationResult.liesInInterior() && (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kSmoothEICLevelSets))) {
-							nrOfIterations = iterationResult.fExponentialIterationCount;
-						}
-						else if (iterationResult.liesInInterior() && (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kSectorDecomposition)) {
-							nrOfIterations = iterationResult.getSector(fColoringParameters.fColorMapInteriorSectorDecompositionRange);
-						}
-						else if (!iterationResult.liesInInterior() && (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kSectorDecomposition)) {
-							nrOfIterations = iterationResult.getSector(fColoringParameters.fColorMapExteriorSectorDecompositionRange);
-						}
-						else if ((iterationResult.liesInInterior() && (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kRealComponent)) ||
-										(!iterationResult.liesInInterior() && (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kRealComponent))) {
-							nrOfIterations = iterationResult.fRealComponent;
-						}
-						else if ((iterationResult.liesInInterior() && (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kImaginaryComponent)) ||
-										(!iterationResult.liesInInterior() && (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kImaginaryComponent))) {
-							nrOfIterations = iterationResult.fImaginaryComponent;
-						}
-						else if ((iterationResult.liesInInterior() && (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kModulus)) ||
-										(!iterationResult.liesInInterior() && (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kModulus))) {
-							nrOfIterations = iterationResult.fModulus;
-						}
-						else if ((iterationResult.liesInInterior() && (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kAngle)) ||
-										(!iterationResult.liesInInterior() && (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kAngle))) {
-							nrOfIterations = iterationResult.fAngle;
-						}
-						else if ((iterationResult.liesInInterior() && (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kMaxModulus)) ||
-										(!iterationResult.liesInInterior() && (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kMaxModulus))) {
-							nrOfIterations = iterationResult.fMaxModulus;
-						}
-						else if ((iterationResult.liesInInterior() && (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kTotalDistance)) ||
-										(!iterationResult.liesInInterior() && (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kTotalDistance))) {
-							nrOfIterations = iterationResult.fTotalDistance;
-						}
-						else if ((iterationResult.liesInInterior() && (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kAverageDistance)) ||
-										(!iterationResult.liesInInterior() && (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kAverageDistance))) {
-							nrOfIterations = iterationResult.fAverageDistance;
-						}
-						else if ((iterationResult.liesInInterior() && (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kTotalAngle)) ||
-										(!iterationResult.liesInInterior() && (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kTotalAngle))) {
-							nrOfIterations = iterationResult.fTotalAngle;
-						}
-						else if ((iterationResult.liesInInterior() && (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kLyapunovExponent)) ||
-										(!iterationResult.liesInInterior() && (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kLyapunovExponent))) {
-							nrOfIterations = iterationResult.fLyapunovExponent;
-						}
-						else if ((iterationResult.liesInInterior() && (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kCurvature)) ||
-										(!iterationResult.liesInInterior() && (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kCurvature))) {
-							nrOfIterations = iterationResult.fCurvature;
-						}
-						else if ((iterationResult.liesInInterior() && (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kStriping)) ||
-										(!iterationResult.liesInInterior() && (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kStriping))) {
-							nrOfIterations = iterationResult.fStriping;
-						}
-						else if ((iterationResult.liesInInterior() && (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kMinimumGaussianIntegersDistance)) ||
-								(!iterationResult.liesInInterior() && (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kMinimumGaussianIntegersDistance))) {
-							nrOfIterations = iterationResult.fMinimumGaussianIntegersDistance;
-						}
-						else if ((iterationResult.liesInInterior() && (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kAverageGaussianIntegersDistance)) ||
-								(!iterationResult.liesInInterior() && (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kAverageGaussianIntegersDistance))) {
-							nrOfIterations = iterationResult.fAverageGaussianIntegersDistance;
-						}
-						else if (!iterationResult.liesInInterior() && ((fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kDiscreteRoots) ||
-																														(fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kSmoothRoots))) {
-							nrOfIterations = iterationResult.fRootIndex;
-						}
+						// determine default colorIndex
+						double colorIndex = 0.0;
 
-						// bound the shown iterations
-						if (iterationResult.liesInInterior() ||
-								(!iterationResult.liesInInterior() &&
-								(iterationResult.fNrOfIterations <= fractalIterationRangeInformation.fExteriorMaxNrOfIntegralIterations) &&
-								(iterationResult.fNrOfIterations >= fColoringParameters.fLowIterationRange) &&
-								(iterationResult.fNrOfIterations <= fColoringParameters.fHighIterationRange))) {
-
-							// apply colour map scaling (transform the argument and function by using the multipliers)
-							double colorMapDiscreteColorRange = (double) fColoringParameters.fColorMapDiscreteColorRange;
-							if (fColoringParameters.fColorMapScaling == ColoringParameters.EColorMapScaling.kLinear) {
-								fColoringParameters.fColorMapContinuousColorRange = fColoringParameters.fColorMapScalingArgumentMultiplier * fColoringParameters.fColorMapContinuousColorRange;
-								colorMapDiscreteColorRange = fColoringParameters.fColorMapScalingArgumentMultiplier * colorMapDiscreteColorRange;
-								nrOfIterations = fColoringParameters.fColorMapScalingArgumentMultiplier * nrOfIterations;
-							}
-							else if (fColoringParameters.fColorMapScaling == ColoringParameters.EColorMapScaling.kLogarithmic) {
-								fColoringParameters.fColorMapContinuousColorRange = fColoringParameters.fColorMapScalingFunctionMultiplier * Math.log(fColoringParameters.fColorMapScalingArgumentMultiplier * fColoringParameters.fColorMapContinuousColorRange);
-								colorMapDiscreteColorRange = fColoringParameters.fColorMapScalingFunctionMultiplier * Math.log(fColoringParameters.fColorMapScalingArgumentMultiplier * colorMapDiscreteColorRange);
-								nrOfIterations = fColoringParameters.fColorMapScalingFunctionMultiplier * Math.log(fColoringParameters.fColorMapScalingArgumentMultiplier * nrOfIterations);
-								minNrOfIterations = Math.log(minNrOfIterations);
-								maxNrOfIterations = Math.log(maxNrOfIterations);
-							}
-							else if (fColoringParameters.fColorMapScaling == ColoringParameters.EColorMapScaling.kExponential) {
-								fColoringParameters.fColorMapContinuousColorRange = fColoringParameters.fColorMapScalingFunctionMultiplier * Math.exp(fColoringParameters.fColorMapScalingArgumentMultiplier * fColoringParameters.fColorMapContinuousColorRange);
-								colorMapDiscreteColorRange = fColoringParameters.fColorMapScalingFunctionMultiplier * Math.exp(fColoringParameters.fColorMapScalingArgumentMultiplier * colorMapDiscreteColorRange);
-								nrOfIterations = fColoringParameters.fColorMapScalingFunctionMultiplier * Math.exp(fColoringParameters.fColorMapScalingArgumentMultiplier * nrOfIterations);
-								minNrOfIterations = Math.exp(minNrOfIterations);
-								maxNrOfIterations = Math.exp(maxNrOfIterations);
-							}
-							else if (fColoringParameters.fColorMapScaling == ColoringParameters.EColorMapScaling.kSqrt) {
-								fColoringParameters.fColorMapContinuousColorRange = fColoringParameters.fColorMapScalingFunctionMultiplier * Math.sqrt(fColoringParameters.fColorMapScalingArgumentMultiplier * fColoringParameters.fColorMapContinuousColorRange);
-								colorMapDiscreteColorRange = fColoringParameters.fColorMapScalingFunctionMultiplier * Math.sqrt(fColoringParameters.fColorMapScalingArgumentMultiplier * colorMapDiscreteColorRange);
-								nrOfIterations = fColoringParameters.fColorMapScalingFunctionMultiplier * Math.sqrt(fColoringParameters.fColorMapScalingArgumentMultiplier * nrOfIterations);
-								minNrOfIterations = Math.sqrt(minNrOfIterations);
-								maxNrOfIterations = Math.sqrt(maxNrOfIterations);
-							}
-
-							// determine default colorIndex
-							double colorIndex = 0.0;
-
-							if (fColoringParameters.fColorMapScaling == ColoringParameters.EColorMapScaling.kRankOrder) {
-								if (iterationResult.liesInInterior()) {
-									// interior colouring
-									if ((fractalIterationRangeInformation.fInteriorRankColoringHistogramLookupTable != null) && (fractalIterationRangeInformation.fInteriorRankColoringHistogramLookupTable.get(nrOfIterations) != null)) {
-										colorIndex = fractalIterationRangeInformation.fInteriorRankColoringHistogramLookupTable.get(nrOfIterations);
-										if (fColoringParameters.fRankOrderRestrictHighIterationCountColors) {
-											colorIndex = 1.0 + (1.0 / (Math.log(1.0 - colorIndex) - 1.0));
-										}
+						if (fColoringParameters.fColorMapScaling == ColoringParameters.EColorMapScaling.kRankOrder) {
+							if (iterationResult.liesInInterior()) {
+								// interior colouring
+								if (fractalIterationRangeInformation.fInteriorRankColoringHistogramNrOfPoints > 0) {
+									int lookupIndex = Arrays.binarySearch(fractalIterationRangeInformation.fInteriorRankColoringHistogramLookupTable,nrOfIterations);
+									if (lookupIndex >= 0) {
+										// manual code optimisation: calculate the rank directly
+										colorIndex = (double) lookupIndex / ((double) fractalIterationRangeInformation.fInteriorRankColoringHistogramNrOfPoints - 1.0);
 									}
+								}
+							}
+							else if (fractalIterationRangeInformation.fExteriorRankColoringHistogramNrOfPoints > 0) {
+								// exterior colouring
+								int lookupIndex = Arrays.binarySearch(fractalIterationRangeInformation.fExteriorRankColoringHistogramLookupTable,nrOfIterations);
+								if (lookupIndex >= 0) {
+									// manual code optimisation: calculate the rank directly
+									colorIndex = (double) lookupIndex / ((double) fractalIterationRangeInformation.fExteriorRankColoringHistogramNrOfPoints - 1.0);
+								}
+							}
+
+							// restrict high iteration counts if necessary
+							if (fColoringParameters.fRankOrderRestrictHighIterationCountColors) {
+								colorIndex = 1.0 + (1.0 / (Math.log(1.0 - colorIndex) - 1.0));
+							}
+						} // if (fColorMapScaling == EColorMapScaling.kRankOrder)
+						else {
+							// no rank order colour map scaling
+							colorIndex = MathTools.clip((nrOfIterations - minNrOfIterations) / (maxNrOfIterations - minNrOfIterations),0.0,1.0);
+							if (((Double) colorIndex).isNaN()) {
+								colorIndex = 0.0;
+							}
+						} // if (fColorMapScaling != EColorMapScaling.kRankOrder)
+
+						// apply colour map cycling
+						if (fColoringParameters.fColorMapColorOffset != 0.0) {
+							colorIndex = MathTools.frac(colorIndex + fColoringParameters.fColorMapColorOffset);
+						}
+
+						// apply colour map wrapping
+						if (iterationResult.liesInInterior()) {
+							// interior colouring
+							if (fColoringParameters.fInteriorColorMapWrappedAround) {
+								if (colorIndex < 0.5) {
+									colorIndex *= 2.0;
 								}
 								else {
-									// exterior colouring
-									if ((fractalIterationRangeInformation.fExteriorRankColoringHistogramLookupTable != null) && (fractalIterationRangeInformation.fExteriorRankColoringHistogramLookupTable.get(nrOfIterations) != null)) {
-										colorIndex = fractalIterationRangeInformation.fExteriorRankColoringHistogramLookupTable.get(nrOfIterations);
-										if (fColoringParameters.fRankOrderRestrictHighIterationCountColors) {
-											colorIndex = 1.0 + (1.0 / (Math.log(1.0 - colorIndex) - 1.0));
-										}
-									}
+									colorIndex = 2.0 * (1.0 - colorIndex);
 								}
-							} // if (fColorMapScaling == EColorMapScaling.kRankOrder)
-							else {
-								// no rank order colour map scaling
-								colorIndex = MathTools.clip((nrOfIterations - minNrOfIterations) / (maxNrOfIterations - minNrOfIterations),0.0,1.0);
-								if (((Double) colorIndex).isNaN()) {
-									colorIndex = 0.0;
+							}
+						}
+						else {
+							// exterior colouring
+							if (fColoringParameters.fExteriorColorMapWrappedAround) {
+								if (colorIndex < 0.5) {
+									colorIndex *= 2.0;
 								}
-							} // if (fColorMapScaling != EColorMapScaling.kRankOrder)
+								else {
+									colorIndex = 2.0 * (1.0 - colorIndex);
+								}
+							}
+						}
 
-							// apply colour map cycling
-							if (fColoringParameters.fColorMapColorOffset != 0.0) {
-								colorIndex = MathTools.frac(colorIndex + fColoringParameters.fColorMapColorOffset);
+						// apply colour map inversion
+						if (iterationResult.liesInInterior()) {
+							// interior colouring
+							if (fColoringParameters.fInteriorColorMapInverted) {
+								colorIndex = 1.0 - colorIndex;
 							}
+						}
+						else {
+							// exterior colouring
+							if (fColoringParameters.fExteriorColorMapInverted) {
+								colorIndex = 1.0 - colorIndex;
+							}
+						}
 
-							// apply colour map wrapping
-							if (iterationResult.liesInInterior()) {
-								// interior colouring
-								if (fColoringParameters.fInteriorColorMapWrappedAround) {
-									if (colorIndex < 0.5) {
-										colorIndex *= 2.0;
-									}
-									else {
-										colorIndex = 2.0 * (1.0 - colorIndex);
-									}
-								}
-							}
-							else {
-								// exterior colouring
-								if (fColoringParameters.fExteriorColorMapWrappedAround) {
-									if (colorIndex < 0.5) {
-										colorIndex *= 2.0;
-									}
-									else {
-										colorIndex = 2.0 * (1.0 - colorIndex);
-									}
-								}
-							}
+						if (fColoringParameters.fColorMapRepeatMode) {
+							colorIndex = MathTools.frac(colorIndex * fColoringParameters.fColorMapColorRepetition);
+						}
 
-							// apply colour map inversion
-							if (iterationResult.liesInInterior()) {
-								// interior colouring
-								if (fColoringParameters.fInteriorColorMapInverted) {
-									colorIndex = 1.0 - colorIndex;
+						if (fColoringParameters.fColorMapUsage == ColoringParameters.EColorMapUsage.kFull) {
+							// keep colorIndex as-is
+						}
+						else if (fColoringParameters.fColorMapUsage == ColoringParameters.EColorMapUsage.kLimitedContinuous) {
+							// restrict all colours to the selected ones
+							double nrOfColors = (double) fColoringParameters.fColorMapContinuousColorRange;
+							if (colorIndex < 1.0) {
+								if (nrOfColors > 1.0) {
+									colorIndex = Math.floor(colorIndex / (1.0 / nrOfColors)) * (1.0 / (nrOfColors - 1.0));
 								}
-							}
-							else {
-								// exterior colouring
-								if (fColoringParameters.fExteriorColorMapInverted) {
-									colorIndex = 1.0 - colorIndex;
-								}
-							}
-
-							if (fColoringParameters.fColorMapRepeatMode) {
-								colorIndex = MathTools.frac(colorIndex * fColoringParameters.fColorMapColorRepetition);
-							}
-
-							if (fColoringParameters.fColorMapUsage == ColoringParameters.EColorMapUsage.kFull) {
-								// keep colorIndex as-is
-							}
-							else if (fColoringParameters.fColorMapUsage == ColoringParameters.EColorMapUsage.kLimitedContinuous) {
-								// restrict all colours to the selected ones
-								double nrOfColors = (double) fColoringParameters.fColorMapContinuousColorRange;
-								if (colorIndex < 1.0) {
-									if (nrOfColors > 1.0) {
-										colorIndex = Math.floor(colorIndex / (1.0 / nrOfColors)) * (1.0 / (nrOfColors - 1.0));
-									}
-									else {
-										colorIndex = 0.0;
-									}
-								}
-							}
-							else if (fColoringParameters.fColorMapUsage == ColoringParameters.EColorMapUsage.kLimitedDiscrete) {
-								// limit all colours by repeating them
-								if (colorMapDiscreteColorRange > (maxNrOfIterations - minNrOfIterations)) {
-									colorMapDiscreteColorRange = maxNrOfIterations - minNrOfIterations;
-								}
-								colorIndex = MathTools.clip(((nrOfIterations - minNrOfIterations) % colorMapDiscreteColorRange) / (colorMapDiscreteColorRange - 1.0),0.0,1.0);							
-								if (((Double) colorIndex).isNaN()) {
+								else {
 									colorIndex = 0.0;
 								}
 							}
-
-							// convert colour map index to a colour using the specified colour map
-							JGradientColorMap gcm = fColoringParameters.fExteriorGradientColorMap;
-
-							// tiger stripes are not available for interior colouring
-							boolean useTigerStripes = (!iterationResult.liesInInterior() && fColoringParameters.fUseTigerStripes && (MathTools.isOdd((int) iterationResult.fNrOfIterations)));
-							if (iterationResult.liesInInterior()) {
-								gcm = fColoringParameters.fInteriorGradientColorMap;
+						}
+						else if (fColoringParameters.fColorMapUsage == ColoringParameters.EColorMapUsage.kLimitedDiscrete) {
+							// limit all colours by repeating them
+							if (colorMapDiscreteColorRange > (maxNrOfIterations - minNrOfIterations)) {
+								colorMapDiscreteColorRange = maxNrOfIterations - minNrOfIterations;
 							}
-							else if (useTigerStripes) {
-								gcm = fColoringParameters.fTigerGradientColorMap;
+							colorIndex = MathTools.clip(((nrOfIterations - minNrOfIterations) % colorMapDiscreteColorRange) / (colorMapDiscreteColorRange - 1.0),0.0,1.0);							
+							if (((Double) colorIndex).isNaN()) {
+								colorIndex = 0.0;
 							}
+						}
 
-							if (useTigerStripes && fColoringParameters.fTigerUseFixedColor) {
-								color = fColoringParameters.fTigerStripeFixedColor;
-							}
-							else {
-								color = gcm.interpolate(colorIndex);
-							}
+						// convert colour map index to a colour using the specified colour map
+						JGradientColorMap gcm = fColoringParameters.fExteriorGradientColorMap;
 
-							// artificially brighten smooth root colours
-							if ((fIteratorController.getFractalIterator() instanceof AConvergentFractalIterator) &&
-									!iterationResult.liesInInterior() &&
-									(fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kSmoothRoots)) {
-								// linearly scale all RGB components
-								double fraction = (double) iterationResult.fExponentialIterationCount / maxObservedExponentialIterationCount;
-								int red = (int) Math.floor(MathTools.clip((double) color.getRed() * fraction * fColoringParameters.fBrightnessFactor,0.0,255.0));
-								int green = (int) Math.floor(MathTools.clip((double) color.getGreen() * fraction * fColoringParameters.fBrightnessFactor,0.0,255.0));
-								int blue = (int) Math.floor(MathTools.clip((double) color.getBlue() * fraction * fColoringParameters.fBrightnessFactor,0.0,255.0));
-								int alpha = color.getAlpha();
+						// tiger stripes are not available for interior colouring
+						boolean useTigerStripes = (!iterationResult.liesInInterior() && fColoringParameters.fUseTigerStripes && (MathTools.isOdd((int) iterationResult.fNrOfIterations)));
+						if (iterationResult.liesInInterior()) {
+							gcm = fColoringParameters.fInteriorGradientColorMap;
+						}
+						else if (useTigerStripes) {
+							gcm = fColoringParameters.fTigerGradientColorMap;
+						}
 
-								color = new Color(red,green,blue,alpha);
-							}
+						if (useTigerStripes && fColoringParameters.fTigerUseFixedColor) {
+							color = fColoringParameters.fTigerStripeFixedColor;
+						}
+						else {
+							color = gcm.interpolate(colorIndex);
+						}
 
-						} // bound the shown iterations
-					} // non-fixed interior or exterior colouring method
-				} // if (iterationResult != null)
+						// artificially brighten smooth root colours
+						if ((fIteratorController.getFractalIterator() instanceof AConvergentFractalIterator) &&
+								!iterationResult.liesInInterior() &&
+								(fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kSmoothRoots)) {
+							// linearly scale all RGB components
+							double fraction = (double) iterationResult.fExponentialIterationCount / maxObservedExponentialIterationCount;
+							int red = (int) Math.floor(MathTools.clip((double) color.getRed() * fraction * fColoringParameters.fBrightnessFactor,0.0,255.0));
+							int green = (int) Math.floor(MathTools.clip((double) color.getGreen() * fraction * fColoringParameters.fBrightnessFactor,0.0,255.0));
+							int blue = (int) Math.floor(MathTools.clip((double) color.getBlue() * fraction * fColoringParameters.fBrightnessFactor,0.0,255.0));
+							int alpha = color.getAlpha();
 
-				// draw a pixel
-				imageBuffer[x + (y * fractalResultBuffer.fWidth)] = color.getRGB();
-			} // for (int y = 0; y < fractalResultBuffer.fHeight; ++y)
-		} // for (int x = 0; x < fractalResultBuffer.fWidth; ++x)
+							color = new Color(red,green,blue,alpha);
+						}
+
+					} // bound the shown iterations
+				} // non-fixed interior or exterior colouring method
+			} // if (iterationResult != null)
+
+			// draw a pixel
+			imageBuffer[index] = color.getRGB();
+		} // for index
 
 		imageRaster.setPixels(0,0,0,0,imageBuffer);
 
@@ -2214,7 +2208,7 @@ public final class FractalPanel extends JPanel
 					IterationBuffer insetFractalResultBuffer = new IterationBuffer(fInsetWidth,fInsetHeight);
 					for (int x = 0; x < fInsetWidth; ++x) {
 						for (int y = 0; y < fInsetHeight; ++y) {
-							int index = (x * fInsetHeight) + y;
+							int index = x + (y * fInsetWidth);
 							if (fShowDeformedMainFractal) {
 								insetFractalResultBuffer.fBuffer[index] = fractalIterator.iterateMainFractal(new ScreenLocation(x,y),false,fInsetWidth,fInsetHeight);
 							}
@@ -2251,7 +2245,7 @@ public final class FractalPanel extends JPanel
 						IterationBuffer insetFractalResultBuffer = new IterationBuffer(fInsetWidth,fInsetHeight);
 						for (int x = 0; x < fInsetWidth; ++x) {
 							for (int y = 0; y < fInsetHeight; ++y) {
-								int index = (x * fInsetHeight) + y;
+								int index = x + (y * fInsetWidth);
 								insetFractalResultBuffer.fBuffer[index] = fractalIterator.iterateMainFractal(new ScreenLocation(x,y),false,fInsetWidth,fInsetHeight);
 							}
 						}
@@ -2315,7 +2309,7 @@ public final class FractalPanel extends JPanel
 			}
 
 			// draw X and Y axes in the complex plane for the inset fractal
-			if (fShowInset) {
+			if (fShowInset && !isDualFractalSuppressed()) {
 				if (!fAutoZoomInset) {
 					fractalIterator.setComplexBounds(fractalIterator.getDefaultP1(),fractalIterator.getDefaultP2());
 				}
@@ -2988,7 +2982,7 @@ public final class FractalPanel extends JPanel
 
 	/**
 	 * @author  Sven Maerivoet
-	 * @version 17/11/2014
+	 * @version 14/01/2015
 	 */
 	private final class FractalIterationRangeInformation
 	{
@@ -2998,7 +2992,9 @@ public final class FractalPanel extends JPanel
 		public double fExteriorMinNrOfIterations;
 		public double fExteriorMaxNrOfIterations;
 		public double fExteriorMaxNrOfIntegralIterations;
-		public Hashtable<Double,Double> fInteriorRankColoringHistogramLookupTable;
-		public Hashtable<Double,Double> fExteriorRankColoringHistogramLookupTable;
+		public double[] fInteriorRankColoringHistogramLookupTable;
+		public int fInteriorRankColoringHistogramNrOfPoints;
+		public double[] fExteriorRankColoringHistogramLookupTable;
+		public int fExteriorRankColoringHistogramNrOfPoints;
 	}
 }

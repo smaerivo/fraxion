@@ -10,5 +10,8 @@
 	<classpathentry kind="lib" path="/Java Help 2.0/javahelp/lib/jhbasic.jar"/>
 	<classpathentry kind="lib" path="/Java Native Access 3.5.1/jna-3.5.1.jar"/>
 	<classpathentry kind="lib" path="/Java Native Access 3.5.1/platform-3.5.1.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Java Help 2.0"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Java Native Access 3.5.1"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/QuaQua Look-and-Feel"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
