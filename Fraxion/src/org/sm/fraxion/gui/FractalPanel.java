@@ -1,7 +1,7 @@
 // ---------------------------------
 // Filename      : FractalPanel.java
 // Author        : Sven Maerivoet
-// Last modified : 14/01/2015
+// Last modified : 15/01/2015
 // Target        : Java VM (1.8)
 // ---------------------------------
 
@@ -56,7 +56,7 @@ import org.sm.smtools.util.*;
  * <B>Note that this class cannot be subclassed!</B>
  * 
  * @author  Sven Maerivoet
- * @version 14/01/2015
+ * @version 15/01/2015
  */
 public final class FractalPanel extends JPanel
 {
@@ -2308,7 +2308,7 @@ public final class FractalPanel extends JPanel
 			}
 
 			// draw X and Y axes in the complex plane for the inset fractal
-			if (fShowInset) {
+			if (fShowInset && !isDualFractalSuppressed()) {
 				if (!fAutoZoomInset) {
 					fractalIterator.setComplexBounds(fractalIterator.getDefaultP1(),fractalIterator.getDefaultP2());
 				}
