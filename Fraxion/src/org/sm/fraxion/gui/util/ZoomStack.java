@@ -21,7 +21,7 @@
  * limitations under the License.
  */
 
-package org.sm.fraxion.gui;
+package org.sm.fraxion.gui.util;
 
 import java.util.*;
 import org.sm.smtools.exceptions.*;

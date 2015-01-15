@@ -37,6 +37,7 @@ import org.sm.fraxion.fractals.*;
 import org.sm.fraxion.fractals.util.*;
 import org.sm.fraxion.gui.dialogs.*;
 import org.sm.fraxion.gui.filters.*;
+import org.sm.fraxion.gui.util.*;
 import org.sm.smtools.application.util.*;
 import org.sm.smtools.math.*;
 import org.sm.smtools.math.complex.*;

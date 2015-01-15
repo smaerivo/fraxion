@@ -26,6 +26,7 @@ package org.sm.fraxion.gui.dialogs;
 import java.awt.event.*;
 import javax.swing.*;
 import org.sm.fraxion.gui.*;
+import org.sm.fraxion.gui.util.ZoomStack;
 import org.sm.smtools.application.util.*;
 import org.sm.smtools.swing.dialogs.*;
 
