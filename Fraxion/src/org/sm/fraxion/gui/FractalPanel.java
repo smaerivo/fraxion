@@ -1,7 +1,7 @@
 // ---------------------------------
 // Filename      : FractalPanel.java
 // Author        : Sven Maerivoet
-// Last modified : 15/01/2015
+// Last modified : 19/01/2015
 // Target        : Java VM (1.8)
 // ---------------------------------
 
@@ -57,7 +57,7 @@ import org.sm.smtools.util.*;
  * <B>Note that this class cannot be subclassed!</B>
  * 
  * @author  Sven Maerivoet
- * @version 15/01/2015
+ * @version 19/01/2015
  */
 public final class FractalPanel extends JPanel
 {
@@ -102,6 +102,7 @@ public final class FractalPanel extends JPanel
 	private boolean fInsetDirty;
 	private boolean fShowDeformedMainFractal;
 	private boolean fShowAxes;
+	private boolean fShowMainFractalOverview;
 	private boolean fShowMagnifyingGlass;
 	private int fMagnifyingGlassRegion;
 	private int fMagnifyingGlassSize;
@@ -236,6 +237,27 @@ public final class FractalPanel extends JPanel
 	public int getMagnifyingGlassSize()
 	{
 		return fMagnifyingGlassSize;
+	}
+
+	/**
+	 * Controls whether or not a rescaled overview version of the main fractal is shown as an inset.
+	 *
+	 * @param showMainFractalOverview  a <CODE>boolean</CODE> that indicates whether or not a rescaled overview version of the main fractal is shown as an inset
+	 */
+	public void setShowMainFractalOverview(boolean showMainFractalOverview)
+	{
+		fShowMainFractalOverview = showMainFractalOverview;
+		repaint();
+	}
+
+	/**
+	 * Returns whether or not a rescaled overview version of the main fractal is shown as an inset.
+	 *
+	 * @return a <CODE>boolean</CODE> that indicates whether or not a rescaled overview version of the main fractal is shown as an inset
+	 */
+	public boolean getShowMainFractalOverview()
+	{
+		return fShowMainFractalOverview;
 	}
 
 	/**
@@ -1475,6 +1497,7 @@ public final class FractalPanel extends JPanel
 		fShowMagnifyingGlass = false;
 		fMagnifyingGlassRegion = MagnifyingGlassSizeChooser.kDefaultRegion;
 		fMagnifyingGlassSize = MagnifyingGlassSizeChooser.kDefaultSize;
+		fShowMainFractalOverview = false;
 		fShowOrbits = false;
 		fShowOrbitPaths = true;
 		fScaleOrbitsToScreen = false;
@@ -2154,6 +2177,51 @@ public final class FractalPanel extends JPanel
 		fRenderBufferGraphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
 		fRenderBufferGraphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,RenderingHints.VALUE_TEXT_ANTIALIAS_GASP);
 
+		if (fShowMainFractalOverview) {
+			try {
+				int kRescaledMainFractalXOffset = 20;
+				int kRescaledMainFractalYOffset = 50;
+				int kDefaultLongestSide = 150;
+
+				// determine the longest side of the screen bounds
+				int rescaledMainFractalWidth = kDefaultLongestSide;
+				int rescaledMainFractalHeight = kDefaultLongestSide;
+				double ratio = (double) screenWidth / (double) screenHeight;
+				if (ratio > 1.0) {
+					// width is the longest side
+					rescaledMainFractalHeight = (int) Math.round((double) rescaledMainFractalWidth / ratio);
+				}
+				else {
+					// height is the longest side
+					rescaledMainFractalWidth = (int) Math.round((double) rescaledMainFractalHeight * ratio);
+				}
+
+				// draw rescaled version of the main fractal
+				Image rescaledMainFractalImage = fRenderBuffer.getScaledInstance(rescaledMainFractalWidth,rescaledMainFractalHeight,Image.SCALE_AREA_AVERAGING);
+				fRenderBufferGraphics.drawImage(rescaledMainFractalImage,vpX1 + kRescaledMainFractalXOffset,vpY2 - kRescaledMainFractalYOffset - rescaledMainFractalHeight,null);
+
+				// draw a rectangle indicating the currently visible area
+				int rescaledVPX1 = (int) Math.round((double) vpX1 * ((double) rescaledMainFractalWidth / (double) screenWidth));
+				int rescaledVPY1 = (int) Math.round((double) vpY1 * ((double) rescaledMainFractalHeight / (double) screenHeight));
+				int rescaledVPWidth = (int) Math.round((double) vpWidth * ((double) rescaledMainFractalWidth / (double) screenWidth));
+				int rescaledVPHeight = (int) Math.round((double) vpHeight * ((double) rescaledMainFractalHeight / (double) screenHeight));
+				fRenderBufferGraphics.setColor(Color.RED);
+				fRenderBufferGraphics.drawRect(
+					vpX1 + kRescaledMainFractalXOffset + rescaledVPX1,
+					vpY2 - kRescaledMainFractalYOffset - rescaledMainFractalHeight + rescaledVPY1,
+					rescaledVPWidth,rescaledVPHeight);
+
+				fRenderBufferGraphics.setColor(Color.BLACK);
+				fRenderBufferGraphics.drawRect(vpX1 + kRescaledMainFractalXOffset,vpY2 - kRescaledMainFractalYOffset - rescaledMainFractalHeight,rescaledMainFractalWidth,rescaledMainFractalHeight);
+			}
+			catch (HeadlessException exc) {
+				// ignore
+			}
+			catch (RasterFormatException exc) {
+				// ignore
+			}
+		} // if (fShowMainFractalOverview)
+
 		if (fShowInset) {
 			boolean showInsetFractal = true;
 
@@ -2651,6 +2719,37 @@ public final class FractalPanel extends JPanel
 			}
 		} // if (fShowOrbits || fShowOrbitAnalyses)
 
+		if (fShowMagnifyingGlass) {
+			// drawing the magnifying glass here, so that the selection rectangle is also shown correctly
+			try {
+				Point m = getMousePosition();
+				if (m != null) {
+					int mX = (int) m.getX();
+					int mY = (int) m.getY();
+
+					int mgX1 = mX - (fMagnifyingGlassSize / 2);
+					int mgY1 = mY - (fMagnifyingGlassSize / 2);
+					if (fShowMagnifyingGlass) {
+						int mgrX1 = mX - (fMagnifyingGlassRegion / 2);
+						int mgrY1 = mY - (fMagnifyingGlassRegion / 2);
+						BufferedImage subImage = fRenderBuffer.getSubimage(mgrX1,mgrY1,fMagnifyingGlassRegion,fMagnifyingGlassRegion);
+
+						Image scaledSubImage = subImage.getScaledInstance(fMagnifyingGlassSize,fMagnifyingGlassSize,Image.SCALE_AREA_AVERAGING);
+						fRenderBufferGraphics.drawImage(scaledSubImage,mgX1,mgY1,null);
+
+						fRenderBufferGraphics.setColor(Color.BLACK);
+						fRenderBufferGraphics.drawRect(mgX1,mgY1,fMagnifyingGlassSize,fMagnifyingGlassSize);
+					}
+				}
+			}
+			catch (HeadlessException exc) {
+				// ignore
+			}
+			catch (RasterFormatException exc) {
+				// ignore
+			}
+		} // if (fShowMagnifyingGlass)
+
 		if (fShowZoomInformation) {
 			String fractalDesc = I18NL10N.translate("text.Fractal.Fractal",fractalIterator.getFamilyName());
 			String lowerLeftDesc = I18NL10N.translate("text.Fractal.LowerLeft") + ": " + fractalIterator.getP1();
@@ -2841,37 +2940,6 @@ public final class FractalPanel extends JPanel
 			fRenderBufferGraphics.drawLine((mX1 + mX2) / 2,mY1 - (kHalfCornerSize / 2),(mX1 + mX2) / 2,mY2 + (kHalfCornerSize / 2));
 			fRenderBufferGraphics.drawLine(mX1 - (kHalfCornerSize / 2),(mY1 + mY2) / 2,mX2 + (kHalfCornerSize / 2),(mY1 + mY2) / 2);
 		} // if (fSelecting && (fSelectionAnchor != null) && (fSelectionExtent != null))
-
-		if (fShowMagnifyingGlass) {
-			// drawing the magnifying glass here, so that the selection rectangle is also shown correctly
-			try {
-				Point m = getMousePosition();
-				if (m != null) {
-					int mX = (int) m.getX();
-					int mY = (int) m.getY();
-
-					int mgX1 = mX - (fMagnifyingGlassSize / 2);
-					int mgY1 = mY - (fMagnifyingGlassSize / 2);
-					if (fShowMagnifyingGlass) {
-						int mgrX1 = mX - (fMagnifyingGlassRegion / 2);
-						int mgrY1 = mY - (fMagnifyingGlassRegion / 2);
-						BufferedImage subImage = fRenderBuffer.getSubimage(mgrX1,mgrY1,fMagnifyingGlassRegion,fMagnifyingGlassRegion);
-
-						Image scaledSubImage = subImage.getScaledInstance(fMagnifyingGlassSize,fMagnifyingGlassSize,Image.SCALE_AREA_AVERAGING);
-						fRenderBufferGraphics.drawImage(scaledSubImage,mgX1,mgY1,null);
-
-						fRenderBufferGraphics.setColor(Color.BLACK);
-						fRenderBufferGraphics.drawRect(mgX1,mgY1,fMagnifyingGlassSize,fMagnifyingGlassSize);
-					}
-				}
-			}
-			catch (HeadlessException exc) {
-				// ignore
-			}
-			catch (RasterFormatException exc) {
-				// ignore
-			}
-		} // if (fShowMagnifyingGlass)
 
 		if (fShowCurrentLocation) {
 			try {

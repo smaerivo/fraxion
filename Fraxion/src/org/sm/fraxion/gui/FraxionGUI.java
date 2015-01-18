@@ -89,6 +89,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 	private static final String kActionCommandMenuItemNavigationShowCurrentLocation = "menuItem.Navigation.ShowCurrentLocation";
 	private static final String kActionCommandMenuItemNavigationShowMagnifyingGlass = "menuItem.Navigation.ShowMagnifyingGlass";
 	private static final String kActionCommandMenuItemNavigationSetMagnifyingGlassSize = "menuItem.Navigation.SetMagnifyingGlassSize";
+	private static final String kActionCommandMenuItemNavigationShowMainFractalOverview = "menuItem.Navigation.ShowMainFractalOverview";
 	private static final String kActionCommandMenuItemNavigationSpecifiyScreenBounds = "menuItem.Navigation.SpecifyScreenBounds";
 	private static final String kActionCommandMenuItemNavigationSpecifyCoordinates = "menuItem.Navigation.SpecifyCoordinates";
 
@@ -441,8 +442,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 	 *************************/
 
 	static {
-//XXX
-		DevelopMode.activate();
+		DevelopMode.deactivate();
 
 		// hack for JDK7 and above
 		System.setProperty("java.util.Arrays.useLegacyMergeSort","true");
@@ -973,6 +973,9 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			if (!magnifyingGlassSizeChooser.isCancelled()) {
 				fFractalPanel.setMagnifyingGlassSize(magnifyingGlassSizeChooser.getSelectedRegion(),magnifyingGlassSizeChooser.getSelectedSize());
 			}
+		}
+		else if (command.equalsIgnoreCase(kActionCommandMenuItemNavigationShowMainFractalOverview)) {
+			fFractalPanel.setShowMainFractalOverview(fMenuItems.get(kActionCommandMenuItemNavigationShowMainFractalOverview).isSelected());
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemNavigationSpecifiyScreenBounds)) {
 			ScreenBoundsChooser screenBoundsChooser = new ScreenBoundsChooser(this,
@@ -3038,6 +3041,12 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 				menuItem.setActionCommand(kActionCommandMenuItemNavigationSetMagnifyingGlassSize);
 				menuItem.addActionListener(this);
 			menu.add(menuItem);
+				checkBoxMenuItem = constructCheckBoxMenuItem(kActionCommandMenuItemNavigationShowMainFractalOverview,false);
+				checkBoxMenuItem.setSelected(false);
+				checkBoxMenuItem.setActionCommand(kActionCommandMenuItemNavigationShowMainFractalOverview);
+				checkBoxMenuItem.addActionListener(this);
+				fMenuItems.put(kActionCommandMenuItemNavigationShowMainFractalOverview,checkBoxMenuItem);
+			menu.add(checkBoxMenuItem);
 
 			menu.addSeparator();
 
