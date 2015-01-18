@@ -1,7 +1,7 @@
 // -------------------------------
 // Filename      : FraxionGUI.java
 // Author        : Sven Maerivoet
-// Last modified : 14/01/2015
+// Last modified : 18/01/2015
 // Target        : Java VM (1.8)
 // -------------------------------
 
@@ -53,7 +53,7 @@ import org.sm.smtools.util.*;
  * <B>Note that this class cannot be subclassed!</B>
  *
  * @author  Sven Maerivoet
- * @version 14/01/2015
+ * @version 18/01/2015
  */
 public final class FraxionGUI extends JStandardGUIApplication implements ActionListener, MouseListener, MouseMotionListener, KeyListener
 {
@@ -2719,7 +2719,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 		fFractalPanel = new FractalPanel(fIteratorController);
 		fProgressUpdateGlassPane = new JProgressUpdateGlassPane();
 		fStatusBarCalculationTimeLabel = new JLabel();
-		fIteratorController.installGUIControls(this,fProgressUpdateGlassPane,fFractalPanel,fStatusBarCalculationTimeLabel);
+		fIteratorController.installGUIControls(this,fProgressUpdateGlassPane,fFractalPanel,fStatusBarCalculationTimeLabel,fResources);
 
 		fFractalFamilyMenuItems = new ArrayList<String>();
 

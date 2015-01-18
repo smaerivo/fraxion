@@ -1,7 +1,7 @@
 // -----------------------------------------
 // Filename      : IteratorTaskExecutor.java
 // Author        : Sven Maerivoet
-// Last modified : 14/01/2015
+// Last modified : 18/01/2015
 // Target        : Java VM (1.8)
 // -----------------------------------------
 
@@ -30,6 +30,7 @@ import org.sm.fraxion.fractals.util.*;
 import org.sm.fraxion.gui.*;
 import org.sm.smtools.application.concurrent.*;
 import org.sm.smtools.application.util.*;
+import org.sm.smtools.exceptions.*;
 import org.sm.smtools.math.*;
 import org.sm.smtools.math.complex.*;
 import org.sm.smtools.math.statistics.*;
@@ -41,7 +42,7 @@ import org.sm.smtools.util.*;
  * <B>Note that this class cannot be subclassed!</B>
  *
  * @author  Sven Maerivoet
- * @version 14/01/2015
+ * @version 18/01/2015
  */
 public class IteratorTaskExecutor extends TaskExecutor
 {
@@ -58,6 +59,7 @@ public class IteratorTaskExecutor extends TaskExecutor
 	private boolean fEstimatePDF;
 	private EmpiricalDistribution fIterationsEmpiricalDistribution;
 	private FunctionLookupTable fIterationsPDF;
+	private JARResources fResources;
 
 	/****************
 	 * CONSTRUCTORS *
@@ -72,8 +74,9 @@ public class IteratorTaskExecutor extends TaskExecutor
 	 * @param fractalPanel                   a reference to the fractal panel
 	 * @param statusBarCalculationTimeLabel  a reference to the status bar's calculation time label
 	 * @param estimatePDF                    a <CODE>boolean</CODE> specifying whether or not the PDF of the iteration count should be estimated
+	 * @param resources                      a reference to the JAR resources
 	 */
-	public IteratorTaskExecutor(JFrame parentFrame, JProgressUpdateGlassPane progressUpdateGlassPane, AFractalIterator fractalIterator, FractalPanel fractalPanel, JLabel statusBarCalculationTimeLabel, boolean estimatePDF)
+	public IteratorTaskExecutor(JFrame parentFrame, JProgressUpdateGlassPane progressUpdateGlassPane, AFractalIterator fractalIterator, FractalPanel fractalPanel, JLabel statusBarCalculationTimeLabel, boolean estimatePDF, JARResources resources)
 	{
 		super(progressUpdateGlassPane);
 		fProgressUpdateGlassPane = progressUpdateGlassPane;
@@ -81,6 +84,7 @@ public class IteratorTaskExecutor extends TaskExecutor
 		fFractalPanel = fractalPanel;
 		fStatusBarCalculationTimeLabel = statusBarCalculationTimeLabel;
 		fEstimatePDF = estimatePDF;
+		fResources = resources;
 	}
 
 	/******************
@@ -271,6 +275,20 @@ System.out.println("  Done: " + String.valueOf(chrono.getElapsedTimeInMillisecon
 				I18NL10N.translate("text.StatusBar.CalculationTimePlural",
 					(new TimeStamp(fChrono.getElapsedTimeInMilliseconds())).getHMSString(),
 					String.valueOf(nrOfProcessors)));
+		}
+
+		// play a "calculation-finished" sound
+		if (MP3Player.systemSoundsEnabled()) {
+			try {
+				MP3Player mp3Player = new MP3Player(fResources.getInputStream("application-resources/sounds/calculation-finished.mp3"));
+				mp3Player.play(MP3Player.EPlaying.kUnblocked);
+			}
+			catch (FileDoesNotExistException exc) {
+				// ignore
+			}
+			catch (SoundPlayingException exc) {
+				// ignore
+			}
 		}
 	}
 
