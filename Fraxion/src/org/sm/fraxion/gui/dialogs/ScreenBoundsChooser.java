@@ -1,7 +1,7 @@
 // ----------------------------------------
 // Filename      : ScreenBoundsChooser.java
 // Author        : Sven Maerivoet
-// Last modified : 08/01/2015
+// Last modified : 18/01/2015
 // Target        : Java VM (1.8)
 // ----------------------------------------
 
@@ -38,7 +38,7 @@ import org.sm.smtools.swing.util.*;
  * <B>Note that this class cannot be subclassed!</B>
  *
  * @author  Sven Maerivoet
- * @version 08/01/2015
+ * @version 18/01/2015
  */
 public final class ScreenBoundsChooser extends JDefaultDialog implements ActionListener
 {
@@ -197,6 +197,8 @@ public final class ScreenBoundsChooser extends JDefaultDialog implements ActionL
 	private JLabel fPaperSizeResolutionLabel;
 	private JComboBox<String> fPaperSizePPIComboBox;
 	private JLabel fPaperSizeResolutionUnitLabel;
+	private JButton fHalveSizeButton;
+	private JButton fDoubleSizeButton;
 	private JLabel fSelectedScreenBoundsLabel;
 	private JLabel fProjectedMemoryUsageLabel;
 
@@ -353,6 +355,20 @@ public final class ScreenBoundsChooser extends JDefaultDialog implements ActionL
 			fScreenWidth = (int) Math.round(((double) paperWidth / 10.0 / 2.54) * (double) kPaperSizePPIs[selectedPaperSizePPIIndex]);
 			fScreenHeight = (int) Math.round(((double) paperHeight / 10.0 / 2.54) * (double) kPaperSizePPIs[selectedPaperSizePPIIndex]);
 
+			fScreenSizeWidthInputField.setText(String.valueOf(fScreenWidth));
+			fScreenSizeHeightInputField.setText(String.valueOf(fScreenHeight));
+			updateGUI();
+		}
+		else if (e.getSource() == fHalveSizeButton) {
+			fScreenWidth /= 2;
+			fScreenHeight /= 2;
+			fScreenSizeWidthInputField.setText(String.valueOf(fScreenWidth));
+			fScreenSizeHeightInputField.setText(String.valueOf(fScreenHeight));
+			updateGUI();
+		}
+		else if (e.getSource() == fDoubleSizeButton) {
+			fScreenWidth *= 2;
+			fScreenHeight *= 2;
 			fScreenSizeWidthInputField.setText(String.valueOf(fScreenWidth));
 			fScreenSizeHeightInputField.setText(String.valueOf(fScreenHeight));
 			updateGUI();
@@ -517,6 +533,26 @@ public final class ScreenBoundsChooser extends JDefaultDialog implements ActionL
 		mainPanel.add(new JEtchedLine(JEtchedLine.EOrientation.kHorizontal));
 		mainPanel.add(Box.createVerticalStrut(10));
 
+			JPanel quickResizePanel = new JPanel();
+			quickResizePanel.setLayout(new BoxLayout(quickResizePanel,BoxLayout.X_AXIS));
+
+				fHalveSizeButton = new JButton(I18NL10N.translate("text.Navigation.ScreenBoundsChooserHalveSize"));
+				fHalveSizeButton.addActionListener(this);
+			quickResizePanel.add(fHalveSizeButton);
+
+			quickResizePanel.add(Box.createHorizontalStrut(10));
+
+				fDoubleSizeButton = new JButton(I18NL10N.translate("text.Navigation.ScreenBoundsChooserDoubleSize"));
+				fDoubleSizeButton.addActionListener(this);
+			quickResizePanel.add(fDoubleSizeButton);
+
+			quickResizePanel.add(Box.createHorizontalGlue());
+		mainPanel.add(quickResizePanel);
+
+		mainPanel.add(Box.createVerticalStrut(10));
+		mainPanel.add(new JEtchedLine(JEtchedLine.EOrientation.kHorizontal));
+		mainPanel.add(Box.createVerticalStrut(10));
+
 			JPanel selectedSizePanel = new JPanel();
 			selectedSizePanel.setLayout(new BoxLayout(selectedSizePanel,BoxLayout.X_AXIS));
 				fSelectedScreenBoundsLabel = new JLabel();
@@ -580,8 +616,8 @@ public final class ScreenBoundsChooser extends JDefaultDialog implements ActionL
 
 		long totalMemoryUsage = kArrMemUsage + kImgMemUsage;
 
-		// add 10% safety margin
-		return (long) Math.round((double) totalMemoryUsage * 1.10);
+		// add 15% safety margin
+		return (long) Math.round((double) totalMemoryUsage * 1.15);
 	}
 
 	/*****************
