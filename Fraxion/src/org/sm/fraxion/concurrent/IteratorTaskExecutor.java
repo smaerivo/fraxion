@@ -1,7 +1,7 @@
 // -----------------------------------------
 // Filename      : IteratorTaskExecutor.java
 // Author        : Sven Maerivoet
-// Last modified : 18/01/2015
+// Last modified : 19/01/2015
 // Target        : Java VM (1.8)
 // -----------------------------------------
 
@@ -42,7 +42,7 @@ import org.sm.smtools.util.*;
  * <B>Note that this class cannot be subclassed!</B>
  *
  * @author  Sven Maerivoet
- * @version 18/01/2015
+ * @version 19/01/2015
  */
 public class IteratorTaskExecutor extends TaskExecutor
 {
@@ -196,9 +196,9 @@ public class IteratorTaskExecutor extends TaskExecutor
 
 			if (((AConvergentFractalIterator) fFractalIterator).getAutomaticRootDetectionEnabled()) {
 //XXX
-System.out.println("Autodetect roots of convergent fractals...");
-Chrono chrono = new Chrono();
-chrono.start();
+//System.out.println("Autodetect roots of convergent fractals...");
+//Chrono chrono = new Chrono();
+//chrono.start();
 
 				ArrayList<ComplexNumber> roots = new ArrayList<ComplexNumber>();
 				double maxObservedExponentialIterationCount = 0.0;
@@ -230,7 +230,7 @@ chrono.start();
 				} // for index
 
 				((AConvergentFractalIterator) fFractalIterator).setMaxObservedExponentialIterationCount(maxObservedExponentialIterationCount);
-System.out.println("  Done: " + String.valueOf(chrono.getElapsedTimeInMilliseconds()) + "ms needed");
+//System.out.println("  Done: " + String.valueOf(chrono.getElapsedTimeInMilliseconds()) + "ms needed");
 			} // if (((AConvergentFractalIterator) fFractalIterator).getAutomaticRootDetectionEnabled())
 		} // if (fFractalIterator instanceof AConvergentFractalIterator)
 

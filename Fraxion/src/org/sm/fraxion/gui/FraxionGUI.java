@@ -1,7 +1,7 @@
 // -------------------------------
 // Filename      : FraxionGUI.java
 // Author        : Sven Maerivoet
-// Last modified : 18/01/2015
+// Last modified : 19/01/2015
 // Target        : Java VM (1.8)
 // -------------------------------
 
@@ -53,7 +53,7 @@ import org.sm.smtools.util.*;
  * <B>Note that this class cannot be subclassed!</B>
  *
  * @author  Sven Maerivoet
- * @version 18/01/2015
+ * @version 19/01/2015
  */
 public final class FraxionGUI extends JStandardGUIApplication implements ActionListener, MouseListener, MouseMotionListener, KeyListener
 {
@@ -780,6 +780,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 
 						// load fractal colouring parameters
 						fFractalPanel.getColoringParameters().load(tfp);
+						fIteratorController.getFractalIterator().setCalculateAdvancedColoring(fFractalPanel.getColoringParameters().fCalculateAdvancedColoring);
 
 						// adjust the zoom stack
 						fFractalPanel.getZoomStack().clear();
@@ -6074,6 +6075,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 
 				// load fractal colouring parameters
 				fFractalPanel.getColoringParameters().load(tfp);
+				fIteratorController.getFractalIterator().setCalculateAdvancedColoring(fFractalPanel.getColoringParameters().fCalculateAdvancedColoring);
 
 				// load iteration buffer
 				fProgressUpdateGlassPane.setVisualisationType(JProgressUpdateGlassPane.EVisualisationType.kBar);
