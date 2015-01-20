@@ -3044,6 +3044,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			menu.add(menuItem);
 				checkBoxMenuItem = constructCheckBoxMenuItem(kActionCommandMenuItemNavigationShowMainFractalOverview,false);
 				checkBoxMenuItem.setSelected(false);
+				checkBoxMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W,ActionEvent.CTRL_MASK));
 				checkBoxMenuItem.setActionCommand(kActionCommandMenuItemNavigationShowMainFractalOverview);
 				checkBoxMenuItem.addActionListener(this);
 				fMenuItems.put(kActionCommandMenuItemNavigationShowMainFractalOverview,checkBoxMenuItem);
@@ -4100,7 +4101,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 					fMenuItems.put(kActionCommandMenuItemColorMapExteriorWrapAroundColorMap,checkBoxMenuItem);
 				menu.add(checkBoxMenuItem);
 					checkBoxMenuItem = constructCheckBoxMenuItem(kActionCommandMenuItemColorMapCalculateAdvancedColoring,false);
-					checkBoxMenuItem.setSelected(true);
+					checkBoxMenuItem.setSelected(false);
 					checkBoxMenuItem.setActionCommand(kActionCommandMenuItemColorMapCalculateAdvancedColoring);
 					checkBoxMenuItem.addActionListener(this);
 					fMenuItems.put(kActionCommandMenuItemColorMapCalculateAdvancedColoring,checkBoxMenuItem);
@@ -4933,7 +4934,6 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 				menu.add(menuItem);
 					menuItem = constructMenuItem(kActionCommandMenuItemColorMapUseContours,false);
 					menuItem.setActionCommand(kActionCommandMenuItemColorMapUseContours);
-					menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W,ActionEvent.CTRL_MASK));
 					menuItem.addActionListener(this);
 				menu.add(menuItem);
 					menuItem = constructMenuItem(kActionCommandMenuItemColorMapUseDarkSofteningFilter,false);

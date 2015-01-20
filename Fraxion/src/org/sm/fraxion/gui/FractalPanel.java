@@ -1517,7 +1517,7 @@ public final class FractalPanel extends JPanel
 		fColoringParameters.fInteriorColorMapWrappedAround = false;
 		fColoringParameters.fExteriorColorMapInverted = false;
 		fColoringParameters.fExteriorColorMapWrappedAround = false;
-		fColoringParameters.fCalculateAdvancedColoring = true;
+		fColoringParameters.fCalculateAdvancedColoring = false;
 		fColoringParameters.fUseTigerStripes = false;
 		fColoringParameters.fTigerGradientColorMap = new JGradientColorMap();
 		fColoringParameters.fTigerGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kJet);
