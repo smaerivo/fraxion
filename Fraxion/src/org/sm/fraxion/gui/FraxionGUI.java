@@ -1,7 +1,7 @@
 // -------------------------------
 // Filename      : FraxionGUI.java
 // Author        : Sven Maerivoet
-// Last modified : 19/01/2015
+// Last modified : 20/01/2015
 // Target        : Java VM (1.8)
 // -------------------------------
 
@@ -53,7 +53,7 @@ import org.sm.smtools.util.*;
  * <B>Note that this class cannot be subclassed!</B>
  *
  * @author  Sven Maerivoet
- * @version 19/01/2015
+ * @version 20/01/2015
  */
 public final class FraxionGUI extends JStandardGUIApplication implements ActionListener, MouseListener, MouseMotionListener, KeyListener
 {
@@ -5543,8 +5543,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 		fMenuItems.get(kActionCommandMenuItemColorMapExteriorUseTotalDistance).setEnabled(!isMarkusLyapunovFractalIterator);
 		fMenuItems.get(kActionCommandMenuItemColorMapExteriorUseAverageDistance).setEnabled(!isMarkusLyapunovFractalIterator);
 		fMenuItems.get(kActionCommandMenuItemColorMapExteriorUseTotalAngle).setEnabled(!isMarkusLyapunovFractalIterator);
-		fMenuItems.get(kActionCommandMenuItemColorMapCalculateAdvancedColoring).setEnabled(!isMarkusLyapunovFractalIterator);
-		fMenuItems.get(kActionCommandMenuItemColorMapCalculateAdvancedColoring).setSelected(calculateAdvancedColoring);
+		fMenuItems.get(kActionCommandMenuItemColorMapCalculateAdvancedColoring).setSelected(!isMarkusLyapunovFractalIterator && calculateAdvancedColoring);
 		fMenuItems.get(kActionCommandMenuItemColorMapExteriorUseCurvature).setEnabled(!isMarkusLyapunovFractalIterator && calculateAdvancedColoring);
 		fMenuItems.get(kActionCommandMenuItemColorMapExteriorUseStriping).setEnabled(!isMarkusLyapunovFractalIterator && calculateAdvancedColoring);
 		fMenuItems.get(kActionCommandMenuItemColorMapExteriorSetStripingDensity).setEnabled(!isMarkusLyapunovFractalIterator && calculateAdvancedColoring);

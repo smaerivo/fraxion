@@ -1,7 +1,7 @@
 // ---------------------------------
 // Filename      : FractalPanel.java
 // Author        : Sven Maerivoet
-// Last modified : 19/01/2015
+// Last modified : 20/01/2015
 // Target        : Java VM (1.8)
 // ---------------------------------
 
@@ -57,7 +57,7 @@ import org.sm.smtools.util.*;
  * <B>Note that this class cannot be subclassed!</B>
  * 
  * @author  Sven Maerivoet
- * @version 19/01/2015
+ * @version 20/01/2015
  */
 public final class FractalPanel extends JPanel
 {
@@ -2205,11 +2205,12 @@ public final class FractalPanel extends JPanel
 				int rescaledVPY1 = (int) Math.round((double) vpY1 * ((double) rescaledMainFractalHeight / (double) screenHeight));
 				int rescaledVPWidth = (int) Math.round((double) vpWidth * ((double) rescaledMainFractalWidth / (double) screenWidth));
 				int rescaledVPHeight = (int) Math.round((double) vpHeight * ((double) rescaledMainFractalHeight / (double) screenHeight));
-				fRenderBufferGraphics.setColor(Color.RED);
+				fRenderBufferGraphics.setXORMode(Color.RED);
 				fRenderBufferGraphics.drawRect(
 					vpX1 + kRescaledMainFractalXOffset + rescaledVPX1,
 					vpY2 - kRescaledMainFractalYOffset - rescaledMainFractalHeight + rescaledVPY1,
 					rescaledVPWidth,rescaledVPHeight);
+				fRenderBufferGraphics.setPaintMode();
 
 				fRenderBufferGraphics.setColor(Color.BLACK);
 				fRenderBufferGraphics.drawRect(vpX1 + kRescaledMainFractalXOffset,vpY2 - kRescaledMainFractalYOffset - rescaledMainFractalHeight,rescaledMainFractalWidth,rescaledMainFractalHeight);

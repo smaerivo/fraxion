@@ -1,7 +1,7 @@
 // -------------------------------------
 // Filename      : AFractalIterator.java
 // Author        : Sven Maerivoet
-// Last modified : 01/01/2015
+// Last modified : 20/01/2015
 // Target        : Java VM (1.8)
 // -------------------------------------
 
@@ -38,7 +38,7 @@ import org.sm.smtools.util.*;
  * <B>Note that this is an abstract class.</B>
  * 
  * @author  Sven Maerivoet
- * @version 01/01/2015
+ * @version 20/01/2015
  */
 public abstract class AFractalIterator
 {
@@ -96,7 +96,7 @@ public abstract class AFractalIterator
 		setInvertYAxis(false);
 		setComplexBounds(getDefaultP1(),getDefaultP2());
 		resetMainFractalOrbitStartingPoint();
-		setCalculateAdvancedColoring(true);
+		setCalculateAdvancedColoring(false);
 		setStripingDensity(4.0);
 		setGaussianIntegersTrapFactor(1.0);
 	}
