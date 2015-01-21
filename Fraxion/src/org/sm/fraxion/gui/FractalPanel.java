@@ -1,7 +1,7 @@
 // ---------------------------------
 // Filename      : FractalPanel.java
 // Author        : Sven Maerivoet
-// Last modified : 20/01/2015
+// Last modified : 21/01/2015
 // Target        : Java VM (1.8)
 // ---------------------------------
 
@@ -57,7 +57,7 @@ import org.sm.smtools.util.*;
  * <B>Note that this class cannot be subclassed!</B>
  * 
  * @author  Sven Maerivoet
- * @version 20/01/2015
+ * @version 21/01/2015
  */
 public final class FractalPanel extends JPanel
 {
@@ -84,6 +84,7 @@ public final class FractalPanel extends JPanel
 	private static final int kMaxOrbitDiametre = 15;
 	private static final float kMinStrokeWidth = 0.5f;
 	private static final float kMaxStrokeWidth = 5.0f;
+	private static final int kMainFractalOverviewDefaultLongestSide = 250;
 
 	// internal datastructures
 	private JViewport fViewport;
@@ -2181,11 +2182,10 @@ public final class FractalPanel extends JPanel
 			try {
 				int kRescaledMainFractalXOffset = 20;
 				int kRescaledMainFractalYOffset = 50;
-				int kDefaultLongestSide = 150;
 
 				// determine the longest side of the screen bounds
-				int rescaledMainFractalWidth = kDefaultLongestSide;
-				int rescaledMainFractalHeight = kDefaultLongestSide;
+				int rescaledMainFractalWidth = kMainFractalOverviewDefaultLongestSide;
+				int rescaledMainFractalHeight = kMainFractalOverviewDefaultLongestSide;
 				double ratio = (double) screenWidth / (double) screenHeight;
 				if (ratio > 1.0) {
 					// width is the longest side
@@ -2210,6 +2210,10 @@ public final class FractalPanel extends JPanel
 					vpX1 + kRescaledMainFractalXOffset + rescaledVPX1,
 					vpY2 - kRescaledMainFractalYOffset - rescaledMainFractalHeight + rescaledVPY1,
 					rescaledVPWidth,rescaledVPHeight);
+				fRenderBufferGraphics.drawRect(
+					vpX1 + kRescaledMainFractalXOffset + rescaledVPX1 + 1,
+					vpY2 - kRescaledMainFractalYOffset - rescaledMainFractalHeight + rescaledVPY1 + 1,
+					rescaledVPWidth - 2,rescaledVPHeight - 2);
 				fRenderBufferGraphics.setPaintMode();
 
 				fRenderBufferGraphics.setColor(Color.BLACK);

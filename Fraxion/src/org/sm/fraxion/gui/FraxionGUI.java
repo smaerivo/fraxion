@@ -2575,7 +2575,6 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 	{
 		fFractalPanel.repaint();
 		getStatusBar().clearStatusText();
-//		setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		changeLocationMouseCursor();
 	}
 

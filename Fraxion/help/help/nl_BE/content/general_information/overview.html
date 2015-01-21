@@ -96,21 +96,25 @@
 			</div>
 
 			<p>
-				Achter de schermen verdeelt de Fraxion toepassing het scherm in evengrote
-				<b>blokken</b> (het aantal kan aangepast worden met de <b>Stel aantal te gebruiken
-				blokken in</b> optie in het <b>Multithreading</b> menu). 
-				Elk blok wordt dan willekeurig gekozen, opdat de werklast van snel divergerende
-				en langzaam convergerende gebieden verdeeld wordt. Fraxion start dan 
-				<b>verschillende threads</b> die op het aantal beschikbare CPU 
-				cores in het systeem worden uitgevoerd, inclusief hyperthreads (het aantal kan
-				aangepast worden met de <b>Stel aantal te gebruiken CPU cores in</b> optie in het
-				<b>Multithreading</b> menu). Bij meerdere beschikbare CPU cores laat 
-				Fraxion er standaard 1 ongebruikt, om zo nog voldoende rekenkracht voor 
-				andere toepassingen te laten. Alle resultaten worden in een <b>iteratie
-				resultatenbuffer</b> bewaard. Vervolgens gebruikt de toepassing de gekozen
-				kleuralgoritmes om een <b>beeldbuffer</b> te construeren, die dan op het scherm
-				wordt getoond. Als de kleuren later aangepast worden, dan hoeft de toepassing enkel de
-				beeldbuffer aan te passen, in plaats van de hele resultaatbuffer opnieuw te moeten berekenen.
+				Achter de schermen verdeelt de Fraxion toepassing het scherm in 
+				evengrote <b>blokken</b> (het aantal kan aangepast worden met de <b>Stel 
+				aantal te gebruiken blokken in</b> optie in het <b>Multithreading</b> 
+				menu). Elk blok wordt dan willekeurig gekozen, opdat de werklast van 
+				snel divergerende en langzaam convergerende gebieden verdeeld wordt. 
+				Fraxion start dan <b>verschillende threads</b> die op het aantal 
+				beschikbare CPU cores in het systeem worden uitgevoerd, inclusief 
+				hyperthreads (het aantal kan aangepast worden met de <b>Stel aantal te 
+				gebruiken CPU cores in</b> optie in het <b>Multithreading</b> menu). Bij 
+				meerdere beschikbare CPU cores laat Fraxion er standaard 1 ongebruikt, 
+				om zo nog voldoende rekenkracht voor andere toepassingen te laten. 
+				Fraxion berekent en bewaart tot 17 parameters voor elk punt in het 
+				complexe vlak, wat zijn zware rekentijden verklaart. Alle resultaten 
+				worden in een <b>iteratie resultatenbuffer</b> bewaard. Vervolgens 
+				gebruikt de toepassing de gekozen kleuralgoritmes om een 
+				<b>beeldbuffer</b> te construeren, die dan op het scherm wordt getoond. 
+				Als de kleuren later aangepast worden, dan hoeft de toepassing enkel de 
+				beeldbuffer aan te passen, in plaats van de hele resultaatbuffer opnieuw 
+				te moeten berekenen.
 			</p>
 
 			<p>
