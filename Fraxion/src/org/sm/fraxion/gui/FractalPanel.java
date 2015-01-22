@@ -1,7 +1,7 @@
 // ---------------------------------
 // Filename      : FractalPanel.java
 // Author        : Sven Maerivoet
-// Last modified : 21/01/2015
+// Last modified : 22/01/2015
 // Target        : Java VM (1.8)
 // ---------------------------------
 
@@ -57,7 +57,7 @@ import org.sm.smtools.util.*;
  * <B>Note that this class cannot be subclassed!</B>
  * 
  * @author  Sven Maerivoet
- * @version 21/01/2015
+ * @version 22/01/2015
  */
 public final class FractalPanel extends JPanel
 {
@@ -2178,6 +2178,60 @@ public final class FractalPanel extends JPanel
 		fRenderBufferGraphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
 		fRenderBufferGraphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,RenderingHints.VALUE_TEXT_ANTIALIAS_GASP);
 
+		// overlay the selection rectangle if necessary
+		if (fSelecting && (fSelectionAnchor != null) && (fSelectionExtent != null)) {
+			Point2D.Double mouseSelectionAnchor = new Point2D.Double(fSelectionAnchor.fX,fSelectionAnchor.fY);
+			Point2D.Double mouseSelectionExtent = new Point2D.Double(fSelectionExtent.fX,fSelectionExtent.fY);
+			if (!fCentredZooming) {
+				MathTools.forcePartialOrder(mouseSelectionAnchor,mouseSelectionExtent);
+			}
+			int mX1 = (int) mouseSelectionAnchor.getX();
+			int mY1 = (int) mouseSelectionAnchor.getY();
+			int mX2 = (int) mouseSelectionExtent.getX();
+			int mY2 = (int) mouseSelectionExtent.getY();
+
+			int zoomWidth = (int) Math.abs(fSelectionExtent.fX - fSelectionAnchor.fX);
+			int zoomHeight = (int) Math.abs(fSelectionExtent.fY - fSelectionAnchor.fY); // because the screen's Y-axis points downwards
+			int minimumZoomSize = kMinimumZoomSize;
+			if (fCentredZooming) {
+				zoomWidth = Math.abs(mX2 - mX1 - 1);
+				zoomHeight = Math.abs(mY2 - mY1 - 1);
+				mX1 = mX1 - zoomWidth;
+				mY1 = mY1 - zoomHeight;
+				mX2 = mX1 + ((zoomWidth + 1) * 2);
+				mY2 = mY1 + ((zoomHeight + 1) * 2);
+				minimumZoomSize /= 2;
+			}
+			boolean selectionOk = ((zoomWidth > minimumZoomSize) && (zoomHeight > minimumZoomSize));
+
+			fRenderBufferGraphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,0.7f));
+			if (selectionOk) {
+				fRenderBufferGraphics.setColor(Color.BLUE.darker().darker());
+			}
+			else {
+				fRenderBufferGraphics.setColor(Color.RED);
+			}
+			fRenderBufferGraphics.fillRect(mX1,mY1,mX2 - mX1 - 1,mY2 - mY1 - 1);
+
+			fRenderBufferGraphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,1.0f));
+			if (selectionOk) {
+				fRenderBufferGraphics.setColor(Color.CYAN.brighter());
+			}
+			else {
+				fRenderBufferGraphics.setColor(Color.RED.brighter());
+			}
+			fRenderBufferGraphics.drawRect(mX1,mY1,mX2 - mX1 - 1,mY2 - mY1 - 1);
+			fRenderBufferGraphics.drawRect(mX1 + 1,mY1 + 1,mX2 - mX1 - 1 - 2,mY2 - mY1 - 1 - 2);
+			
+			int kHalfCornerSize = 3;
+			fRenderBufferGraphics.fillRect(mX1 - kHalfCornerSize + 1,mY1 - kHalfCornerSize + 1,2 * kHalfCornerSize,2 * kHalfCornerSize);
+			fRenderBufferGraphics.fillRect(mX2 - kHalfCornerSize - 1,mY1 - kHalfCornerSize + 1,2 * kHalfCornerSize,2 * kHalfCornerSize);
+			fRenderBufferGraphics.fillRect(mX1 - kHalfCornerSize + 1,mY2 - kHalfCornerSize - 1,2 * kHalfCornerSize,2 * kHalfCornerSize);
+			fRenderBufferGraphics.fillRect(mX2 - kHalfCornerSize - 1,mY2 - kHalfCornerSize - 1,2 * kHalfCornerSize,2 * kHalfCornerSize);
+			fRenderBufferGraphics.drawLine((mX1 + mX2) / 2,mY1 - (kHalfCornerSize / 2),(mX1 + mX2) / 2,mY2 + (kHalfCornerSize / 2));
+			fRenderBufferGraphics.drawLine(mX1 - (kHalfCornerSize / 2),(mY1 + mY2) / 2,mX2 + (kHalfCornerSize / 2),(mY1 + mY2) / 2);
+		} // if (fSelecting && (fSelectionAnchor != null) && (fSelectionExtent != null))
+
 		if (fShowMainFractalOverview) {
 			try {
 				int kRescaledMainFractalXOffset = 20;
@@ -2891,60 +2945,6 @@ public final class FractalPanel extends JPanel
 			fRenderBufferGraphics.setColor(Color.RED);
 			fRenderBufferGraphics.drawString(z0Str,x,y);
 		}
-
-		// overlay the selection rectangle if necessary
-		if (fSelecting && (fSelectionAnchor != null) && (fSelectionExtent != null)) {
-			Point2D.Double mouseSelectionAnchor = new Point2D.Double(fSelectionAnchor.fX,fSelectionAnchor.fY);
-			Point2D.Double mouseSelectionExtent = new Point2D.Double(fSelectionExtent.fX,fSelectionExtent.fY);
-			if (!fCentredZooming) {
-				MathTools.forcePartialOrder(mouseSelectionAnchor,mouseSelectionExtent);
-			}
-			int mX1 = (int) mouseSelectionAnchor.getX();
-			int mY1 = (int) mouseSelectionAnchor.getY();
-			int mX2 = (int) mouseSelectionExtent.getX();
-			int mY2 = (int) mouseSelectionExtent.getY();
-
-			int zoomWidth = (int) Math.abs(fSelectionExtent.fX - fSelectionAnchor.fX);
-			int zoomHeight = (int) Math.abs(fSelectionExtent.fY - fSelectionAnchor.fY); // because the screen's Y-axis points downwards
-			int minimumZoomSize = kMinimumZoomSize;
-			if (fCentredZooming) {
-				zoomWidth = Math.abs(mX2 - mX1 - 1);
-				zoomHeight = Math.abs(mY2 - mY1 - 1);
-				mX1 = mX1 - zoomWidth;
-				mY1 = mY1 - zoomHeight;
-				mX2 = mX1 + ((zoomWidth + 1) * 2);
-				mY2 = mY1 + ((zoomHeight + 1) * 2);
-				minimumZoomSize /= 2;
-			}
-			boolean selectionOk = ((zoomWidth > minimumZoomSize) && (zoomHeight > minimumZoomSize));
-
-			fRenderBufferGraphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,0.7f));
-			if (selectionOk) {
-				fRenderBufferGraphics.setColor(Color.BLUE.darker().darker());
-			}
-			else {
-				fRenderBufferGraphics.setColor(Color.RED);
-			}
-			fRenderBufferGraphics.fillRect(mX1,mY1,mX2 - mX1 - 1,mY2 - mY1 - 1);
-
-			fRenderBufferGraphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,1.0f));
-			if (selectionOk) {
-				fRenderBufferGraphics.setColor(Color.CYAN.brighter());
-			}
-			else {
-				fRenderBufferGraphics.setColor(Color.RED.brighter());
-			}
-			fRenderBufferGraphics.drawRect(mX1,mY1,mX2 - mX1 - 1,mY2 - mY1 - 1);
-			fRenderBufferGraphics.drawRect(mX1 + 1,mY1 + 1,mX2 - mX1 - 1 - 2,mY2 - mY1 - 1 - 2);
-			
-			int kHalfCornerSize = 3;
-			fRenderBufferGraphics.fillRect(mX1 - kHalfCornerSize + 1,mY1 - kHalfCornerSize + 1,2 * kHalfCornerSize,2 * kHalfCornerSize);
-			fRenderBufferGraphics.fillRect(mX2 - kHalfCornerSize - 1,mY1 - kHalfCornerSize + 1,2 * kHalfCornerSize,2 * kHalfCornerSize);
-			fRenderBufferGraphics.fillRect(mX1 - kHalfCornerSize + 1,mY2 - kHalfCornerSize - 1,2 * kHalfCornerSize,2 * kHalfCornerSize);
-			fRenderBufferGraphics.fillRect(mX2 - kHalfCornerSize - 1,mY2 - kHalfCornerSize - 1,2 * kHalfCornerSize,2 * kHalfCornerSize);
-			fRenderBufferGraphics.drawLine((mX1 + mX2) / 2,mY1 - (kHalfCornerSize / 2),(mX1 + mX2) / 2,mY2 + (kHalfCornerSize / 2));
-			fRenderBufferGraphics.drawLine(mX1 - (kHalfCornerSize / 2),(mY1 + mY2) / 2,mX2 + (kHalfCornerSize / 2),(mY1 + mY2) / 2);
-		} // if (fSelecting && (fSelectionAnchor != null) && (fSelectionExtent != null))
 
 		if (fShowCurrentLocation) {
 			try {

@@ -1,7 +1,7 @@
 // -------------------------------
 // Filename      : FraxionGUI.java
 // Author        : Sven Maerivoet
-// Last modified : 20/01/2015
+// Last modified : 22/01/2015
 // Target        : Java VM (1.8)
 // -------------------------------
 
@@ -53,7 +53,7 @@ import org.sm.smtools.util.*;
  * <B>Note that this class cannot be subclassed!</B>
  *
  * @author  Sven Maerivoet
- * @version 20/01/2015
+ * @version 22/01/2015
  */
 public final class FraxionGUI extends JStandardGUIApplication implements ActionListener, MouseListener, MouseMotionListener, KeyListener
 {
@@ -436,6 +436,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 	private HelpBroker fHelpBroker;
 	private Hashtable<EHelpTopic,javax.help.Map.ID> fHelpMapIDs;
 	private String fLastOpenedFolder;
+	private ArrayList<StoredScreenSize> fStoredScreenSizes;
 
 	/*************************
 	 * STATIC INITIALISATION *
@@ -979,13 +980,15 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			fFractalPanel.setShowMainFractalOverview(fMenuItems.get(kActionCommandMenuItemNavigationShowMainFractalOverview).isSelected());
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemNavigationSpecifiyScreenBounds)) {
-			ScreenBoundsChooser screenBoundsChooser = new ScreenBoundsChooser(this,
+			ScreenBoundsChooser screenBoundsChooser = new ScreenBoundsChooser(
+				this,
 				fIteratorController.getFractalIterator().getScreenWidth(),
 				fIteratorController.getFractalIterator().getScreenHeight(),
 				getWidth(),getHeight(),
 				getScreenInsets(),getInsets(),fFractalScrollPane.getInsets(),
 				fFractalScrollPane.getVerticalScrollBar().getPreferredSize().width,
-				fFractalScrollPane.getHorizontalScrollBar().getPreferredSize().height);
+				fFractalScrollPane.getHorizontalScrollBar().getPreferredSize().height,
+				fStoredScreenSizes);
 			if (!screenBoundsChooser.isCancelled()) {
 				if (!screenBoundsChooser.isProjectedMemoryUsageAvailable()) {
 					JWarningDialog.warn(this,I18NL10N.translate("error.NotEnoughMemoryAvailable"));
@@ -993,6 +996,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 				else {
 					int newWidth = screenBoundsChooser.getSelectedScreenWidth();
 					int newHeight = screenBoundsChooser.getSelectedScreenHeight();
+					fStoredScreenSizes = screenBoundsChooser.getSelectedStoredScreenSizes();
 					fIteratorController.getFractalIterator().setScreenBounds(newWidth,newHeight);
 					fFractalPanel.revalidate();
 					fFractalPanel.zoomToStack(newWidth,newHeight);
@@ -5232,7 +5236,9 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 		// obtain a local reference to the system registry
 		Registry systemRegistry = Registry.getInstance();
 
+		// update registry
 		systemRegistry.addObject("fLastOpenedFolder",fLastOpenedFolder);
+		systemRegistry.addObject("fStoredScreenSizes",fStoredScreenSizes);
 	}
 
 	/*******************
@@ -5242,19 +5248,35 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 	/**
 	 * Loads the registry.
 	 */
+	@SuppressWarnings("unchecked")
 	private void loadRegistry()
 	{
 		// obtain a local reference to the system registry
 		Registry systemRegistry = Registry.getInstance();
 
-		Object rawObject = systemRegistry.getObject("fLastOpenedFolder");
-		if (rawObject != null) {
-			fLastOpenedFolder = (String) rawObject;
+		// load last opened folder
+		Object lastOpenedFolderEntry = systemRegistry.getObject("fLastOpenedFolder");
+		if (lastOpenedFolderEntry != null) {
+			fLastOpenedFolder = (String) lastOpenedFolderEntry;
 		}
 		else {
 			// setup and store default as the current folder
 			fLastOpenedFolder = ".";
 			systemRegistry.addObject("fLastOpenedFolder",fLastOpenedFolder);
+		}
+
+		// load stored screen sizes
+		Object storedScreenSizesEntry = systemRegistry.getObject("fStoredScreenSizes");
+		if (storedScreenSizesEntry != null) {
+			fStoredScreenSizes = (ArrayList<StoredScreenSize>) storedScreenSizesEntry;
+		}
+		else {
+			// setup and store default as the stored screen sizes
+			fStoredScreenSizes = new ArrayList<StoredScreenSize>();
+			for (int i = 0; i < ScreenBoundsChooser.kMaxNrOfStoredScreenSizes; ++i) {
+				fStoredScreenSizes.add(new StoredScreenSize(false,"",800,600));
+			}
+			systemRegistry.addObject("fStoredScreenSizes",fStoredScreenSizes);
 		}
 	}
 
