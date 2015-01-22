@@ -91,8 +91,8 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 	private static final String kActionCommandMenuItemNavigationShowMagnifyingGlass = "menuItem.Navigation.ShowMagnifyingGlass";
 	private static final String kActionCommandMenuItemNavigationSetMagnifyingGlassSize = "menuItem.Navigation.SetMagnifyingGlassSize";
 	private static final String kActionCommandMenuItemNavigationShowMainFractalOverview = "menuItem.Navigation.ShowMainFractalOverview";
-	private static final String kActionCommandMenuItemNavigationSpecifiyScreenBounds = "menuItem.Navigation.SpecifyScreenBounds";
-	private static final String kActionCommandMenuItemNavigationSpecifyCoordinates = "menuItem.Navigation.SpecifyCoordinates";
+	private static final String kActionCommandMenuItemNavigationSpecifyScreenBounds = "menuItem.Navigation.SpecifyScreenBounds";
+	private static final String kActionCommandMenuItemNavigationSpecifyComplexBounds = "menuItem.Navigation.SpecifyComplexBounds";
 
 	private static final String kActionCommandMenuItemFractalDoubleClickModeSwitchDualMainFractal = "menuItem.Fractal.DoubleClickModeSwitchDualMainFractal";
 	private static final String kActionCommandMenuItemFractalSwitchFractalType = "menuItem.Fractal.SwitchFractalType";
@@ -977,7 +977,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemNavigationShowMainFractalOverview)) {
 			fFractalPanel.setShowMainFractalOverview(fMenuItems.get(kActionCommandMenuItemNavigationShowMainFractalOverview).isSelected());
 		}
-		else if (command.equalsIgnoreCase(kActionCommandMenuItemNavigationSpecifiyScreenBounds)) {
+		else if (command.equalsIgnoreCase(kActionCommandMenuItemNavigationSpecifyScreenBounds)) {
 			ScreenBoundsChooser screenBoundsChooser = new ScreenBoundsChooser(
 				this,
 				fIteratorController.getFractalIterator().getScreenWidth(),
@@ -1001,7 +1001,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 				}
 			}
 		}
-		else if (command.equalsIgnoreCase(kActionCommandMenuItemNavigationSpecifyCoordinates)) {
+		else if (command.equalsIgnoreCase(kActionCommandMenuItemNavigationSpecifyComplexBounds)) {
 			ComplexNumber p1 = fFractalPanel.getZoomStack().getTopP1();
 			ComplexNumber p2 = fFractalPanel.getZoomStack().getTopP2();
 			ComplexNumber centerOrigin = new ComplexNumber(
@@ -2648,19 +2648,9 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 	@Override
 	public void keyReleased(KeyEvent e)
 	{
-		if (e.getKeyCode() == KeyEvent.VK_LEFT) {
-			actionPerformed(new ActionEvent(this,ActionEvent.ACTION_LAST+1,kActionCommandMenuItemNavigationPanLeft));
+		if (e.getKeyCode() == KeyEvent.VK_F1) {
+			showHelpTopic(EHelpTopic.kGeneralInformation);
 		}
-		else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
-			actionPerformed(new ActionEvent(this,ActionEvent.ACTION_LAST+1,kActionCommandMenuItemNavigationPanRight));
-		}
-		else if (e.getKeyCode() == KeyEvent.VK_UP) {
-			actionPerformed(new ActionEvent(this,ActionEvent.ACTION_LAST+1,kActionCommandMenuItemNavigationPanUp));
-		}
-		else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
-			actionPerformed(new ActionEvent(this,ActionEvent.ACTION_LAST+1,kActionCommandMenuItemNavigationPanDown));
-		}
-//XXX
 /*
 		else if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
 			if (fIteratorController.isBusy()) {
@@ -2668,9 +2658,6 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			}
 		}
 */
-		else if (e.getKeyCode() == KeyEvent.VK_F1) {
-			showHelpTopic(EHelpTopic.kGeneralInformation);
-		}
 	}
 
 	/*********************
@@ -2882,6 +2869,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 
 				menuItem = constructMenuItem(kActionCommandMenuItemFileExportToPNG,false);
 				menuItem.setActionCommand(kActionCommandMenuItemFileExportToPNG);
+				menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E,0));
 				menuItem.addActionListener(this);
 			menu.add(menuItem);
 
@@ -2900,10 +2888,12 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 
 				menuItem = constructMenuItem(kActionCommandMenuItemFileLoadFractalParameters,false);
 				menuItem.setActionCommand(kActionCommandMenuItemFileLoadFractalParameters);
+				menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L,0));
 				menuItem.addActionListener(this);
 			menu.add(menuItem);
 				menuItem = constructMenuItem(kActionCommandMenuItemFileSaveFractalParameters,false);
 				menuItem.setActionCommand(kActionCommandMenuItemFileSaveFractalParameters);
+				menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,0));
 				menuItem.addActionListener(this);
 			menu.add(menuItem);
 
@@ -2934,18 +2924,22 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			menu.setMnemonic(I18NL10N.translateMnemonic(I18NL10N.translate("menu.Navigation.Mnemonic")));
 				menuItem = constructMenuItem(kActionCommandMenuItemNavigationPanLeft,false);
 				menuItem.setActionCommand(kActionCommandMenuItemNavigationPanLeft);
+				menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT,0));
 				menuItem.addActionListener(this);
 			menu.add(menuItem);
 				menuItem = constructMenuItem(kActionCommandMenuItemNavigationPanRight,false);
 				menuItem.setActionCommand(kActionCommandMenuItemNavigationPanRight);
+				menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT,0));
 				menuItem.addActionListener(this);
 			menu.add(menuItem);
 				menuItem = constructMenuItem(kActionCommandMenuItemNavigationPanUp,false);
 				menuItem.setActionCommand(kActionCommandMenuItemNavigationPanUp);
+				menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_UP,0));
 				menuItem.addActionListener(this);
 			menu.add(menuItem);
 				menuItem = constructMenuItem(kActionCommandMenuItemNavigationPanDown,false);
 				menuItem.setActionCommand(kActionCommandMenuItemNavigationPanDown);
+				menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN,0));
 				menuItem.addActionListener(this);
 			menu.add(menuItem);
 				menuItem = constructMenuItem(kActionCommandMenuItemNavigationSetPanningSize,false);
@@ -2978,6 +2972,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 				checkBoxMenuItem = constructCheckBoxMenuItem(kActionCommandMenuItemNavigationCentredZooming,false);
 				checkBoxMenuItem.setSelected(true);
 				checkBoxMenuItem.setActionCommand(kActionCommandMenuItemNavigationCentredZooming);
+				checkBoxMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_T,0));
 				checkBoxMenuItem.addActionListener(this);
 				fMenuItems.put(kActionCommandMenuItemNavigationCentredZooming,checkBoxMenuItem);
 			menu.add(checkBoxMenuItem);
@@ -3004,6 +2999,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 				checkBoxMenuItem = constructCheckBoxMenuItem(kActionCommandMenuItemNavigationShowOverlayGrid,false);
 				checkBoxMenuItem.setSelected(false);
 				checkBoxMenuItem.setActionCommand(kActionCommandMenuItemNavigationShowOverlayGrid);
+				checkBoxMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_G,0));
 				checkBoxMenuItem.addActionListener(this);
 				fMenuItems.put(kActionCommandMenuItemNavigationShowOverlayGrid,checkBoxMenuItem);
 			menu.add(checkBoxMenuItem);
@@ -3041,16 +3037,18 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 
 			menu.addSeparator();
 
-				menuItem = constructMenuItem(kActionCommandMenuItemNavigationSpecifiyScreenBounds,false);
-				menuItem.setActionCommand(kActionCommandMenuItemNavigationSpecifiyScreenBounds);
+				menuItem = constructMenuItem(kActionCommandMenuItemNavigationSpecifyScreenBounds,false);
+				menuItem.setActionCommand(kActionCommandMenuItemNavigationSpecifyScreenBounds);
+				menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B,0));
 				menuItem.addActionListener(this);
 			menu.add(menuItem);
-				menuItem = constructMenuItem(kActionCommandMenuItemNavigationSpecifyCoordinates,false);
-				menuItem.setActionCommand(kActionCommandMenuItemNavigationSpecifyCoordinates);
+				menuItem = constructMenuItem(kActionCommandMenuItemNavigationSpecifyComplexBounds,false);
+				menuItem.setActionCommand(kActionCommandMenuItemNavigationSpecifyComplexBounds);
+				menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C,0));
 				menuItem.addActionListener(this);
 			menu.add(menuItem);
 		menus.add(menu);
-
+//TTT
 			// fractal menu
 			menu = new JMenu(I18NL10N.translate("menu.Fractal"));
 			menu.setMnemonic(I18NL10N.translateMnemonic(I18NL10N.translate("menu.Fractal.Mnemonic")));
@@ -4080,18 +4078,21 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 					checkBoxMenuItem = constructCheckBoxMenuItem(kActionCommandMenuItemColorMapExteriorInvertColorMap,false);
 					checkBoxMenuItem.setSelected(false);
 					checkBoxMenuItem.setActionCommand(kActionCommandMenuItemColorMapExteriorInvertColorMap);
+					checkBoxMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I,0));
 					checkBoxMenuItem.addActionListener(this);
 					fMenuItems.put(kActionCommandMenuItemColorMapExteriorInvertColorMap,checkBoxMenuItem);
 				menu.add(checkBoxMenuItem);
 					checkBoxMenuItem = constructCheckBoxMenuItem(kActionCommandMenuItemColorMapExteriorWrapAroundColorMap,false);
 					checkBoxMenuItem.setSelected(false);
 					checkBoxMenuItem.setActionCommand(kActionCommandMenuItemColorMapExteriorWrapAroundColorMap);
+					checkBoxMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W,0));
 					checkBoxMenuItem.addActionListener(this);
 					fMenuItems.put(kActionCommandMenuItemColorMapExteriorWrapAroundColorMap,checkBoxMenuItem);
 				menu.add(checkBoxMenuItem);
 					checkBoxMenuItem = constructCheckBoxMenuItem(kActionCommandMenuItemColorMapCalculateAdvancedColoring,false);
 					checkBoxMenuItem.setSelected(false);
 					checkBoxMenuItem.setActionCommand(kActionCommandMenuItemColorMapCalculateAdvancedColoring);
+					checkBoxMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A,0));
 					checkBoxMenuItem.addActionListener(this);
 					fMenuItems.put(kActionCommandMenuItemColorMapCalculateAdvancedColoring,checkBoxMenuItem);
 				menu.add(checkBoxMenuItem);
@@ -4881,6 +4882,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 				menu.add(menuItem);
 					menuItem = constructMenuItem(kActionCommandMenuItemColorMapUseContours,false);
 					menuItem.setActionCommand(kActionCommandMenuItemColorMapUseContours);
+					menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O,0));
 					menuItem.addActionListener(this);
 				menu.add(menuItem);
 					menuItem = constructMenuItem(kActionCommandMenuItemColorMapUseDarkSofteningFilter,false);
@@ -4939,6 +4941,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 					checkBoxMenuItem = constructCheckBoxMenuItem(kMenuItemIndentation + kActionCommandMenuItemColorMapRestrictHighIterationCountColors,false);
 					checkBoxMenuItem.setSelected(true);
 					checkBoxMenuItem.setActionCommand(kActionCommandMenuItemColorMapRestrictHighIterationCountColors);
+					checkBoxMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H,0));
 					checkBoxMenuItem.addActionListener(this);
 					fMenuItems.put(kActionCommandMenuItemColorMapRestrictHighIterationCountColors,checkBoxMenuItem);
 				menu.add(checkBoxMenuItem);
@@ -4952,6 +4955,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 					checkBoxMenuItem = constructCheckBoxMenuItem(kActionCommandMenuItemColorMapRepeatColors,false);
 					checkBoxMenuItem.setSelected(false);
 					checkBoxMenuItem.setActionCommand(kActionCommandMenuItemColorMapRepeatColors);
+					checkBoxMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R,0));
 					checkBoxMenuItem.addActionListener(this);
 					fMenuItems.put(kActionCommandMenuItemColorMapRepeatColors,checkBoxMenuItem);
 				menu.add(checkBoxMenuItem);
@@ -5014,11 +5018,13 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 					checkBoxMenuItem = constructCheckBoxMenuItem(kActionCommandMenuItemColorMapUsePostProcessingFilters,false);
 					checkBoxMenuItem.setSelected(false);
 					checkBoxMenuItem.setActionCommand(kActionCommandMenuItemColorMapUsePostProcessingFilters);
+					checkBoxMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P,0));
 					checkBoxMenuItem.addActionListener(this);
 					fMenuItems.put(kActionCommandMenuItemColorMapUsePostProcessingFilters,checkBoxMenuItem);
 				menu.add(checkBoxMenuItem);
 					menuItem = constructMenuItem(kMenuItemIndentation + kActionCommandMenuItemColorSetupPostProcessingFilters,false);
 					menuItem.setActionCommand(kActionCommandMenuItemColorSetupPostProcessingFilters);
+					menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F,0));
 					menuItem.addActionListener(this);
 					fMenuItems.put(kActionCommandMenuItemColorSetupPostProcessingFilters,menuItem);
 				menu.add(menuItem);
@@ -5034,6 +5040,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			menu.add(menuItem);
 				menuItem = constructMenuItem(kActionCommandMenuItemMultithreadingSetNrOfCPUCoresToUse,false);
 				menuItem.setActionCommand(kActionCommandMenuItemMultithreadingSetNrOfCPUCoresToUse);
+				menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N,0));
 				menuItem.addActionListener(this);
 				// disable in case only single threading is possible
 				if (MemoryStatistics.getNrOfProcessors() == 1) {
