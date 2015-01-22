@@ -312,11 +312,8 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 	private static final String kActionCommandMenuItemColorMapExteriorUseRealComponent = "menuItem.ColorMap.Exterior.UseRealComponent";
 	private static final String kActionCommandMenuItemColorMapExteriorUseImaginaryComponent = "menuItem.ColorMap.Exterior.UseImaginaryComponent";
 	private static final String kActionCommandMenuItemColorMapExteriorUseModulus = "menuItem.ColorMap.Exterior.UseModulus";
-	private static final String kActionCommandMenuItemColorMapExteriorUseAngle = "menuItem.ColorMap.Exterior.UseAngle";
-	private static final String kActionCommandMenuItemColorMapExteriorUseMaxModulus = "menuItem.ColorMap.Exterior.UseMaxModulus";
-	private static final String kActionCommandMenuItemColorMapExteriorUseTotalDistance = "menuItem.ColorMap.Exterior.UseTotalDistance";
 	private static final String kActionCommandMenuItemColorMapExteriorUseAverageDistance = "menuItem.ColorMap.Exterior.UseAverageDistance";
-	private static final String kActionCommandMenuItemColorMapExteriorUseTotalAngle = "menuItem.ColorMap.Exterior.UseTotalAngle";
+	private static final String kActionCommandMenuItemColorMapExteriorUseAngle = "menuItem.ColorMap.Exterior.UseAngle";
 	private static final String kActionCommandMenuItemColorMapExteriorUseLyapunovExponent = "menuItem.ColorMap.Exterior.UseLyapunovExponent";
 	private static final String kActionCommandMenuItemColorMapExteriorUseCurvature = "menuItem.ColorMap.Exterior.UseCurvature";
 	private static final String kActionCommandMenuItemColorMapExteriorUseStriping = "menuItem.ColorMap.Exterior.UseStriping";
@@ -336,11 +333,8 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 	private static final String kActionCommandMenuItemColorMapInteriorUseRealComponent = "menuItem.ColorMap.Interior.UseRealComponent";
 	private static final String kActionCommandMenuItemColorMapInteriorUseImaginaryComponent = "menuItem.ColorMap.Interior.UseImaginaryComponent";
 	private static final String kActionCommandMenuItemColorMapInteriorUseModulus = "menuItem.ColorMap.Interior.UseModulus";
-	private static final String kActionCommandMenuItemColorMapInteriorUseAngle = "menuItem.ColorMap.Interior.UseAngle";
-	private static final String kActionCommandMenuItemColorMapInteriorUseMaxModulus = "menuItem.ColorMap.Interior.UseMaxModulus";
-	private static final String kActionCommandMenuItemColorMapInteriorUseTotalDistance = "menuItem.ColorMap.Interior.UseTotalDistance";
 	private static final String kActionCommandMenuItemColorMapInteriorUseAverageDistance = "menuItem.ColorMap.Interior.UseAverageDistance";
-	private static final String kActionCommandMenuItemColorMapInteriorUseTotalAngle = "menuItem.ColorMap.Interior.UseTotalAngle";
+	private static final String kActionCommandMenuItemColorMapInteriorUseAngle = "menuItem.ColorMap.Interior.UseAngle";
 	private static final String kActionCommandMenuItemColorMapInteriorUseLyapunovExponent = "menuItem.ColorMap.Interior.UseLyapunovExponent";
 	private static final String kActionCommandMenuItemColorMapInteriorUseCurvature = "menuItem.ColorMap.Interior.UseCurvature";
 	private static final String kActionCommandMenuItemColorMapInteriorUseStriping = "menuItem.ColorMap.Interior.UseStriping";
@@ -2128,17 +2122,8 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorUseAngle)) {
 			fFractalPanel.setInteriorColoringMethod(ColoringParameters.EColoringMethod.kAngle);
 		}
-		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorUseMaxModulus)) {
-			fFractalPanel.setInteriorColoringMethod(ColoringParameters.EColoringMethod.kMaxModulus);
-		}
-		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorUseTotalDistance)) {
-			fFractalPanel.setInteriorColoringMethod(ColoringParameters.EColoringMethod.kTotalDistance);
-		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorUseAverageDistance)) {
 			fFractalPanel.setInteriorColoringMethod(ColoringParameters.EColoringMethod.kAverageDistance);
-		}
-		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorUseTotalAngle)) {
-			fFractalPanel.setInteriorColoringMethod(ColoringParameters.EColoringMethod.kTotalAngle);
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorUseLyapunovExponent)) {
 			fFractalPanel.setInteriorColoringMethod(ColoringParameters.EColoringMethod.kLyapunovExponent);
@@ -2202,20 +2187,11 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorUseModulus)) {
 			fFractalPanel.setExteriorColoringMethod(ColoringParameters.EColoringMethod.kModulus);
 		}
-		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorUseAngle)) {
-			fFractalPanel.setExteriorColoringMethod(ColoringParameters.EColoringMethod.kAngle);
-		}
-		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorUseMaxModulus)) {
-			fFractalPanel.setExteriorColoringMethod(ColoringParameters.EColoringMethod.kMaxModulus);
-		}
-		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorUseTotalDistance)) {
-			fFractalPanel.setExteriorColoringMethod(ColoringParameters.EColoringMethod.kTotalDistance);
-		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorUseAverageDistance)) {
 			fFractalPanel.setExteriorColoringMethod(ColoringParameters.EColoringMethod.kAverageDistance);
 		}
-		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorUseTotalAngle)) {
-			fFractalPanel.setExteriorColoringMethod(ColoringParameters.EColoringMethod.kTotalAngle);
+		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorUseAngle)) {
+			fFractalPanel.setExteriorColoringMethod(ColoringParameters.EColoringMethod.kAngle);
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorUseLyapunovExponent)) {
 			fFractalPanel.setExteriorColoringMethod(ColoringParameters.EColoringMethod.kLyapunovExponent);
@@ -4433,27 +4409,6 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 						bgColorMapUsage.add(radioButtonMenuItem);
 						fMenuItems.put(kActionCommandMenuItemColorMapExteriorUseModulus,radioButtonMenuItem);
 					subMenu.add(radioButtonMenuItem);
-						radioButtonMenuItem = constructRadioButtonMenuItem(kActionCommandMenuItemColorMapExteriorUseAngle,false);
-						radioButtonMenuItem.setSelected(false);
-						radioButtonMenuItem.setActionCommand(kActionCommandMenuItemColorMapExteriorUseAngle);
-						radioButtonMenuItem.addActionListener(this);
-						bgColorMapUsage.add(radioButtonMenuItem);
-						fMenuItems.put(kActionCommandMenuItemColorMapExteriorUseAngle,radioButtonMenuItem);
-					subMenu.add(radioButtonMenuItem);
-						radioButtonMenuItem = constructRadioButtonMenuItem(kActionCommandMenuItemColorMapExteriorUseMaxModulus,false);
-						radioButtonMenuItem.setSelected(false);
-						radioButtonMenuItem.setActionCommand(kActionCommandMenuItemColorMapExteriorUseMaxModulus);
-						radioButtonMenuItem.addActionListener(this);
-						bgColorMapUsage.add(radioButtonMenuItem);
-						fMenuItems.put(kActionCommandMenuItemColorMapExteriorUseMaxModulus,radioButtonMenuItem);
-					subMenu.add(radioButtonMenuItem);
-						radioButtonMenuItem = constructRadioButtonMenuItem(kActionCommandMenuItemColorMapExteriorUseTotalDistance,false);
-						radioButtonMenuItem.setSelected(false);
-						radioButtonMenuItem.setActionCommand(kActionCommandMenuItemColorMapExteriorUseTotalDistance);
-						radioButtonMenuItem.addActionListener(this);
-						bgColorMapUsage.add(radioButtonMenuItem);
-						fMenuItems.put(kActionCommandMenuItemColorMapExteriorUseTotalDistance,radioButtonMenuItem);
-					subMenu.add(radioButtonMenuItem);
 						radioButtonMenuItem = constructRadioButtonMenuItem(kActionCommandMenuItemColorMapExteriorUseAverageDistance,false);
 						radioButtonMenuItem.setSelected(false);
 						radioButtonMenuItem.setActionCommand(kActionCommandMenuItemColorMapExteriorUseAverageDistance);
@@ -4461,12 +4416,12 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 						bgColorMapUsage.add(radioButtonMenuItem);
 						fMenuItems.put(kActionCommandMenuItemColorMapExteriorUseAverageDistance,radioButtonMenuItem);
 					subMenu.add(radioButtonMenuItem);
-						radioButtonMenuItem = constructRadioButtonMenuItem(kActionCommandMenuItemColorMapExteriorUseTotalAngle,false);
+						radioButtonMenuItem = constructRadioButtonMenuItem(kActionCommandMenuItemColorMapExteriorUseAngle,false);
 						radioButtonMenuItem.setSelected(false);
-						radioButtonMenuItem.setActionCommand(kActionCommandMenuItemColorMapExteriorUseTotalAngle);
+						radioButtonMenuItem.setActionCommand(kActionCommandMenuItemColorMapExteriorUseAngle);
 						radioButtonMenuItem.addActionListener(this);
 						bgColorMapUsage.add(radioButtonMenuItem);
-						fMenuItems.put(kActionCommandMenuItemColorMapExteriorUseTotalAngle,radioButtonMenuItem);
+						fMenuItems.put(kActionCommandMenuItemColorMapExteriorUseAngle,radioButtonMenuItem);
 					subMenu.add(radioButtonMenuItem);
 						radioButtonMenuItem = constructRadioButtonMenuItem(kActionCommandMenuItemColorMapExteriorUseLyapunovExponent,false);
 						radioButtonMenuItem.setSelected(false);
@@ -4843,27 +4798,6 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 						buttonGroup.add(radioButtonMenuItem);
 						fMenuItems.put(kActionCommandMenuItemColorMapInteriorUseModulus,radioButtonMenuItem);
 					subMenu.add(radioButtonMenuItem);
-						radioButtonMenuItem = constructRadioButtonMenuItem(kActionCommandMenuItemColorMapInteriorUseAngle,false);
-						radioButtonMenuItem.setSelected(false);
-						radioButtonMenuItem.setActionCommand(kActionCommandMenuItemColorMapInteriorUseAngle);
-						radioButtonMenuItem.addActionListener(this);
-						buttonGroup.add(radioButtonMenuItem);
-						fMenuItems.put(kActionCommandMenuItemColorMapInteriorUseAngle,radioButtonMenuItem);
-					subMenu.add(radioButtonMenuItem);
-						radioButtonMenuItem = constructRadioButtonMenuItem(kActionCommandMenuItemColorMapInteriorUseMaxModulus,false);
-						radioButtonMenuItem.setSelected(false);
-						radioButtonMenuItem.setActionCommand(kActionCommandMenuItemColorMapInteriorUseMaxModulus);
-						radioButtonMenuItem.addActionListener(this);
-						buttonGroup.add(radioButtonMenuItem);
-						fMenuItems.put(kActionCommandMenuItemColorMapInteriorUseMaxModulus,radioButtonMenuItem);
-					subMenu.add(radioButtonMenuItem);
-						radioButtonMenuItem = constructRadioButtonMenuItem(kActionCommandMenuItemColorMapInteriorUseTotalDistance,false);
-						radioButtonMenuItem.setSelected(false);
-						radioButtonMenuItem.setActionCommand(kActionCommandMenuItemColorMapInteriorUseTotalDistance);
-						radioButtonMenuItem.addActionListener(this);
-						buttonGroup.add(radioButtonMenuItem);
-						fMenuItems.put(kActionCommandMenuItemColorMapInteriorUseTotalDistance,radioButtonMenuItem);
-					subMenu.add(radioButtonMenuItem);
 						radioButtonMenuItem = constructRadioButtonMenuItem(kActionCommandMenuItemColorMapInteriorUseAverageDistance,false);
 						radioButtonMenuItem.setSelected(false);
 						radioButtonMenuItem.setActionCommand(kActionCommandMenuItemColorMapInteriorUseAverageDistance);
@@ -4871,12 +4805,12 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 						buttonGroup.add(radioButtonMenuItem);
 						fMenuItems.put(kActionCommandMenuItemColorMapInteriorUseAverageDistance,radioButtonMenuItem);
 					subMenu.add(radioButtonMenuItem);
-						radioButtonMenuItem = constructRadioButtonMenuItem(kActionCommandMenuItemColorMapInteriorUseTotalAngle,false);
+						radioButtonMenuItem = constructRadioButtonMenuItem(kActionCommandMenuItemColorMapInteriorUseAngle,false);
 						radioButtonMenuItem.setSelected(false);
-						radioButtonMenuItem.setActionCommand(kActionCommandMenuItemColorMapInteriorUseTotalAngle);
+						radioButtonMenuItem.setActionCommand(kActionCommandMenuItemColorMapInteriorUseAngle);
 						radioButtonMenuItem.addActionListener(this);
 						buttonGroup.add(radioButtonMenuItem);
-						fMenuItems.put(kActionCommandMenuItemColorMapInteriorUseTotalAngle,radioButtonMenuItem);
+						fMenuItems.put(kActionCommandMenuItemColorMapInteriorUseAngle,radioButtonMenuItem);
 					subMenu.add(radioButtonMenuItem);
 						radioButtonMenuItem = constructRadioButtonMenuItem(kActionCommandMenuItemColorMapInteriorUseLyapunovExponent,false);
 						radioButtonMenuItem.setSelected(false);
@@ -5540,11 +5474,8 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 		fMenuItems.get(kActionCommandMenuItemColorMapInteriorUseRealComponent).setEnabled(!isMarkusLyapunovFractalIterator);
 		fMenuItems.get(kActionCommandMenuItemColorMapInteriorUseImaginaryComponent).setEnabled(!isMarkusLyapunovFractalIterator);
 		fMenuItems.get(kActionCommandMenuItemColorMapInteriorUseModulus).setEnabled(!isMarkusLyapunovFractalIterator);
-		fMenuItems.get(kActionCommandMenuItemColorMapInteriorUseAngle).setEnabled(!isMarkusLyapunovFractalIterator);
-		fMenuItems.get(kActionCommandMenuItemColorMapInteriorUseMaxModulus).setEnabled(!isMarkusLyapunovFractalIterator);
-		fMenuItems.get(kActionCommandMenuItemColorMapInteriorUseTotalDistance).setEnabled(!isMarkusLyapunovFractalIterator);
 		fMenuItems.get(kActionCommandMenuItemColorMapInteriorUseAverageDistance).setEnabled(!isMarkusLyapunovFractalIterator);
-		fMenuItems.get(kActionCommandMenuItemColorMapInteriorUseTotalAngle).setEnabled(!isMarkusLyapunovFractalIterator);
+		fMenuItems.get(kActionCommandMenuItemColorMapInteriorUseAngle).setEnabled(!isMarkusLyapunovFractalIterator);
 		fMenuItems.get(kActionCommandMenuItemColorMapInteriorUseCurvature).setEnabled(!isMarkusLyapunovFractalIterator && calculateAdvancedColoring);
 		fMenuItems.get(kActionCommandMenuItemColorMapInteriorUseStriping).setEnabled(!isMarkusLyapunovFractalIterator && calculateAdvancedColoring);
 		fMenuItems.get(kActionCommandMenuItemColorMapInteriorSetStripingDensity).setEnabled(!isMarkusLyapunovFractalIterator && calculateAdvancedColoring);
@@ -5559,11 +5490,8 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 		fMenuItems.get(kActionCommandMenuItemColorMapExteriorUseRealComponent).setEnabled(!isMarkusLyapunovFractalIterator);
 		fMenuItems.get(kActionCommandMenuItemColorMapExteriorUseImaginaryComponent).setEnabled(!isMarkusLyapunovFractalIterator);
 		fMenuItems.get(kActionCommandMenuItemColorMapExteriorUseModulus).setEnabled(!isMarkusLyapunovFractalIterator);
-		fMenuItems.get(kActionCommandMenuItemColorMapExteriorUseAngle).setEnabled(!isMarkusLyapunovFractalIterator);
-		fMenuItems.get(kActionCommandMenuItemColorMapExteriorUseMaxModulus).setEnabled(!isMarkusLyapunovFractalIterator);
-		fMenuItems.get(kActionCommandMenuItemColorMapExteriorUseTotalDistance).setEnabled(!isMarkusLyapunovFractalIterator);
 		fMenuItems.get(kActionCommandMenuItemColorMapExteriorUseAverageDistance).setEnabled(!isMarkusLyapunovFractalIterator);
-		fMenuItems.get(kActionCommandMenuItemColorMapExteriorUseTotalAngle).setEnabled(!isMarkusLyapunovFractalIterator);
+		fMenuItems.get(kActionCommandMenuItemColorMapExteriorUseAngle).setEnabled(!isMarkusLyapunovFractalIterator);
 		fMenuItems.get(kActionCommandMenuItemColorMapCalculateAdvancedColoring).setSelected(!isMarkusLyapunovFractalIterator && calculateAdvancedColoring);
 		fMenuItems.get(kActionCommandMenuItemColorMapExteriorUseCurvature).setEnabled(!isMarkusLyapunovFractalIterator && calculateAdvancedColoring);
 		fMenuItems.get(kActionCommandMenuItemColorMapExteriorUseStriping).setEnabled(!isMarkusLyapunovFractalIterator && calculateAdvancedColoring);
@@ -5708,11 +5636,8 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			case kRealComponent: fMenuItems.get(kActionCommandMenuItemColorMapInteriorUseRealComponent).setSelected(true); break;
 			case kImaginaryComponent: fMenuItems.get(kActionCommandMenuItemColorMapInteriorUseImaginaryComponent).setSelected(true); break;
 			case kModulus: fMenuItems.get(kActionCommandMenuItemColorMapInteriorUseModulus).setSelected(true); break;
-			case kAngle: fMenuItems.get(kActionCommandMenuItemColorMapInteriorUseAngle).setSelected(true); break;
-			case kMaxModulus: fMenuItems.get(kActionCommandMenuItemColorMapInteriorUseMaxModulus).setSelected(true); break;
-			case kTotalDistance: fMenuItems.get(kActionCommandMenuItemColorMapInteriorUseTotalDistance).setSelected(true); break;
 			case kAverageDistance: fMenuItems.get(kActionCommandMenuItemColorMapInteriorUseAverageDistance).setSelected(true); break;
-			case kTotalAngle: fMenuItems.get(kActionCommandMenuItemColorMapInteriorUseTotalAngle).setSelected(true); break;
+			case kAngle: fMenuItems.get(kActionCommandMenuItemColorMapInteriorUseAngle).setSelected(true); break;
 			case kLyapunovExponent: fMenuItems.get(kActionCommandMenuItemColorMapInteriorUseLyapunovExponent).setSelected(true); break;
 			case kCurvature: fMenuItems.get(kActionCommandMenuItemColorMapInteriorUseCurvature).setSelected(true); break;
 			case kStriping: fMenuItems.get(kActionCommandMenuItemColorMapInteriorUseStriping).setSelected(true); break;
@@ -5732,11 +5657,8 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			case kRealComponent: fMenuItems.get(kActionCommandMenuItemColorMapExteriorUseRealComponent).setSelected(true); break;
 			case kImaginaryComponent: fMenuItems.get(kActionCommandMenuItemColorMapExteriorUseImaginaryComponent).setSelected(true); break;
 			case kModulus: fMenuItems.get(kActionCommandMenuItemColorMapExteriorUseModulus).setSelected(true); break;
-			case kAngle: fMenuItems.get(kActionCommandMenuItemColorMapExteriorUseAngle).setSelected(true); break;
-			case kMaxModulus: fMenuItems.get(kActionCommandMenuItemColorMapExteriorUseMaxModulus).setSelected(true); break;
-			case kTotalDistance: fMenuItems.get(kActionCommandMenuItemColorMapExteriorUseTotalDistance).setSelected(true); break;
 			case kAverageDistance: fMenuItems.get(kActionCommandMenuItemColorMapExteriorUseAverageDistance).setSelected(true); break;
-			case kTotalAngle: fMenuItems.get(kActionCommandMenuItemColorMapExteriorUseTotalAngle).setSelected(true); break;
+			case kAngle: fMenuItems.get(kActionCommandMenuItemColorMapExteriorUseAngle).setSelected(true); break;
 			case kLyapunovExponent: fMenuItems.get(kActionCommandMenuItemColorMapExteriorUseLyapunovExponent).setSelected(true); break;
 			case kCurvature: fMenuItems.get(kActionCommandMenuItemColorMapExteriorUseCurvature).setSelected(true); break;
 			case kStriping: fMenuItems.get(kActionCommandMenuItemColorMapExteriorUseStriping).setSelected(true); break;
