@@ -85,6 +85,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 	private static final String kActionCommandMenuItemNavigationResetZoom = "menuItem.Navigation.ResetZoom";
 	private static final String kActionCommandMenuItemNavigationZoomToLevel = "menuItem.Navigation.ZoomToLevel";
 	private static final String kActionCommandMenuItemNavigationShowAxes = "menuItem.Navigation.ShowAxes";
+	private static final String kActionCommandMenuItemNavigationShowOverlayGrid = "menuItem.Navigation.ShowOverlayGrid";
 	private static final String kActionCommandMenuItemNavigationInvertYAxis = "menuItem.Navigation.InvertYAxis";
 	private static final String kActionCommandMenuItemNavigationShowCurrentLocation = "menuItem.Navigation.ShowCurrentLocation";
 	private static final String kActionCommandMenuItemNavigationShowMagnifyingGlass = "menuItem.Navigation.ShowMagnifyingGlass";
@@ -952,6 +953,9 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemNavigationShowAxes)) {
 			fFractalPanel.setShowAxes(fMenuItems.get(kActionCommandMenuItemNavigationShowAxes).isSelected());
+		}
+		else if (command.equalsIgnoreCase(kActionCommandMenuItemNavigationShowOverlayGrid)) {
+			fFractalPanel.setShowOverlayGrid(fMenuItems.get(kActionCommandMenuItemNavigationShowOverlayGrid).isSelected());
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemNavigationInvertYAxis)) {
 			fIteratorController.getFractalIterator().setInvertYAxis(fMenuItems.get(kActionCommandMenuItemNavigationInvertYAxis).isSelected());
@@ -2996,6 +3000,12 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 				checkBoxMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_M,ActionEvent.CTRL_MASK));
 				checkBoxMenuItem.addActionListener(this);
 				fMenuItems.put(kActionCommandMenuItemNavigationShowAxes,checkBoxMenuItem);
+			menu.add(checkBoxMenuItem);
+				checkBoxMenuItem = constructCheckBoxMenuItem(kActionCommandMenuItemNavigationShowOverlayGrid,false);
+				checkBoxMenuItem.setSelected(false);
+				checkBoxMenuItem.setActionCommand(kActionCommandMenuItemNavigationShowOverlayGrid);
+				checkBoxMenuItem.addActionListener(this);
+				fMenuItems.put(kActionCommandMenuItemNavigationShowOverlayGrid,checkBoxMenuItem);
 			menu.add(checkBoxMenuItem);
 				checkBoxMenuItem = constructCheckBoxMenuItem(kActionCommandMenuItemNavigationInvertYAxis,false);
 				checkBoxMenuItem.setSelected(false);

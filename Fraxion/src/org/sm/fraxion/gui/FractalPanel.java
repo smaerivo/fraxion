@@ -85,6 +85,7 @@ public final class FractalPanel extends JPanel
 	private static final float kMinStrokeWidth = 0.5f;
 	private static final float kMaxStrokeWidth = 5.0f;
 	private static final int kMainFractalOverviewDefaultLongestSide = 250;
+	private static final int kMaxNrOfGridSpacesPerDimension = 8; // must be even
 
 	// internal datastructures
 	private JViewport fViewport;
@@ -103,6 +104,7 @@ public final class FractalPanel extends JPanel
 	private boolean fInsetDirty;
 	private boolean fShowDeformedMainFractal;
 	private boolean fShowAxes;
+	private boolean fShowOverlayGrid;
 	private boolean fShowMainFractalOverview;
 	private boolean fShowMagnifyingGlass;
 	private int fMagnifyingGlassRegion;
@@ -171,6 +173,27 @@ public final class FractalPanel extends JPanel
 	public void setShowAxes(boolean showAxes)
 	{
 		fShowAxes = showAxes;
+		repaint();
+	}
+
+	/**
+	 * Returns whether or not a rescaled overview version of the main fractal is shown as an inset.
+	 *
+	 * @return a <CODE>boolean</CODE> that indicates whether or not a rescaled overview version of the main fractal is shown as an inset
+	 */
+	public boolean getShowMainFractalOverview()
+	{
+		return fShowMainFractalOverview;
+	}
+
+	/**
+	 * Controls whether or not an overlay grid is shown.
+	 *
+	 * @param showOverlayGrid  a <CODE>boolean</CODE> that indicates whether or not an overlay grid is shown
+	 */
+	public void setShowOverlayGrid(boolean showOverlayGrid)
+	{
+		fShowOverlayGrid = showOverlayGrid;
 		repaint();
 	}
 
@@ -252,13 +275,13 @@ public final class FractalPanel extends JPanel
 	}
 
 	/**
-	 * Returns whether or not a rescaled overview version of the main fractal is shown as an inset.
+	 * Returns whether or not an overlay grid is shown.
 	 *
-	 * @return a <CODE>boolean</CODE> that indicates whether or not a rescaled overview version of the main fractal is shown as an inset
+	 * @return a <CODE>boolean</CODE> that indicates whether or not an overlay grid is shown
 	 */
-	public boolean getShowMainFractalOverview()
+	public boolean getShowOverlayGrid()
 	{
-		return fShowMainFractalOverview;
+		return fShowOverlayGrid;
 	}
 
 	/**
@@ -1495,6 +1518,7 @@ public final class FractalPanel extends JPanel
 		fInsetDirty = true;
 		fShowDeformedMainFractal = false;
 		fShowAxes = false;
+		fShowOverlayGrid = false;
 		fShowMagnifyingGlass = false;
 		fMagnifyingGlassRegion = MagnifyingGlassSizeChooser.kDefaultRegion;
 		fMagnifyingGlassSize = MagnifyingGlassSizeChooser.kDefaultSize;
@@ -2116,6 +2140,12 @@ public final class FractalPanel extends JPanel
 			vpY2 = vpHeight;
 		}
 
+		Image rescaledMainFractalImage = null;
+		final int kRescaledMainFractalXOffset = 20;
+		final int kRescaledMainFractalYOffset = 50;
+		int rescaledMainFractalWidth = kMainFractalOverviewDefaultLongestSide;
+		int rescaledMainFractalHeight = kMainFractalOverviewDefaultLongestSide;
+
 		// calculate the screen dimensions of the inset fractal
 		double insetSizeFactor = (100.0 - (double) fInsetSizePercentage) / 100.0;
 		fInsetWidth = (vpWidth - ((int) Math.round(insetSizeFactor * (double) vpWidth))) - kInsetEdgeOffset;
@@ -2190,14 +2220,10 @@ public final class FractalPanel extends JPanel
 			fRenderBufferGraphics.drawLine(mX1 - (kHalfCornerSize / 2),(mY1 + mY2) / 2,mX2 + (kHalfCornerSize / 2),(mY1 + mY2) / 2);
 		} // if (fSelecting && (fSelectionAnchor != null) && (fSelectionExtent != null))
 
+		// capture the current main fractal's image
 		if (fShowMainFractalOverview) {
 			try {
-				int kRescaledMainFractalXOffset = 20;
-				int kRescaledMainFractalYOffset = 50;
-
 				// determine the longest side of the screen bounds
-				int rescaledMainFractalWidth = kMainFractalOverviewDefaultLongestSide;
-				int rescaledMainFractalHeight = kMainFractalOverviewDefaultLongestSide;
 				double ratio = (double) screenWidth / (double) screenHeight;
 				if (ratio > 1.0) {
 					// width is the longest side
@@ -2208,28 +2234,8 @@ public final class FractalPanel extends JPanel
 					rescaledMainFractalWidth = (int) Math.round((double) rescaledMainFractalHeight * ratio);
 				}
 
-				// draw rescaled version of the main fractal
-				Image rescaledMainFractalImage = fRenderBuffer.getScaledInstance(rescaledMainFractalWidth,rescaledMainFractalHeight,Image.SCALE_AREA_AVERAGING);
-				fRenderBufferGraphics.drawImage(rescaledMainFractalImage,vpX1 + kRescaledMainFractalXOffset,vpY2 - kRescaledMainFractalYOffset - rescaledMainFractalHeight,null);
-
-				// draw a rectangle indicating the currently visible area
-				int rescaledVPX1 = (int) Math.round((double) vpX1 * ((double) rescaledMainFractalWidth / (double) screenWidth));
-				int rescaledVPY1 = (int) Math.round((double) vpY1 * ((double) rescaledMainFractalHeight / (double) screenHeight));
-				int rescaledVPWidth = (int) Math.round((double) vpWidth * ((double) rescaledMainFractalWidth / (double) screenWidth));
-				int rescaledVPHeight = (int) Math.round((double) vpHeight * ((double) rescaledMainFractalHeight / (double) screenHeight));
-				fRenderBufferGraphics.setXORMode(Color.RED);
-				fRenderBufferGraphics.drawRect(
-					vpX1 + kRescaledMainFractalXOffset + rescaledVPX1,
-					vpY2 - kRescaledMainFractalYOffset - rescaledMainFractalHeight + rescaledVPY1,
-					rescaledVPWidth,rescaledVPHeight);
-				fRenderBufferGraphics.drawRect(
-					vpX1 + kRescaledMainFractalXOffset + rescaledVPX1 + 1,
-					vpY2 - kRescaledMainFractalYOffset - rescaledMainFractalHeight + rescaledVPY1 + 1,
-					rescaledVPWidth - 2,rescaledVPHeight - 2);
-				fRenderBufferGraphics.setPaintMode();
-
-				fRenderBufferGraphics.setColor(Color.BLACK);
-				fRenderBufferGraphics.drawRect(vpX1 + kRescaledMainFractalXOffset,vpY2 - kRescaledMainFractalYOffset - rescaledMainFractalHeight,rescaledMainFractalWidth,rescaledMainFractalHeight);
+				// get a rescaled version of the main fractal
+				rescaledMainFractalImage = fRenderBuffer.getScaledInstance(rescaledMainFractalWidth,rescaledMainFractalHeight,Image.SCALE_AREA_AVERAGING);
 			}
 			catch (HeadlessException exc) {
 				// ignore
@@ -2411,6 +2417,106 @@ public final class FractalPanel extends JPanel
 				}
 			}
 		} // if (fShowAxes)
+
+		if (fShowOverlayGrid) {
+			// GUI specific
+			final int kCenterDotRadius = 7;
+			final int kTextInsetSize = 10;
+
+			// determine orientation
+			// grid lines are shown relative to the screen size of the fractal (and not just the viewport size)
+			double gridDelta = 0;
+			double ratio = (double) screenWidth / (double) screenHeight;
+			if (ratio > 1.0) {
+				// width is the longest side
+				gridDelta = (double) screenWidth / (double) kMaxNrOfGridSpacesPerDimension;
+			}
+			else {
+				// height is the longest side
+				gridDelta = (double) screenHeight / (double) kMaxNrOfGridSpacesPerDimension;
+			}
+
+			int centerX = screenWidth / 2;
+			int centerY = screenHeight / 2;
+
+			fRenderBufferGraphics.setColor(Color.DARK_GRAY);
+			for (int i = 0; i < kMaxNrOfGridSpacesPerDimension; ++i) {
+				// draw horizontal grid lines
+				int xLeft = (int) Math.round((double) centerX + ((gridDelta / 2.0) * (double) i));
+				fRenderBufferGraphics.drawLine(xLeft,0,xLeft,screenHeight - 1);
+				int xRight = (int) Math.round((double) centerX - ((gridDelta / 2.0) * (double) i));
+				fRenderBufferGraphics.drawLine(xRight,0,xRight,screenHeight - 1);
+
+				// draw vertical grid lines
+				int yTop = (int) Math.round((double) centerY + ((gridDelta / 2.0) * (double) i));
+				fRenderBufferGraphics.drawLine(0,yTop,screenWidth - 1,yTop);
+				int yBottom = (int) Math.round((double) centerY - ((gridDelta / 2.0) * (double) i));
+				fRenderBufferGraphics.drawLine(0,yBottom,screenWidth - 1,yBottom);
+			} // for (int i = 0; i <= kMaxNrOfGridSpacesPerDimension; ++i)
+
+			fRenderBufferGraphics.setColor(Color.LIGHT_GRAY);
+			for (int i = 0; i < (kMaxNrOfGridSpacesPerDimension / 2); ++i) {
+				// draw horizontal grid lines
+				int xLeft = (int) Math.round((double) centerX + (gridDelta * (double) i));
+				fRenderBufferGraphics.drawLine(xLeft,0,xLeft,screenHeight - 1);
+				int xRight = (int) Math.round((double) centerX - (gridDelta * (double) i));
+				fRenderBufferGraphics.drawLine(xRight,0,xRight,screenHeight - 1);
+
+				// draw vertical grid lines
+				int yTop = (int) Math.round((double) centerY + (gridDelta * (double) i));
+				fRenderBufferGraphics.drawLine(0,yTop,screenWidth - 1,yTop);
+				int yBottom = (int) Math.round((double) centerY - (gridDelta * (double) i));
+				fRenderBufferGraphics.drawLine(0,yBottom,screenWidth - 1,yBottom);
+			} // for (int i = 0; i <= kMaxNrOfGridSpacesPerDimension; ++i)
+
+			// draw a cross and dot in the centre of the screen
+			fRenderBufferGraphics.setColor(Color.WHITE);
+			fRenderBufferGraphics.drawLine(centerX,0,centerX,screenHeight - 1);
+			fRenderBufferGraphics.drawLine(0,centerY,screenWidth - 1,centerY);
+			fRenderBufferGraphics.fillOval(centerX - kCenterDotRadius,centerY - kCenterDotRadius,2 * kCenterDotRadius,2 * kCenterDotRadius);
+
+			// show size of the visible extent in the complex plane
+			double realWidth = Math.abs(p2.realComponent() - p1.realComponent());
+			double realHeight = Math.abs(p2.imaginaryComponent() - p1.imaginaryComponent());
+			String visibleExtent = String.valueOf(realWidth) + " x " + String.valueOf(realHeight);
+			FontMetrics fontMetrics = fRenderBufferGraphics.getFontMetrics();
+			int textWidth = fontMetrics.stringWidth(visibleExtent);
+			int textHeight = fontMetrics.getHeight();
+			int locationX = centerX - (textWidth / 2) - kTextInsetSize;
+			int locationY = centerY + textHeight + kTextInsetSize;
+			int locationWidth = textWidth + (2 * kTextInsetSize);
+			int locationHeight = textHeight + (2 * (kTextInsetSize / 2));
+
+			fRenderBufferGraphics.setColor(Color.WHITE);
+			fRenderBufferGraphics.fillRect(locationX,locationY,locationWidth,locationHeight);
+
+			fRenderBufferGraphics.setColor(Color.BLACK);
+			fRenderBufferGraphics.drawRect(locationX,locationY,locationWidth,locationHeight);
+			fRenderBufferGraphics.drawString(visibleExtent,locationX + kTextInsetSize,locationY + textHeight);
+		} // if (fShowOverlayGrid)
+
+		if (fShowMainFractalOverview) {
+			fRenderBufferGraphics.drawImage(rescaledMainFractalImage,vpX1 + kRescaledMainFractalXOffset,vpY2 - kRescaledMainFractalYOffset - rescaledMainFractalHeight,null);
+
+			// draw a rectangle indicating the currently visible area
+			int rescaledVPX1 = (int) Math.round((double) vpX1 * ((double) rescaledMainFractalWidth / (double) screenWidth));
+			int rescaledVPY1 = (int) Math.round((double) vpY1 * ((double) rescaledMainFractalHeight / (double) screenHeight));
+			int rescaledVPWidth = (int) Math.round((double) vpWidth * ((double) rescaledMainFractalWidth / (double) screenWidth));
+			int rescaledVPHeight = (int) Math.round((double) vpHeight * ((double) rescaledMainFractalHeight / (double) screenHeight));
+			fRenderBufferGraphics.setXORMode(Color.RED);
+			fRenderBufferGraphics.drawRect(
+				vpX1 + kRescaledMainFractalXOffset + rescaledVPX1,
+				vpY2 - kRescaledMainFractalYOffset - rescaledMainFractalHeight + rescaledVPY1,
+				rescaledVPWidth,rescaledVPHeight);
+			fRenderBufferGraphics.drawRect(
+				vpX1 + kRescaledMainFractalXOffset + rescaledVPX1 + 1,
+				vpY2 - kRescaledMainFractalYOffset - rescaledMainFractalHeight + rescaledVPY1 + 1,
+				rescaledVPWidth - 2,rescaledVPHeight - 2);
+			fRenderBufferGraphics.setPaintMode();
+
+			fRenderBufferGraphics.setColor(Color.BLACK);
+			fRenderBufferGraphics.drawRect(vpX1 + kRescaledMainFractalXOffset,vpY2 - kRescaledMainFractalYOffset - rescaledMainFractalHeight,rescaledMainFractalWidth,rescaledMainFractalHeight);
+		} // if (fShowMainFractalOverview)
 
 		if (fShowOrbits || fShowOrbitAnalyses) {
 			try {
