@@ -1,7 +1,7 @@
 // ----------------------------------------
 // Filename      : ScreenBoundsChooser.java
 // Author        : Sven Maerivoet
-// Last modified : 22/01/2015
+// Last modified : 23/01/2015
 // Target        : Java VM (1.8)
 // ----------------------------------------
 
@@ -40,14 +40,14 @@ import org.sm.smtools.swing.util.*;
  * <B>Note that this class cannot be subclassed!</B>
  *
  * @author  Sven Maerivoet
- * @version 22/01/2015
+ * @version 23/01/2015
  */
 public final class ScreenBoundsChooser extends JDefaultDialog implements ActionListener
 {
 	/**
 	 * The number of supported stored screen sizes.
 	 */
-	public static final int kMaxNrOfStoredScreenSizes = 5;
+	public static final int kMaxNrOfStoredScreenSizes = 6;
 
 	// the action commands
 	private static final String kActionCommandSpecifyScreenSize = "rb.SpecifyScreenSize";
@@ -638,7 +638,7 @@ public final class ScreenBoundsChooser extends JDefaultDialog implements ActionL
 					}
 					fBackgroundColor = getBackground();
 					adjustStoredScreenSizeButtons();
-				SpringUtilities.makeCompactGrid(storedScreenSizesSubPanel,2,5,0,0,5,5);
+				SpringUtilities.makeCompactGrid(storedScreenSizesSubPanel,2,kMaxNrOfStoredScreenSizes,0,0,5,5);
 			storedScreenSizesPanel.add(storedScreenSizesSubPanel);
 			storedScreenSizesPanel.add(Box.createHorizontalGlue());
 		mainPanel.add(storedScreenSizesPanel);
