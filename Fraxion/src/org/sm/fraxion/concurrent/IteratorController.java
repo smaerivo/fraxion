@@ -1,6 +1,6 @@
 // ---------------------------------------
 // Filename      : IteratorController.java
-// Last modified : 18/01/2015
+// Last modified : 23/01/2015
 // Author        : Sven Maerivoet
 // Target        : Java VM (1.8)
 // ---------------------------------------
@@ -38,14 +38,19 @@ import org.sm.smtools.math.*;
  * <B>Note that this class cannot be subclassed!</B>
  *
  * @author  Sven Maerivoet
- * @version 18/01/2015
+ * @version 23/01/2015
  */
 public final class IteratorController
 {
 	/**
 	 * The maximum number of blocks per dimension to use for the parallel calculations.
 	 */
-	public static final int kMaxNrOfBlocksToUse = 50;
+	public static final int kMaxNrOfBlocksToUse = 100;
+
+	/**
+	 * The default number of blocks per dimension to use for the parallel calculations.
+	 */
+	public static final int kDefaultNrOfBlocksToUse = 50;
 
 	// internal datastructures
 	private boolean fIsBusy;
@@ -77,7 +82,7 @@ public final class IteratorController
 		// setup initial screen bounds
 		fFractalIterator.setScreenBounds(AFractalIterator.kInitialScreenBounds.width,AFractalIterator.kInitialScreenBounds.height);
 
-		fNrOfBlocksToUse = kMaxNrOfBlocksToUse;
+		fNrOfBlocksToUse = kDefaultNrOfBlocksToUse;
 	}
 
 	/******************

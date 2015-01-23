@@ -1,7 +1,7 @@
 // -------------------------------------
 // Filename      : ZoomLevelChooser.java
 // Author        : Sven Maerivoet
-// Last modified : 10/10/2014
+// Last modified : 23/01/2015
 // Target        : Java VM (1.8)
 // -------------------------------------
 
@@ -25,8 +25,7 @@ package org.sm.fraxion.gui.dialogs;
 
 import java.awt.event.*;
 import javax.swing.*;
-import org.sm.fraxion.gui.*;
-import org.sm.fraxion.gui.util.ZoomStack;
+import org.sm.fraxion.gui.util.*;
 import org.sm.smtools.application.util.*;
 import org.sm.smtools.swing.dialogs.*;
 
@@ -36,7 +35,7 @@ import org.sm.smtools.swing.dialogs.*;
  * <B>Note that this class cannot be subclassed!</B>
  *
  * @author  Sven Maerivoet
- * @version 10/10/2014
+ * @version 23/01/2015
  */
 public final class ZoomLevelChooser extends JDefaultDialog implements ActionListener
 {
