@@ -99,6 +99,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 	private static final String kActionCommandMenuItemFractalDoubleClickModeSetOrbitStartingPoint = "menuItem.Fractal.DoubleClickModeSetOrbitStartingPoint";
 	private static final String kActionCommandMenuItemFractalResetOrbitStartingPoint = "menuItem.Fractal.ResetOrbitStartingPoint";
 	private static final String kActionCommandMenuItemFractalShowInset = "menuItem.Fractal.ShowInset";
+	private static final String kActionCommandMenuItemFractalAutoSuppressDualFractal = "menuItem.Fractal.AutoSuppressDualFractal";
 	private static final String kActionCommandMenuItemFractalAutoZoomInset = "menuItem.Fractal.AutoZoomInset";
 	private static final String kActionCommandMenuItemFractalSetInsetSize = "menuItem.Fractal.SetInsetSize";
 	private static final String kActionCommandMenuItemFractalInsetFractalIsDeformedMainFractal = "menuItem.Fractal.InsetFractalIsDeformedMainFractal";
@@ -1044,6 +1045,9 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemFractalShowInset)) {
 			fFractalPanel.setShowInset(fMenuItems.get(kActionCommandMenuItemFractalShowInset).isSelected());
+		}
+		else if (command.equalsIgnoreCase(kActionCommandMenuItemFractalAutoSuppressDualFractal)) {
+			fFractalPanel.setAutoSuppressDualFractal(fMenuItems.get(kActionCommandMenuItemFractalAutoSuppressDualFractal).isSelected());
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemFractalAutoZoomInset)) {
 			fFractalPanel.setAutoZoomInset(fMenuItems.get(kActionCommandMenuItemFractalAutoZoomInset).isSelected());
@@ -3086,6 +3090,12 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 				checkBoxMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D,ActionEvent.CTRL_MASK));
 				checkBoxMenuItem.addActionListener(this);
 				fMenuItems.put(kActionCommandMenuItemFractalShowInset,checkBoxMenuItem);
+			menu.add(checkBoxMenuItem);
+				checkBoxMenuItem = constructCheckBoxMenuItem(kActionCommandMenuItemFractalAutoSuppressDualFractal,false);
+				checkBoxMenuItem.setSelected(true);
+				checkBoxMenuItem.setActionCommand(kActionCommandMenuItemFractalAutoSuppressDualFractal);
+				checkBoxMenuItem.addActionListener(this);
+				fMenuItems.put(kActionCommandMenuItemFractalAutoSuppressDualFractal,checkBoxMenuItem);
 			menu.add(checkBoxMenuItem);
 				menuItem = constructMenuItem(kMenuItemIndentation + kActionCommandMenuItemFractalSetInsetSize,false);
 				menuItem.setActionCommand(kActionCommandMenuItemFractalSetInsetSize);

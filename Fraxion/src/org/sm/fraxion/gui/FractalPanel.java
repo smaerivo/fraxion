@@ -1,7 +1,7 @@
 // ---------------------------------
 // Filename      : FractalPanel.java
 // Author        : Sven Maerivoet
-// Last modified : 22/01/2015
+// Last modified : 23/01/2015
 // Target        : Java VM (1.8)
 // ---------------------------------
 
@@ -57,7 +57,7 @@ import org.sm.smtools.util.*;
  * <B>Note that this class cannot be subclassed!</B>
  * 
  * @author  Sven Maerivoet
- * @version 22/01/2015
+ * @version 23/01/2015
  */
 public final class FractalPanel extends JPanel
 {
@@ -97,6 +97,7 @@ public final class FractalPanel extends JPanel
 	private BufferedImage fRenderBuffer;
 	private Graphics2D fRenderBufferGraphics;
 	private boolean fShowInset;
+	private boolean fAutoSuppressDualFractal;
 	private int fInsetX;
 	private int fInsetY;
 	private int fInsetSizePercentage;
@@ -344,6 +345,36 @@ public final class FractalPanel extends JPanel
 	public boolean getShowInset()
 	{
 		return fShowInset;
+	}
+
+	/**
+	 * Sets whether or not the dual fractal is automatically supressed for high iteration counts.
+	 *
+	 * @param autoSuppressDualFractal  a <CODE>boolean</CODE> indicating whether or not the dual fractal is automatically supressed for high iteration counts
+	 */
+	public void setAutoSuppressDualFractal(boolean autoSuppressDualFractal)
+	{
+		fAutoSuppressDualFractal = autoSuppressDualFractal;
+	}
+
+	/**
+	 * Returns whether or not the dual fractal is automatically supressed for high iteration counts.
+	 *
+	 * @return a <CODE>boolean</CODE> indicating whether or not the dual fractal is automatically supressed for high iteration counts
+	 */
+	public boolean getAutoSuppressDualFractal()
+	{
+		return fAutoSuppressDualFractal;
+	}
+
+	/**
+	 * Returns whether or not the dual fractal is suppressed.
+	 *
+	 * @return a <CODE>boolean</CODE> indicating whether or not the dual fractal is suppressed
+	 */
+	public boolean isDualFractalSuppressed()
+	{
+		return (fAutoSuppressDualFractal && fIteratorController.getFractalIterator().getMaxNrOfIterations() > kMaxNrOfIterationsToShowForDualFractal);
 	}
 
 	/**
@@ -1387,16 +1418,6 @@ public final class FractalPanel extends JPanel
 	}
 
 	/**
-	 * Returns whether or not the dual fractal is suppressed.
-	 *
-	 * @return a <CODE>boolean</CODE> indicating whether or not the dual fractal is suppressed
-	 */
-	public boolean isDualFractalSuppressed()
-	{
-		return (fIteratorController.getFractalIterator().getMaxNrOfIterations() > kMaxNrOfIterationsToShowForDualFractal);
-	}
-
-	/**
 	 * Returns an image containing the last rendered main fractal.
 	 *
 	 * @return an image containing the last rendered main fractal
@@ -1513,6 +1534,7 @@ public final class FractalPanel extends JPanel
 	private void initialise()
 	{
 		fShowInset = true;
+		fAutoSuppressDualFractal = true;
 		fInsetSizePercentage = 25;
 		fAutoZoomInset = false;
 		fInsetDirty = true;
