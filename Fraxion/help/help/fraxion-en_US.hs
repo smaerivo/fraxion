@@ -10,7 +10,7 @@ PUBLIC "-//Sun Microsystems Inc.//DTD JavaHelp HelpSet Version 2.0//EN"
 
 	<!-- maps -->
 	<maps>
-		<homeID>Fraxion Help</homeID>
+		<homeID>general_information_overview</homeID>
 		<mapref location="en_US/fraxion.jhm" />
 	</maps>
 

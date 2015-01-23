@@ -1,6 +1,6 @@
 // ---------------------------------------
 // Filename      : IteratorController.java
-// Last modified : 03/01/2015
+// Last modified : 18/01/2015
 // Author        : Sven Maerivoet
 // Target        : Java VM (1.8)
 // ---------------------------------------
@@ -38,7 +38,7 @@ import org.sm.smtools.math.*;
  * <B>Note that this class cannot be subclassed!</B>
  *
  * @author  Sven Maerivoet
- * @version 03/01/2015
+ * @version 18/01/2015
  */
 public final class IteratorController
 {
@@ -54,6 +54,7 @@ public final class IteratorController
 	private JFrame fParentFrame;
 	private JProgressUpdateGlassPane fProgressUpdateGlassPane;
 	private JLabel fStatusBarCalculationTimeLabel;
+	private JARResources fResources;
 	private IteratorTaskExecutor fIteratorTaskExecutor;
 	private int fNrOfBlocksToUse;
 	private int fNrOfThreadsToUse;
@@ -101,20 +102,23 @@ public final class IteratorController
 	 * @param progressUpdateGlassPane        the progress update glass pane used for the multithreaded rendering
 	 * @param fractalPanel                   the fractal panel used for the rendering
 	 * @param statusBarCalculationTimeLabel  the status bar's calculation time label
+	 * @param resources                      a reference to the JAR resources
 	 */
-	public void installGUIControls(JFrame parentFrame, JProgressUpdateGlassPane progressUpdateGlassPane, FractalPanel fractalPanel, JLabel statusBarCalculationTimeLabel)
+	public void installGUIControls(JFrame parentFrame, JProgressUpdateGlassPane progressUpdateGlassPane, FractalPanel fractalPanel, JLabel statusBarCalculationTimeLabel, JARResources resources)
 	{
 		fParentFrame = parentFrame;
 		fProgressUpdateGlassPane = progressUpdateGlassPane;
 		fFractalPanel = fractalPanel;
 		fStatusBarCalculationTimeLabel = statusBarCalculationTimeLabel;
+		fResources = resources;
 		fIteratorTaskExecutor = new IteratorTaskExecutor(
 			fParentFrame,
 			fProgressUpdateGlassPane,
 			fFractalIterator,
 			fFractalPanel,
 			fStatusBarCalculationTimeLabel,
-			fEstimatePDF);
+			fEstimatePDF,
+			fResources);
 
 		int nrOfProcessors = MemoryStatistics.getNrOfProcessors();
 		if (nrOfProcessors > 1) {
@@ -210,7 +214,8 @@ public final class IteratorController
 				fFractalIterator,
 				fFractalPanel,
 				fStatusBarCalculationTimeLabel,
-				fEstimatePDF);
+				fEstimatePDF,
+				fResources);
 
 			if (fNrOfThreadsToUse == 0) {
 				fNrOfThreadsToUse = fIteratorTaskExecutor.getNrOfThreadsToUse();

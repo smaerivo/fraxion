@@ -1,7 +1,7 @@
 // ---------------------------------
 // Filename      : FractalPanel.java
 // Author        : Sven Maerivoet
-// Last modified : 15/01/2015
+// Last modified : 22/01/2015
 // Target        : Java VM (1.8)
 // ---------------------------------
 
@@ -57,7 +57,7 @@ import org.sm.smtools.util.*;
  * <B>Note that this class cannot be subclassed!</B>
  * 
  * @author  Sven Maerivoet
- * @version 15/01/2015
+ * @version 22/01/2015
  */
 public final class FractalPanel extends JPanel
 {
@@ -84,6 +84,8 @@ public final class FractalPanel extends JPanel
 	private static final int kMaxOrbitDiametre = 15;
 	private static final float kMinStrokeWidth = 0.5f;
 	private static final float kMaxStrokeWidth = 5.0f;
+	private static final int kMainFractalOverviewDefaultLongestSide = 250;
+	private static final int kMaxNrOfGridSpacesPerDimension = 8; // must be even
 
 	// internal datastructures
 	private JViewport fViewport;
@@ -102,6 +104,8 @@ public final class FractalPanel extends JPanel
 	private boolean fInsetDirty;
 	private boolean fShowDeformedMainFractal;
 	private boolean fShowAxes;
+	private boolean fShowOverlayGrid;
+	private boolean fShowMainFractalOverview;
 	private boolean fShowMagnifyingGlass;
 	private int fMagnifyingGlassRegion;
 	private int fMagnifyingGlassSize;
@@ -173,6 +177,27 @@ public final class FractalPanel extends JPanel
 	}
 
 	/**
+	 * Returns whether or not a rescaled overview version of the main fractal is shown as an inset.
+	 *
+	 * @return a <CODE>boolean</CODE> that indicates whether or not a rescaled overview version of the main fractal is shown as an inset
+	 */
+	public boolean getShowMainFractalOverview()
+	{
+		return fShowMainFractalOverview;
+	}
+
+	/**
+	 * Controls whether or not an overlay grid is shown.
+	 *
+	 * @param showOverlayGrid  a <CODE>boolean</CODE> that indicates whether or not an overlay grid is shown
+	 */
+	public void setShowOverlayGrid(boolean showOverlayGrid)
+	{
+		fShowOverlayGrid = showOverlayGrid;
+		repaint();
+	}
+
+	/**
 	 * Controls whether or not the information of the zoom area should be shown.
 	 *
 	 * @param showZoomInformation  a <CODE>boolean</CODE> that indicates whether or not the information of the zoom area should be shown
@@ -236,6 +261,27 @@ public final class FractalPanel extends JPanel
 	public int getMagnifyingGlassSize()
 	{
 		return fMagnifyingGlassSize;
+	}
+
+	/**
+	 * Controls whether or not a rescaled overview version of the main fractal is shown as an inset.
+	 *
+	 * @param showMainFractalOverview  a <CODE>boolean</CODE> that indicates whether or not a rescaled overview version of the main fractal is shown as an inset
+	 */
+	public void setShowMainFractalOverview(boolean showMainFractalOverview)
+	{
+		fShowMainFractalOverview = showMainFractalOverview;
+		repaint();
+	}
+
+	/**
+	 * Returns whether or not an overlay grid is shown.
+	 *
+	 * @return a <CODE>boolean</CODE> that indicates whether or not an overlay grid is shown
+	 */
+	public boolean getShowOverlayGrid()
+	{
+		return fShowOverlayGrid;
 	}
 
 	/**
@@ -1472,9 +1518,11 @@ public final class FractalPanel extends JPanel
 		fInsetDirty = true;
 		fShowDeformedMainFractal = false;
 		fShowAxes = false;
+		fShowOverlayGrid = false;
 		fShowMagnifyingGlass = false;
 		fMagnifyingGlassRegion = MagnifyingGlassSizeChooser.kDefaultRegion;
 		fMagnifyingGlassSize = MagnifyingGlassSizeChooser.kDefaultSize;
+		fShowMainFractalOverview = false;
 		fShowOrbits = false;
 		fShowOrbitPaths = true;
 		fScaleOrbitsToScreen = false;
@@ -1494,7 +1542,7 @@ public final class FractalPanel extends JPanel
 		fColoringParameters.fInteriorColorMapWrappedAround = false;
 		fColoringParameters.fExteriorColorMapInverted = false;
 		fColoringParameters.fExteriorColorMapWrappedAround = false;
-		fColoringParameters.fCalculateAdvancedColoring = true;
+		fColoringParameters.fCalculateAdvancedColoring = false;
 		fColoringParameters.fUseTigerStripes = false;
 		fColoringParameters.fTigerGradientColorMap = new JGradientColorMap();
 		fColoringParameters.fTigerGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kJet);
@@ -1590,30 +1638,15 @@ public final class FractalPanel extends JPanel
 							fractalIterationRangeInformation.fInteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fInteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fModulus);
 							interiorRankColoringHistogram[fractalIterationRangeInformation.fInteriorRankColoringHistogramNrOfPoints++] = fractalResultBuffer.fBuffer[index].fModulus;
 						}
-						else if (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kAngle) {
-							fractalIterationRangeInformation.fInteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fInteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fAngle);
-							fractalIterationRangeInformation.fInteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fInteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fAngle);
-							interiorRankColoringHistogram[fractalIterationRangeInformation.fInteriorRankColoringHistogramNrOfPoints++] = fractalResultBuffer.fBuffer[index].fAngle;
-						}
-						else if (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kMaxModulus) {
-							fractalIterationRangeInformation.fInteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fInteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fMaxModulus);
-							fractalIterationRangeInformation.fInteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fInteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fMaxModulus);
-							interiorRankColoringHistogram[fractalIterationRangeInformation.fInteriorRankColoringHistogramNrOfPoints++] = fractalResultBuffer.fBuffer[index].fMaxModulus;
-						}
-						else if (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kTotalDistance) {
-							fractalIterationRangeInformation.fInteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fInteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fTotalDistance);
-							fractalIterationRangeInformation.fInteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fInteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fTotalDistance);
-							interiorRankColoringHistogram[fractalIterationRangeInformation.fInteriorRankColoringHistogramNrOfPoints++] = fractalResultBuffer.fBuffer[index].fTotalDistance;
-						}
 						else if (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kAverageDistance) {
 							fractalIterationRangeInformation.fInteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fInteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fAverageDistance);
 							fractalIterationRangeInformation.fInteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fInteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fAverageDistance);
 							interiorRankColoringHistogram[fractalIterationRangeInformation.fInteriorRankColoringHistogramNrOfPoints++] = fractalResultBuffer.fBuffer[index].fAverageDistance;
 						}
-						else if (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kTotalAngle) {
-							fractalIterationRangeInformation.fInteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fInteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fTotalAngle);
-							fractalIterationRangeInformation.fInteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fInteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fTotalAngle);
-							interiorRankColoringHistogram[fractalIterationRangeInformation.fInteriorRankColoringHistogramNrOfPoints++] = fractalResultBuffer.fBuffer[index].fTotalAngle;
+						else if (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kAngle) {
+							fractalIterationRangeInformation.fInteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fInteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fAngle);
+							fractalIterationRangeInformation.fInteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fInteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fAngle);
+							interiorRankColoringHistogram[fractalIterationRangeInformation.fInteriorRankColoringHistogramNrOfPoints++] = fractalResultBuffer.fBuffer[index].fAngle;
 						}
 						else if (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kLyapunovExponent) {
 							fractalIterationRangeInformation.fInteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fInteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fLyapunovExponent);
@@ -1682,30 +1715,15 @@ public final class FractalPanel extends JPanel
 							fractalIterationRangeInformation.fExteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fExteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fModulus);
 							exteriorRankColoringHistogram[fractalIterationRangeInformation.fExteriorRankColoringHistogramNrOfPoints++] = fractalResultBuffer.fBuffer[index].fModulus;
 						}
-						else if (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kAngle) {
-							fractalIterationRangeInformation.fExteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fExteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fAngle);
-							fractalIterationRangeInformation.fExteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fExteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fAngle);
-							exteriorRankColoringHistogram[fractalIterationRangeInformation.fExteriorRankColoringHistogramNrOfPoints++] = fractalResultBuffer.fBuffer[index].fAngle;
-						}
-						else if (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kMaxModulus) {
-							fractalIterationRangeInformation.fExteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fExteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fMaxModulus);
-							fractalIterationRangeInformation.fExteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fExteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fMaxModulus);
-							exteriorRankColoringHistogram[fractalIterationRangeInformation.fExteriorRankColoringHistogramNrOfPoints++] = fractalResultBuffer.fBuffer[index].fMaxModulus;
-						}
-						else if (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kTotalDistance) {
-							fractalIterationRangeInformation.fExteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fExteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fTotalDistance);
-							fractalIterationRangeInformation.fExteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fExteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fTotalDistance);
-							exteriorRankColoringHistogram[fractalIterationRangeInformation.fExteriorRankColoringHistogramNrOfPoints++] = fractalResultBuffer.fBuffer[index].fTotalDistance;
-						}
 						else if (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kAverageDistance) {
 							fractalIterationRangeInformation.fExteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fExteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fAverageDistance);
 							fractalIterationRangeInformation.fExteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fExteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fAverageDistance);
 							exteriorRankColoringHistogram[fractalIterationRangeInformation.fExteriorRankColoringHistogramNrOfPoints++] = fractalResultBuffer.fBuffer[index].fAverageDistance;
 						}
-						else if (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kTotalAngle) {
-							fractalIterationRangeInformation.fExteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fExteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fTotalAngle);
-							fractalIterationRangeInformation.fExteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fExteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fTotalAngle);
-							exteriorRankColoringHistogram[fractalIterationRangeInformation.fExteriorRankColoringHistogramNrOfPoints++] = fractalResultBuffer.fBuffer[index].fTotalAngle;
+						else if (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kAngle) {
+							fractalIterationRangeInformation.fExteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fExteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fAngle);
+							fractalIterationRangeInformation.fExteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fExteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fAngle);
+							exteriorRankColoringHistogram[fractalIterationRangeInformation.fExteriorRankColoringHistogramNrOfPoints++] = fractalResultBuffer.fBuffer[index].fAngle;
 						}
 						else if (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kLyapunovExponent) {
 							fractalIterationRangeInformation.fExteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fExteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fLyapunovExponent);
@@ -1844,25 +1862,13 @@ public final class FractalPanel extends JPanel
 									(!iterationResult.liesInInterior() && (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kModulus))) {
 						nrOfIterations = iterationResult.fModulus;
 					}
-					else if ((iterationResult.liesInInterior() && (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kAngle)) ||
-									(!iterationResult.liesInInterior() && (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kAngle))) {
-						nrOfIterations = iterationResult.fAngle;
-					}
-					else if ((iterationResult.liesInInterior() && (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kMaxModulus)) ||
-									(!iterationResult.liesInInterior() && (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kMaxModulus))) {
-						nrOfIterations = iterationResult.fMaxModulus;
-					}
-					else if ((iterationResult.liesInInterior() && (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kTotalDistance)) ||
-									(!iterationResult.liesInInterior() && (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kTotalDistance))) {
-						nrOfIterations = iterationResult.fTotalDistance;
-					}
 					else if ((iterationResult.liesInInterior() && (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kAverageDistance)) ||
 									(!iterationResult.liesInInterior() && (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kAverageDistance))) {
 						nrOfIterations = iterationResult.fAverageDistance;
 					}
-					else if ((iterationResult.liesInInterior() && (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kTotalAngle)) ||
-									(!iterationResult.liesInInterior() && (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kTotalAngle))) {
-						nrOfIterations = iterationResult.fTotalAngle;
+					else if ((iterationResult.liesInInterior() && (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kAngle)) ||
+									(!iterationResult.liesInInterior() && (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kAngle))) {
+						nrOfIterations = iterationResult.fAngle;
 					}
 					else if ((iterationResult.liesInInterior() && (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kLyapunovExponent)) ||
 									(!iterationResult.liesInInterior() && (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kLyapunovExponent))) {
@@ -2134,6 +2140,12 @@ public final class FractalPanel extends JPanel
 			vpY2 = vpHeight;
 		}
 
+		Image rescaledMainFractalImage = null;
+		final int kRescaledMainFractalXOffset = 20;
+		final int kRescaledMainFractalYOffset = 50;
+		int rescaledMainFractalWidth = kMainFractalOverviewDefaultLongestSide;
+		int rescaledMainFractalHeight = kMainFractalOverviewDefaultLongestSide;
+
 		// calculate the screen dimensions of the inset fractal
 		double insetSizeFactor = (100.0 - (double) fInsetSizePercentage) / 100.0;
 		fInsetWidth = (vpWidth - ((int) Math.round(insetSizeFactor * (double) vpWidth))) - kInsetEdgeOffset;
@@ -2153,6 +2165,85 @@ public final class FractalPanel extends JPanel
 		fRenderBufferGraphics = (Graphics2D) fRenderBuffer.createGraphics();
 		fRenderBufferGraphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
 		fRenderBufferGraphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,RenderingHints.VALUE_TEXT_ANTIALIAS_GASP);
+
+		// overlay the selection rectangle if necessary
+		if (fSelecting && (fSelectionAnchor != null) && (fSelectionExtent != null)) {
+			Point2D.Double mouseSelectionAnchor = new Point2D.Double(fSelectionAnchor.fX,fSelectionAnchor.fY);
+			Point2D.Double mouseSelectionExtent = new Point2D.Double(fSelectionExtent.fX,fSelectionExtent.fY);
+			if (!fCentredZooming) {
+				MathTools.forcePartialOrder(mouseSelectionAnchor,mouseSelectionExtent);
+			}
+			int mX1 = (int) mouseSelectionAnchor.getX();
+			int mY1 = (int) mouseSelectionAnchor.getY();
+			int mX2 = (int) mouseSelectionExtent.getX();
+			int mY2 = (int) mouseSelectionExtent.getY();
+
+			int zoomWidth = (int) Math.abs(fSelectionExtent.fX - fSelectionAnchor.fX);
+			int zoomHeight = (int) Math.abs(fSelectionExtent.fY - fSelectionAnchor.fY); // because the screen's Y-axis points downwards
+			int minimumZoomSize = kMinimumZoomSize;
+			if (fCentredZooming) {
+				zoomWidth = Math.abs(mX2 - mX1 - 1);
+				zoomHeight = Math.abs(mY2 - mY1 - 1);
+				mX1 = mX1 - zoomWidth;
+				mY1 = mY1 - zoomHeight;
+				mX2 = mX1 + ((zoomWidth + 1) * 2);
+				mY2 = mY1 + ((zoomHeight + 1) * 2);
+				minimumZoomSize /= 2;
+			}
+			boolean selectionOk = ((zoomWidth > minimumZoomSize) && (zoomHeight > minimumZoomSize));
+
+			fRenderBufferGraphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,0.7f));
+			if (selectionOk) {
+				fRenderBufferGraphics.setColor(Color.BLUE.darker().darker());
+			}
+			else {
+				fRenderBufferGraphics.setColor(Color.RED);
+			}
+			fRenderBufferGraphics.fillRect(mX1,mY1,mX2 - mX1 - 1,mY2 - mY1 - 1);
+
+			fRenderBufferGraphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,1.0f));
+			if (selectionOk) {
+				fRenderBufferGraphics.setColor(Color.CYAN.brighter());
+			}
+			else {
+				fRenderBufferGraphics.setColor(Color.RED.brighter());
+			}
+			fRenderBufferGraphics.drawRect(mX1,mY1,mX2 - mX1 - 1,mY2 - mY1 - 1);
+			fRenderBufferGraphics.drawRect(mX1 + 1,mY1 + 1,mX2 - mX1 - 1 - 2,mY2 - mY1 - 1 - 2);
+			
+			int kHalfCornerSize = 3;
+			fRenderBufferGraphics.fillRect(mX1 - kHalfCornerSize + 1,mY1 - kHalfCornerSize + 1,2 * kHalfCornerSize,2 * kHalfCornerSize);
+			fRenderBufferGraphics.fillRect(mX2 - kHalfCornerSize - 1,mY1 - kHalfCornerSize + 1,2 * kHalfCornerSize,2 * kHalfCornerSize);
+			fRenderBufferGraphics.fillRect(mX1 - kHalfCornerSize + 1,mY2 - kHalfCornerSize - 1,2 * kHalfCornerSize,2 * kHalfCornerSize);
+			fRenderBufferGraphics.fillRect(mX2 - kHalfCornerSize - 1,mY2 - kHalfCornerSize - 1,2 * kHalfCornerSize,2 * kHalfCornerSize);
+			fRenderBufferGraphics.drawLine((mX1 + mX2) / 2,mY1 - (kHalfCornerSize / 2),(mX1 + mX2) / 2,mY2 + (kHalfCornerSize / 2));
+			fRenderBufferGraphics.drawLine(mX1 - (kHalfCornerSize / 2),(mY1 + mY2) / 2,mX2 + (kHalfCornerSize / 2),(mY1 + mY2) / 2);
+		} // if (fSelecting && (fSelectionAnchor != null) && (fSelectionExtent != null))
+
+		// capture the current main fractal's image
+		if (fShowMainFractalOverview) {
+			try {
+				// determine the longest side of the screen bounds
+				double ratio = (double) screenWidth / (double) screenHeight;
+				if (ratio > 1.0) {
+					// width is the longest side
+					rescaledMainFractalHeight = (int) Math.round((double) rescaledMainFractalWidth / ratio);
+				}
+				else {
+					// height is the longest side
+					rescaledMainFractalWidth = (int) Math.round((double) rescaledMainFractalHeight * ratio);
+				}
+
+				// get a rescaled version of the main fractal
+				rescaledMainFractalImage = fRenderBuffer.getScaledInstance(rescaledMainFractalWidth,rescaledMainFractalHeight,Image.SCALE_AREA_AVERAGING);
+			}
+			catch (HeadlessException exc) {
+				// ignore
+			}
+			catch (RasterFormatException exc) {
+				// ignore
+			}
+		} // if (fShowMainFractalOverview)
 
 		if (fShowInset) {
 			boolean showInsetFractal = true;
@@ -2326,6 +2417,106 @@ public final class FractalPanel extends JPanel
 				}
 			}
 		} // if (fShowAxes)
+
+		if (fShowOverlayGrid) {
+			// GUI specific
+			final int kCenterDotRadius = 7;
+			final int kTextInsetSize = 10;
+
+			// determine orientation
+			// grid lines are shown relative to the screen size of the fractal (and not just the viewport size)
+			double gridDelta = 0;
+			double ratio = (double) screenWidth / (double) screenHeight;
+			if (ratio > 1.0) {
+				// width is the longest side
+				gridDelta = (double) screenWidth / (double) kMaxNrOfGridSpacesPerDimension;
+			}
+			else {
+				// height is the longest side
+				gridDelta = (double) screenHeight / (double) kMaxNrOfGridSpacesPerDimension;
+			}
+
+			int centerX = screenWidth / 2;
+			int centerY = screenHeight / 2;
+
+			fRenderBufferGraphics.setColor(Color.DARK_GRAY);
+			for (int i = 0; i < kMaxNrOfGridSpacesPerDimension; ++i) {
+				// draw horizontal grid lines
+				int xLeft = (int) Math.round((double) centerX + ((gridDelta / 2.0) * (double) i));
+				fRenderBufferGraphics.drawLine(xLeft,0,xLeft,screenHeight - 1);
+				int xRight = (int) Math.round((double) centerX - ((gridDelta / 2.0) * (double) i));
+				fRenderBufferGraphics.drawLine(xRight,0,xRight,screenHeight - 1);
+
+				// draw vertical grid lines
+				int yTop = (int) Math.round((double) centerY + ((gridDelta / 2.0) * (double) i));
+				fRenderBufferGraphics.drawLine(0,yTop,screenWidth - 1,yTop);
+				int yBottom = (int) Math.round((double) centerY - ((gridDelta / 2.0) * (double) i));
+				fRenderBufferGraphics.drawLine(0,yBottom,screenWidth - 1,yBottom);
+			} // for (int i = 0; i <= kMaxNrOfGridSpacesPerDimension; ++i)
+
+			fRenderBufferGraphics.setColor(Color.LIGHT_GRAY);
+			for (int i = 0; i < (kMaxNrOfGridSpacesPerDimension / 2); ++i) {
+				// draw horizontal grid lines
+				int xLeft = (int) Math.round((double) centerX + (gridDelta * (double) i));
+				fRenderBufferGraphics.drawLine(xLeft,0,xLeft,screenHeight - 1);
+				int xRight = (int) Math.round((double) centerX - (gridDelta * (double) i));
+				fRenderBufferGraphics.drawLine(xRight,0,xRight,screenHeight - 1);
+
+				// draw vertical grid lines
+				int yTop = (int) Math.round((double) centerY + (gridDelta * (double) i));
+				fRenderBufferGraphics.drawLine(0,yTop,screenWidth - 1,yTop);
+				int yBottom = (int) Math.round((double) centerY - (gridDelta * (double) i));
+				fRenderBufferGraphics.drawLine(0,yBottom,screenWidth - 1,yBottom);
+			} // for (int i = 0; i <= kMaxNrOfGridSpacesPerDimension; ++i)
+
+			// draw a cross and dot in the centre of the screen
+			fRenderBufferGraphics.setColor(Color.WHITE);
+			fRenderBufferGraphics.drawLine(centerX,0,centerX,screenHeight - 1);
+			fRenderBufferGraphics.drawLine(0,centerY,screenWidth - 1,centerY);
+			fRenderBufferGraphics.fillOval(centerX - kCenterDotRadius,centerY - kCenterDotRadius,2 * kCenterDotRadius,2 * kCenterDotRadius);
+
+			// show size of the visible extent in the complex plane
+			double realWidth = Math.abs(p2.realComponent() - p1.realComponent());
+			double realHeight = Math.abs(p2.imaginaryComponent() - p1.imaginaryComponent());
+			String visibleExtent = String.valueOf(realWidth) + " x " + String.valueOf(realHeight);
+			FontMetrics fontMetrics = fRenderBufferGraphics.getFontMetrics();
+			int textWidth = fontMetrics.stringWidth(visibleExtent);
+			int textHeight = fontMetrics.getHeight();
+			int locationX = centerX - (textWidth / 2) - kTextInsetSize;
+			int locationY = centerY + textHeight + kTextInsetSize;
+			int locationWidth = textWidth + (2 * kTextInsetSize);
+			int locationHeight = textHeight + (2 * (kTextInsetSize / 2));
+
+			fRenderBufferGraphics.setColor(Color.WHITE);
+			fRenderBufferGraphics.fillRect(locationX,locationY,locationWidth,locationHeight);
+
+			fRenderBufferGraphics.setColor(Color.BLACK);
+			fRenderBufferGraphics.drawRect(locationX,locationY,locationWidth,locationHeight);
+			fRenderBufferGraphics.drawString(visibleExtent,locationX + kTextInsetSize,locationY + textHeight);
+		} // if (fShowOverlayGrid)
+
+		if (fShowMainFractalOverview) {
+			fRenderBufferGraphics.drawImage(rescaledMainFractalImage,vpX1 + kRescaledMainFractalXOffset,vpY2 - kRescaledMainFractalYOffset - rescaledMainFractalHeight,null);
+
+			// draw a rectangle indicating the currently visible area
+			int rescaledVPX1 = (int) Math.round((double) vpX1 * ((double) rescaledMainFractalWidth / (double) screenWidth));
+			int rescaledVPY1 = (int) Math.round((double) vpY1 * ((double) rescaledMainFractalHeight / (double) screenHeight));
+			int rescaledVPWidth = (int) Math.round((double) vpWidth * ((double) rescaledMainFractalWidth / (double) screenWidth));
+			int rescaledVPHeight = (int) Math.round((double) vpHeight * ((double) rescaledMainFractalHeight / (double) screenHeight));
+			fRenderBufferGraphics.setXORMode(Color.RED);
+			fRenderBufferGraphics.drawRect(
+				vpX1 + kRescaledMainFractalXOffset + rescaledVPX1,
+				vpY2 - kRescaledMainFractalYOffset - rescaledMainFractalHeight + rescaledVPY1,
+				rescaledVPWidth,rescaledVPHeight);
+			fRenderBufferGraphics.drawRect(
+				vpX1 + kRescaledMainFractalXOffset + rescaledVPX1 + 1,
+				vpY2 - kRescaledMainFractalYOffset - rescaledMainFractalHeight + rescaledVPY1 + 1,
+				rescaledVPWidth - 2,rescaledVPHeight - 2);
+			fRenderBufferGraphics.setPaintMode();
+
+			fRenderBufferGraphics.setColor(Color.BLACK);
+			fRenderBufferGraphics.drawRect(vpX1 + kRescaledMainFractalXOffset,vpY2 - kRescaledMainFractalYOffset - rescaledMainFractalHeight,rescaledMainFractalWidth,rescaledMainFractalHeight);
+		} // if (fShowMainFractalOverview)
 
 		if (fShowOrbits || fShowOrbitAnalyses) {
 			try {
@@ -2651,6 +2842,37 @@ public final class FractalPanel extends JPanel
 			}
 		} // if (fShowOrbits || fShowOrbitAnalyses)
 
+		if (fShowMagnifyingGlass) {
+			// drawing the magnifying glass here, so that the selection rectangle is also shown correctly
+			try {
+				Point m = getMousePosition();
+				if (m != null) {
+					int mX = (int) m.getX();
+					int mY = (int) m.getY();
+
+					int mgX1 = mX - (fMagnifyingGlassSize / 2);
+					int mgY1 = mY - (fMagnifyingGlassSize / 2);
+					if (fShowMagnifyingGlass) {
+						int mgrX1 = mX - (fMagnifyingGlassRegion / 2);
+						int mgrY1 = mY - (fMagnifyingGlassRegion / 2);
+						BufferedImage subImage = fRenderBuffer.getSubimage(mgrX1,mgrY1,fMagnifyingGlassRegion,fMagnifyingGlassRegion);
+
+						Image scaledSubImage = subImage.getScaledInstance(fMagnifyingGlassSize,fMagnifyingGlassSize,Image.SCALE_AREA_AVERAGING);
+						fRenderBufferGraphics.drawImage(scaledSubImage,mgX1,mgY1,null);
+
+						fRenderBufferGraphics.setColor(Color.BLACK);
+						fRenderBufferGraphics.drawRect(mgX1,mgY1,fMagnifyingGlassSize,fMagnifyingGlassSize);
+					}
+				}
+			}
+			catch (HeadlessException exc) {
+				// ignore
+			}
+			catch (RasterFormatException exc) {
+				// ignore
+			}
+		} // if (fShowMagnifyingGlass)
+
 		if (fShowZoomInformation) {
 			String fractalDesc = I18NL10N.translate("text.Fractal.Fractal",fractalIterator.getFamilyName());
 			String lowerLeftDesc = I18NL10N.translate("text.Fractal.LowerLeft") + ": " + fractalIterator.getP1();
@@ -2787,91 +3009,6 @@ public final class FractalPanel extends JPanel
 			fRenderBufferGraphics.setColor(Color.RED);
 			fRenderBufferGraphics.drawString(z0Str,x,y);
 		}
-
-		// overlay the selection rectangle if necessary
-		if (fSelecting && (fSelectionAnchor != null) && (fSelectionExtent != null)) {
-			Point2D.Double mouseSelectionAnchor = new Point2D.Double(fSelectionAnchor.fX,fSelectionAnchor.fY);
-			Point2D.Double mouseSelectionExtent = new Point2D.Double(fSelectionExtent.fX,fSelectionExtent.fY);
-			if (!fCentredZooming) {
-				MathTools.forcePartialOrder(mouseSelectionAnchor,mouseSelectionExtent);
-			}
-			int mX1 = (int) mouseSelectionAnchor.getX();
-			int mY1 = (int) mouseSelectionAnchor.getY();
-			int mX2 = (int) mouseSelectionExtent.getX();
-			int mY2 = (int) mouseSelectionExtent.getY();
-
-			int zoomWidth = (int) Math.abs(fSelectionExtent.fX - fSelectionAnchor.fX);
-			int zoomHeight = (int) Math.abs(fSelectionExtent.fY - fSelectionAnchor.fY); // because the screen's Y-axis points downwards
-			int minimumZoomSize = kMinimumZoomSize;
-			if (fCentredZooming) {
-				zoomWidth = Math.abs(mX2 - mX1 - 1);
-				zoomHeight = Math.abs(mY2 - mY1 - 1);
-				mX1 = mX1 - zoomWidth;
-				mY1 = mY1 - zoomHeight;
-				mX2 = mX1 + ((zoomWidth + 1) * 2);
-				mY2 = mY1 + ((zoomHeight + 1) * 2);
-				minimumZoomSize /= 2;
-			}
-			boolean selectionOk = ((zoomWidth > minimumZoomSize) && (zoomHeight > minimumZoomSize));
-
-			fRenderBufferGraphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,0.7f));
-			if (selectionOk) {
-				fRenderBufferGraphics.setColor(Color.BLUE.darker().darker());
-			}
-			else {
-				fRenderBufferGraphics.setColor(Color.RED);
-			}
-			fRenderBufferGraphics.fillRect(mX1,mY1,mX2 - mX1 - 1,mY2 - mY1 - 1);
-
-			fRenderBufferGraphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,1.0f));
-			if (selectionOk) {
-				fRenderBufferGraphics.setColor(Color.CYAN.brighter());
-			}
-			else {
-				fRenderBufferGraphics.setColor(Color.RED.brighter());
-			}
-			fRenderBufferGraphics.drawRect(mX1,mY1,mX2 - mX1 - 1,mY2 - mY1 - 1);
-			fRenderBufferGraphics.drawRect(mX1 + 1,mY1 + 1,mX2 - mX1 - 1 - 2,mY2 - mY1 - 1 - 2);
-			
-			int kHalfCornerSize = 3;
-			fRenderBufferGraphics.fillRect(mX1 - kHalfCornerSize + 1,mY1 - kHalfCornerSize + 1,2 * kHalfCornerSize,2 * kHalfCornerSize);
-			fRenderBufferGraphics.fillRect(mX2 - kHalfCornerSize - 1,mY1 - kHalfCornerSize + 1,2 * kHalfCornerSize,2 * kHalfCornerSize);
-			fRenderBufferGraphics.fillRect(mX1 - kHalfCornerSize + 1,mY2 - kHalfCornerSize - 1,2 * kHalfCornerSize,2 * kHalfCornerSize);
-			fRenderBufferGraphics.fillRect(mX2 - kHalfCornerSize - 1,mY2 - kHalfCornerSize - 1,2 * kHalfCornerSize,2 * kHalfCornerSize);
-			fRenderBufferGraphics.drawLine((mX1 + mX2) / 2,mY1 - (kHalfCornerSize / 2),(mX1 + mX2) / 2,mY2 + (kHalfCornerSize / 2));
-			fRenderBufferGraphics.drawLine(mX1 - (kHalfCornerSize / 2),(mY1 + mY2) / 2,mX2 + (kHalfCornerSize / 2),(mY1 + mY2) / 2);
-		} // if (fSelecting && (fSelectionAnchor != null) && (fSelectionExtent != null))
-
-		if (fShowMagnifyingGlass) {
-			// drawing the magnifying glass here, so that the selection rectangle is also shown correctly
-			try {
-				Point m = getMousePosition();
-				if (m != null) {
-					int mX = (int) m.getX();
-					int mY = (int) m.getY();
-
-					int mgX1 = mX - (fMagnifyingGlassSize / 2);
-					int mgY1 = mY - (fMagnifyingGlassSize / 2);
-					if (fShowMagnifyingGlass) {
-						int mgrX1 = mX - (fMagnifyingGlassRegion / 2);
-						int mgrY1 = mY - (fMagnifyingGlassRegion / 2);
-						BufferedImage subImage = fRenderBuffer.getSubimage(mgrX1,mgrY1,fMagnifyingGlassRegion,fMagnifyingGlassRegion);
-
-						Image scaledSubImage = subImage.getScaledInstance(fMagnifyingGlassSize,fMagnifyingGlassSize,Image.SCALE_AREA_AVERAGING);
-						fRenderBufferGraphics.drawImage(scaledSubImage,mgX1,mgY1,null);
-
-						fRenderBufferGraphics.setColor(Color.BLACK);
-						fRenderBufferGraphics.drawRect(mgX1,mgY1,fMagnifyingGlassSize,fMagnifyingGlassSize);
-					}
-				}
-			}
-			catch (HeadlessException exc) {
-				// ignore
-			}
-			catch (RasterFormatException exc) {
-				// ignore
-			}
-		} // if (fShowMagnifyingGlass)
 
 		if (fShowCurrentLocation) {
 			try {

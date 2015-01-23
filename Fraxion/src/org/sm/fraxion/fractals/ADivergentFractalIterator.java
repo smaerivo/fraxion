@@ -1,7 +1,7 @@
 // ----------------------------------------------
 // Filename      : ADivergentFractalIterator.java
 // Author        : Sven Maerivoet
-// Last modified : 19/11/2014
+// Last modified : 22/01/2015
 // Target        : Java VM (1.8)
 // ----------------------------------------------
 
@@ -33,7 +33,7 @@ import org.sm.smtools.math.complex.*;
  * <B>Note that this is an abstract class.</B>
  * 
  * @author  Sven Maerivoet
- * @version 19/11/2014
+ * @version 22/01/2015
  */
 public abstract class ADivergentFractalIterator extends AFractalIterator
 {
@@ -151,12 +151,7 @@ public abstract class ADivergentFractalIterator extends AFractalIterator
 			double modulus = Math.sqrt(modulusSqr);
 			iterationResult.fExponentialIterationCount += Math.exp(-modulus);
 			iterationResult.fModulus = modulus;
-			if (modulus > iterationResult.fMaxModulus) {
-				iterationResult.fMaxModulus = modulus;
-			}
-			iterationResult.fTotalDistance += modulus;
 			iterationResult.fAverageDistance = ((iterationResult.fAverageDistance * (iterationResult.fNrOfIterations - 1)) + modulus) / iterationResult.fNrOfIterations;
-			iterationResult.fTotalAngle += MathTools.atan(z.realComponent(),z.imaginaryComponent());
 			iterationResult.fLyapunovExponent += (0.5 * Math.log(modulusSqr));
 
 			// calculate Gaussian distances
@@ -184,9 +179,6 @@ public abstract class ADivergentFractalIterator extends AFractalIterator
 		iterationResult.fImaginaryComponent = z.imaginaryComponent();
 		iterationResult.fAngle = z.argument();
 		iterationResult.fLyapunovExponent /= iterationResult.fNrOfIterations;
-
-		// normalise the total angle between 0 and 2PI
-		iterationResult.fTotalAngle = iterationResult.fTotalAngle % (2.0 * Math.PI);
 
 		// estimate curvature and striping
 		double prevCurvature = 0.0;

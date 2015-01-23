@@ -1,7 +1,7 @@
 // ------------------------------
 // Filename      : AboutBox.java
 // Author        : Sven Maerivoet
-// Last modified : 31/12/2014
+// Last modified : 23/01/2015
 // Target        : Java VM (1.8)
 // ------------------------------
 
@@ -37,10 +37,13 @@ import org.sm.smtools.swing.dialogs.*;
  * <B>Note that this class cannot be subclassed!</B>
  * 
  * @author  Sven Maerivoet
- * @version 31/12/2014
+ * @version 23/01/2015
  */
 public final class AboutBox extends JAboutBox
 {
+	// the application's version number
+	private static final String kVersionNumber = "1.2";
+
 	/****************
 	 * CONSTRUCTORS *
 	 ****************/
@@ -88,7 +91,7 @@ public final class AboutBox extends JAboutBox
 	protected String setupAboutText()
 	{
 		return
-		("<B>Fraxion v1.1</B><BR />" +
+		("<B>Fraxion v" + kVersionNumber + "</B><BR />" +
 			"Copyright 2003-2015 Sven Maerivoet");
 	}
 

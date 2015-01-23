@@ -1,7 +1,7 @@
 // ----------------------------------------
 // Filename      : ScreenBoundsChooser.java
 // Author        : Sven Maerivoet
-// Last modified : 08/01/2015
+// Last modified : 23/01/2015
 // Target        : Java VM (1.8)
 // ----------------------------------------
 
@@ -25,8 +25,10 @@ package org.sm.fraxion.gui.dialogs;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.*;
 import javax.swing.*;
 import org.sm.fraxion.fractals.util.*;
+import org.sm.fraxion.gui.util.*;
 import org.sm.smtools.application.util.*;
 import org.sm.smtools.math.*;
 import org.sm.smtools.swing.dialogs.*;
@@ -38,10 +40,15 @@ import org.sm.smtools.swing.util.*;
  * <B>Note that this class cannot be subclassed!</B>
  *
  * @author  Sven Maerivoet
- * @version 08/01/2015
+ * @version 23/01/2015
  */
 public final class ScreenBoundsChooser extends JDefaultDialog implements ActionListener
 {
+	/**
+	 * The number of supported stored screen sizes.
+	 */
+	public static final int kMaxNrOfStoredScreenSizes = 6;
+
 	// the action commands
 	private static final String kActionCommandSpecifyScreenSize = "rb.SpecifyScreenSize";
 	private static final String kActionCommandSpecifyPaperSize = "rb.SpecifyPaperSize";
@@ -167,6 +174,7 @@ public final class ScreenBoundsChooser extends JDefaultDialog implements ActionL
 		1200};
 
 	// internal datastructures
+	private JFrame fOwner;
 	private int fScreenWidth;
 	private int fScreenHeight;
 	private int fMainWidth;
@@ -197,6 +205,12 @@ public final class ScreenBoundsChooser extends JDefaultDialog implements ActionL
 	private JLabel fPaperSizeResolutionLabel;
 	private JComboBox<String> fPaperSizePPIComboBox;
 	private JLabel fPaperSizeResolutionUnitLabel;
+	private JButton fHalveSizeButton;
+	private JButton fDoubleSizeButton;
+	private Color fBackgroundColor;
+	private ArrayList<StoredScreenSize> fStoredScreenSizes;
+	private JButton[] fStoredScreenSizeButtons;
+	private JButton[] fDeleteStoredScreenSizeButtons;
 	private JLabel fSelectedScreenBoundsLabel;
 	private JLabel fProjectedMemoryUsageLabel;
 
@@ -207,24 +221,25 @@ public final class ScreenBoundsChooser extends JDefaultDialog implements ActionL
 	/**
 	 * Constructs a <CODE>ScreenBoundsChooser</CODE> object.
 	 *
-	 * @param owner           the owning frame
-	 * @param screenWidth     the initial screen width
-	 * @param screenHeight    the initial screen height
-	 * @param mainWidth       the main width
-	 * @param mainHeight      the main height
-	 * @param screenInsets    the screen insets
-	 * @param mainInsets      the main insets
-	 * @param scrollInsets    the scroll insets
-	 * @param scrollBarWidth  the width of the vertical scrollbar
-	 * @param scrollBarHeight the height of the horizontal scrollbar
+	 * @param owner              the owning frame
+	 * @param screenWidth        the initial screen width
+	 * @param screenHeight       the initial screen height
+	 * @param mainWidth          the main width
+	 * @param mainHeight         the main height
+	 * @param screenInsets       the screen insets
+	 * @param mainInsets         the main insets
+	 * @param scrollInsets       the scroll insets
+	 * @param scrollBarWidth     the width of the vertical scrollbar
+	 * @param scrollBarHeight    the height of the horizontal scrollbar
+	 * @param storedScreenSizes  the list with stored screen sizes
 	 */
-	public ScreenBoundsChooser(JFrame owner, int screenWidth, int screenHeight, int mainWidth, int mainHeight, Insets screenInsets, Insets mainInsets, Insets scrollInsets, int scrollBarWidth, int scrollBarHeight)
+	public ScreenBoundsChooser(JFrame owner, int screenWidth, int screenHeight, int mainWidth, int mainHeight, Insets screenInsets, Insets mainInsets, Insets scrollInsets, int scrollBarWidth, int scrollBarHeight, ArrayList<StoredScreenSize> storedScreenSizes)
 	{
 		super(owner,
 			JDefaultDialog.EModality.kModal,
 			JDefaultDialog.ESize.kFixedSize,
 			JDefaultDialog.EType.kOkCancel,
-			new Object[] {screenWidth,screenHeight,mainWidth,mainHeight,screenInsets,mainInsets,scrollInsets,scrollBarWidth,scrollBarHeight},
+			new Object[] {owner,screenWidth,screenHeight,mainWidth,mainHeight,screenInsets,mainInsets,scrollInsets,scrollBarWidth,scrollBarHeight,storedScreenSizes},
 			JDefaultDialog.EActivation.kImmediately);
 	}
 
@@ -253,6 +268,16 @@ public final class ScreenBoundsChooser extends JDefaultDialog implements ActionL
 	}
 
 	/**
+	 * Returns the (modified) stored screen sizes.
+	 *
+	 * @return the (modified) stored screen sizes
+	 */
+	public ArrayList<StoredScreenSize> getSelectedStoredScreenSizes()
+	{
+		return fStoredScreenSizes;
+	}
+
+	/**
 	 * Returns a <CODE>boolean</CODE> indicating whether or not there is enough memory available.
 	 * 
 	 * @return a <CODE>boolean</CODE> indicating whether or not there is enough memory available
@@ -272,6 +297,7 @@ public final class ScreenBoundsChooser extends JDefaultDialog implements ActionL
 		super.actionPerformed(e);
 
 		String command = e.getActionCommand();
+		Object source = e.getSource();
 
 		if (command.equalsIgnoreCase(kActionCommandSpecifyScreenSize) || command.equalsIgnoreCase(kActionCommandSpecifyPaperSize)) {
 			boolean screenSizeSelected = command.equalsIgnoreCase(kActionCommandSpecifyScreenSize);
@@ -297,7 +323,7 @@ public final class ScreenBoundsChooser extends JDefaultDialog implements ActionL
 			fPaperSizePPIComboBox.setEnabled(!screenSizeSelected);
 			fPaperSizeResolutionUnitLabel.setEnabled(!screenSizeSelected);
 		}
-		else if (e.getSource() == fScreenSizeComboBox) {
+		else if (source == fScreenSizeComboBox) {
 			int selectedScreenSizeIndex = fScreenSizeComboBox.getSelectedIndex();
 			fScreenWidth = kScreenWidths[selectedScreenSizeIndex];
 			fScreenHeight = kScreenHeights[selectedScreenSizeIndex];
@@ -305,15 +331,15 @@ public final class ScreenBoundsChooser extends JDefaultDialog implements ActionL
 			fScreenSizeHeightInputField.setText(String.valueOf(fScreenHeight));
 			updateGUI();
 		}
-		else if (e.getSource() == fScreenSizeWidthInputField) {
+		else if (source == fScreenSizeWidthInputField) {
 			fScreenWidth = Integer.parseInt(fScreenSizeWidthInputField.getText());
 			updateGUI();
 		}
-		else if (e.getSource() == fScreenSizeHeightInputField) {
+		else if (source == fScreenSizeHeightInputField) {
 			fScreenHeight = Integer.parseInt(fScreenSizeHeightInputField.getText());
 			updateGUI();
 		}
-		else if (e.getSource() == fUsePhysicalWindowSizeButton) {
+		else if (source == fUsePhysicalWindowSizeButton) {
 			// subtract the insets of the current window and OS specifics (e.g., taskbar)
 			fScreenWidth = fMainWidth - fScreenInsets.left - fScreenInsets.right - fMainInsets.left - fMainInsets.right - fScrollInsets.left - fScrollInsets.right - fScrollBarWidth;
 			fScreenHeight = fMainHeight - fScreenInsets.top - fScreenInsets.bottom - fMainInsets.top - fMainInsets.bottom - fScrollInsets.top - fScrollInsets.bottom - fScrollBarHeight;
@@ -321,7 +347,7 @@ public final class ScreenBoundsChooser extends JDefaultDialog implements ActionL
 			fScreenSizeHeightInputField.setText(String.valueOf(fScreenHeight));
 			updateGUI();
 		}
-		else if ((e.getSource() == fPaperSizeComboBox) || (e.getSource() == fPaperSizeOrientationComboBox)) {
+		else if ((source == fPaperSizeComboBox) || (source == fPaperSizeOrientationComboBox)) {
 			int selectedPaperSizeIndex = fPaperSizeComboBox.getSelectedIndex();
 			int paperWidth = kPaperWidths[selectedPaperSizeIndex];
 			int paperHeight = kPaperHeights[selectedPaperSizeIndex];
@@ -344,7 +370,7 @@ public final class ScreenBoundsChooser extends JDefaultDialog implements ActionL
 			fScreenSizeHeightInputField.setText(String.valueOf(fScreenHeight));
 			updateGUI();
 		}
-		else if (e.getSource() == fPaperSizePPIComboBox) {
+		else if (source == fPaperSizePPIComboBox) {
 			int paperWidth = Integer.parseInt(fPaperSizeWidthInputField.getText());
 			int paperHeight = Integer.parseInt(fPaperSizeHeightInputField.getText());
 
@@ -357,6 +383,58 @@ public final class ScreenBoundsChooser extends JDefaultDialog implements ActionL
 			fScreenSizeHeightInputField.setText(String.valueOf(fScreenHeight));
 			updateGUI();
 		}
+		else if (source == fHalveSizeButton) {
+			fScreenWidth /= 2;
+			fScreenHeight /= 2;
+			fScreenSizeWidthInputField.setText(String.valueOf(fScreenWidth));
+			fScreenSizeHeightInputField.setText(String.valueOf(fScreenHeight));
+			updateGUI();
+		}
+		else if (source == fDoubleSizeButton) {
+			fScreenWidth *= 2;
+			fScreenHeight *= 2;
+			fScreenSizeWidthInputField.setText(String.valueOf(fScreenWidth));
+			fScreenSizeHeightInputField.setText(String.valueOf(fScreenHeight));
+			updateGUI();
+		}
+		else {
+			for (int i = 0; i < kMaxNrOfStoredScreenSizes; ++i) {
+				try {
+					StoredScreenSize storedScreenSize = fStoredScreenSizes.get(i);
+
+					if (source == fStoredScreenSizeButtons[i]) {
+						if (storedScreenSize.fSet) {
+							fScreenWidth = storedScreenSize.fWidth;
+							fScreenHeight = storedScreenSize.fHeight;
+							fScreenSizeWidthInputField.setText(String.valueOf(fScreenWidth));
+							fScreenSizeHeightInputField.setText(String.valueOf(fScreenHeight));
+						}
+						else {
+							
+							StoredScreenSizeDescriptionChooser storedScreenSizeDescriptionChooser = new StoredScreenSizeDescriptionChooser(fOwner,storedScreenSize.fDescription);
+							if (!storedScreenSizeDescriptionChooser.isCancelled()) {
+								storedScreenSize.fSet = true;
+								storedScreenSize.fDescription = storedScreenSizeDescriptionChooser.getSelectedStoredScreenSizeDescription();
+								storedScreenSize.fWidth = fScreenWidth;
+								storedScreenSize.fHeight = fScreenHeight;
+							}
+						}
+					}
+
+					if (source == fDeleteStoredScreenSizeButtons[i]) {
+						if (storedScreenSize.fSet) {
+							storedScreenSize.fSet = false;
+						}
+					}
+
+					adjustStoredScreenSizeButtons();
+					updateGUI();
+				}
+				catch (ArrayIndexOutOfBoundsException exc) {
+					// ignore
+				}
+			}
+		}
 	}
 
 	/*********************
@@ -366,18 +444,21 @@ public final class ScreenBoundsChooser extends JDefaultDialog implements ActionL
 	/**
 	 * Performs custom initialisation.
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	protected void initialiseClass(Object[] parameters)
 	{
-		fScreenWidth = (Integer) parameters[0];
-		fScreenHeight = (Integer) parameters[1];
-		fMainWidth = (Integer) parameters[2];
-		fMainHeight = (Integer) parameters[3];
-		fScreenInsets = (Insets) parameters[4];
-		fMainInsets = (Insets) parameters[5];
-		fScrollInsets = (Insets) parameters[6];
-		fScrollBarWidth = (Integer) parameters[7];
-		fScrollBarHeight = (Integer) parameters[8];
+		fOwner = (JFrame) parameters[0];
+		fScreenWidth = (Integer) parameters[1];
+		fScreenHeight = (Integer) parameters[2];
+		fMainWidth = (Integer) parameters[3];
+		fMainHeight = (Integer) parameters[4];
+		fScreenInsets = (Insets) parameters[5];
+		fMainInsets = (Insets) parameters[6];
+		fScrollInsets = (Insets) parameters[7];
+		fScrollBarWidth = (Integer) parameters[8];
+		fScrollBarHeight = (Integer) parameters[9];
+		fStoredScreenSizes = (ArrayList<StoredScreenSize>) parameters[10];
 	}
 
 	/**
@@ -517,6 +598,55 @@ public final class ScreenBoundsChooser extends JDefaultDialog implements ActionL
 		mainPanel.add(new JEtchedLine(JEtchedLine.EOrientation.kHorizontal));
 		mainPanel.add(Box.createVerticalStrut(10));
 
+			JPanel quickResizePanel = new JPanel();
+			quickResizePanel.setLayout(new BoxLayout(quickResizePanel,BoxLayout.X_AXIS));
+
+				fHalveSizeButton = new JButton(I18NL10N.translate("text.Navigation.ScreenBoundsChooserHalveSize"));
+				fHalveSizeButton.addActionListener(this);
+			quickResizePanel.add(fHalveSizeButton);
+
+			quickResizePanel.add(Box.createHorizontalStrut(10));
+
+				fDoubleSizeButton = new JButton(I18NL10N.translate("text.Navigation.ScreenBoundsChooserDoubleSize"));
+				fDoubleSizeButton.addActionListener(this);
+			quickResizePanel.add(fDoubleSizeButton);
+
+			quickResizePanel.add(Box.createHorizontalGlue());
+		mainPanel.add(quickResizePanel);
+
+		mainPanel.add(Box.createVerticalStrut(10));
+		mainPanel.add(new JEtchedLine(JEtchedLine.EOrientation.kHorizontal));
+		mainPanel.add(Box.createVerticalStrut(10));
+
+			JPanel storedScreenSizesPanel = new JPanel();
+			storedScreenSizesPanel.setLayout(new BoxLayout(storedScreenSizesPanel,BoxLayout.X_AXIS));
+
+				JPanel storedScreenSizesSubPanel = new JPanel();
+				storedScreenSizesSubPanel.setLayout(new SpringLayout());
+
+					fStoredScreenSizeButtons = new JButton[kMaxNrOfStoredScreenSizes];
+					fDeleteStoredScreenSizeButtons = new JButton[kMaxNrOfStoredScreenSizes];
+					for (int i = 0; i < kMaxNrOfStoredScreenSizes; ++i) {
+						fStoredScreenSizeButtons[i] = new JButton("M" + String.valueOf(i + 1));
+						fStoredScreenSizeButtons[i].addActionListener(this);
+					storedScreenSizesSubPanel.add(fStoredScreenSizeButtons[i]);
+					}
+					for (int i = 0; i < kMaxNrOfStoredScreenSizes; ++i) {
+						fDeleteStoredScreenSizeButtons[i] = new JButton("X");
+						fDeleteStoredScreenSizeButtons[i].addActionListener(this);
+					storedScreenSizesSubPanel.add(fDeleteStoredScreenSizeButtons[i]);
+					}
+					fBackgroundColor = getBackground();
+					adjustStoredScreenSizeButtons();
+				SpringUtilities.makeCompactGrid(storedScreenSizesSubPanel,2,kMaxNrOfStoredScreenSizes,0,0,5,5);
+			storedScreenSizesPanel.add(storedScreenSizesSubPanel);
+			storedScreenSizesPanel.add(Box.createHorizontalGlue());
+		mainPanel.add(storedScreenSizesPanel);
+
+		mainPanel.add(Box.createVerticalStrut(5));
+		mainPanel.add(new JEtchedLine(JEtchedLine.EOrientation.kHorizontal));
+		mainPanel.add(Box.createVerticalStrut(10));
+
 			JPanel selectedSizePanel = new JPanel();
 			selectedSizePanel.setLayout(new BoxLayout(selectedSizePanel,BoxLayout.X_AXIS));
 				fSelectedScreenBoundsLabel = new JLabel();
@@ -562,6 +692,36 @@ public final class ScreenBoundsChooser extends JDefaultDialog implements ActionL
 	 *******************/
 
 	/**
+	 */
+	private void adjustStoredScreenSizeButtons()
+	{
+		for (int i = 0; i < kMaxNrOfStoredScreenSizes; ++i) {
+			try {
+				StoredScreenSize storedScreenSize = fStoredScreenSizes.get(i);
+				if (storedScreenSize.fSet) {
+					fStoredScreenSizeButtons[i].setToolTipText(storedScreenSize.fDescription);
+					fStoredScreenSizeButtons[i].setBackground(Color.GREEN);
+
+					fDeleteStoredScreenSizeButtons[i].setToolTipText(I18NL10N.translate("text.Navigation.ScreenBoundsChooser.StoredScreenSize.DeleteLabel",storedScreenSize.fDescription));
+					fDeleteStoredScreenSizeButtons[i].setBackground(Color.RED);
+					fDeleteStoredScreenSizeButtons[i].setEnabled(true);
+				}
+				else {
+					fStoredScreenSizeButtons[i].setToolTipText(null);
+					fStoredScreenSizeButtons[i].setBackground(fBackgroundColor);
+
+					fDeleteStoredScreenSizeButtons[i].setToolTipText(null);
+					fDeleteStoredScreenSizeButtons[i].setBackground(fBackgroundColor);
+					fDeleteStoredScreenSizeButtons[i].setEnabled(false);
+				}
+			}
+			catch (IndexOutOfBoundsException exc) {
+				// ignore
+			}
+		}
+	}
+
+	/**
 	 * @return -
 	 */
 	private long calcProjectedMemoryUsage()
@@ -580,8 +740,8 @@ public final class ScreenBoundsChooser extends JDefaultDialog implements ActionL
 
 		long totalMemoryUsage = kArrMemUsage + kImgMemUsage;
 
-		// add 10% safety margin
-		return (long) Math.round((double) totalMemoryUsage * 1.10);
+		// add 15% safety margin
+		return (long) Math.round((double) totalMemoryUsage * 1.15);
 	}
 
 	/*****************

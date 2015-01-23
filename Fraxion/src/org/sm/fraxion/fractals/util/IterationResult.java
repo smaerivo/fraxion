@@ -1,7 +1,7 @@
 // ------------------------------------
 // Filename      : IterationResult.java
 // Author        : Sven Maerivoet
-// Last modified : 17/12/2014
+// Last modified : 22/01/2015
 // Target        : Java VM (1.8)
 // ------------------------------------
 
@@ -33,7 +33,7 @@ import org.sm.smtools.util.*;
  * <B>Note that this class cannot be subclassed!</B>
  * 
  * @author  Sven Maerivoet
- * @version 17/12/2014
+ * @version 22/01/2015
  */
 public final class IterationResult
 {
@@ -42,12 +42,15 @@ public final class IterationResult
 	 */
 	public static final double kInfinity = Double.POSITIVE_INFINITY;
 
+	// the number of fields
+	private static final int kNrOfFields = 14;
+
 	/**
 	 * The memory size (in bytes) of the object's data.
 	 * <P>
 	 * Calculated as (object shell) + (#fields) * (size of double)
 	 */
-	public static final long kMemorySize = 8L + 17L * 8L;
+	public static final long kMemorySize = 8L + (long) kNrOfFields * 8L;
 
 	// datastructures
 	public double fNrOfIterations;
@@ -56,11 +59,8 @@ public final class IterationResult
 	public double fRealComponent;
 	public double fImaginaryComponent;
 	public double fModulus;
-	public double fAngle;
-	public double fMaxModulus;
-	public double fTotalDistance;
 	public double fAverageDistance;
-	public double fTotalAngle;
+	public double fAngle;
 	public double fLyapunovExponent;
 	public double fCurvature;
 	public double fStriping;
@@ -135,17 +135,14 @@ public final class IterationResult
 			fRealComponent = Double.parseDouble(csv[3]);
 			fImaginaryComponent = Double.parseDouble(csv[4]);
 			fModulus = Double.parseDouble(csv[5]);
-			fAngle = Double.parseDouble(csv[6]);
-			fMaxModulus = Double.parseDouble(csv[7]);
-			fTotalDistance = Double.parseDouble(csv[8]);
-			fAverageDistance = Double.parseDouble(csv[9]);
-			fTotalAngle = Double.parseDouble(csv[10]);
-			fLyapunovExponent = Double.parseDouble(csv[11]);
-			fCurvature = Double.parseDouble(csv[12]);
-			fStriping = Double.parseDouble(csv[13]);
-			fMinimumGaussianIntegersDistance = Double.parseDouble(csv[14]);
-			fAverageGaussianIntegersDistance = Double.parseDouble(csv[15]);
-			fRootIndex = Double.parseDouble(csv[16]);
+			fAverageDistance = Double.parseDouble(csv[6]);
+			fAngle = Double.parseDouble(csv[7]);
+			fLyapunovExponent = Double.parseDouble(csv[8]);
+			fCurvature = Double.parseDouble(csv[9]);
+			fStriping = Double.parseDouble(csv[10]);
+			fMinimumGaussianIntegersDistance = Double.parseDouble(csv[11]);
+			fAverageGaussianIntegersDistance = Double.parseDouble(csv[12]);
+			fRootIndex = Double.parseDouble(csv[13]);
 		}
 
 		return resultAvailable;
@@ -159,7 +156,7 @@ public final class IterationResult
 	 */
 	public void save(TextFileWriter tfw) throws FileWriteException
 	{
-		String[] csv = new String[17];
+		String[] csv = new String[kNrOfFields];
 
 		csv[0] = String.valueOf(fNrOfIterations);
 		csv[1] = String.valueOf(fNormalisedIterationCount);
@@ -167,17 +164,14 @@ public final class IterationResult
 		csv[3] = String.valueOf(fRealComponent);
 		csv[4] = String.valueOf(fImaginaryComponent);
 		csv[5] = String.valueOf(fModulus);
-		csv[6] = String.valueOf(fAngle);
-		csv[7] = String.valueOf(fMaxModulus);
-		csv[8] = String.valueOf(fTotalDistance);
-		csv[9] = String.valueOf(fAverageDistance);
-		csv[10] = String.valueOf(fTotalAngle);
-		csv[11] = String.valueOf(fLyapunovExponent);
-		csv[12] = String.valueOf(fCurvature);
-		csv[13] = String.valueOf(fStriping);
-		csv[14] = String.valueOf(fMinimumGaussianIntegersDistance);
-		csv[15] = String.valueOf(fAverageGaussianIntegersDistance);
-		csv[16] = String.valueOf(fRootIndex);
+		csv[6] = String.valueOf(fAverageDistance);
+		csv[7] = String.valueOf(fAngle);
+		csv[8] = String.valueOf(fLyapunovExponent);
+		csv[9] = String.valueOf(fCurvature);
+		csv[10] = String.valueOf(fStriping);
+		csv[11] = String.valueOf(fMinimumGaussianIntegersDistance);
+		csv[12] = String.valueOf(fAverageGaussianIntegersDistance);
+		csv[13] = String.valueOf(fRootIndex);
 
 		tfw.writeCSV(csv);
 		tfw.writeLn();

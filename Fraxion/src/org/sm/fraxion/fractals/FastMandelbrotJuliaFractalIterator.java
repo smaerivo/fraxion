@@ -1,7 +1,7 @@
 // --------------------------------------------------
 // Filename      : FastMandelbrotJuliaFractalIterator
 // Author        : Sven Maerivoet
-// Last modified : 03/01/2015
+// Last modified : 22/01/2015
 // Target        : Java VM (1.8)
 // --------------------------------------------------
 
@@ -33,7 +33,7 @@ import org.sm.smtools.math.complex.*;
  * <B>Note that this class cannot be subclassed!</B>
  * 
  * @author  Sven Maerivoet
- * @version 03/01/2015
+ * @version 22/01/2015
  */
 public final class FastMandelbrotJuliaFractalIterator extends AFractalIterator
 {
@@ -209,12 +209,7 @@ public final class FastMandelbrotJuliaFractalIterator extends AFractalIterator
 			double modulus = Math.sqrt(modulusSqr);
 			iterationResult.fExponentialIterationCount += Math.exp(-modulus);
 			iterationResult.fModulus = modulus;
-			if (modulus > iterationResult.fMaxModulus) {
-				iterationResult.fMaxModulus = modulus;
-			}
-			iterationResult.fTotalDistance += modulus;
 			iterationResult.fAverageDistance = ((iterationResult.fAverageDistance * (iterationResult.fNrOfIterations - 1)) + modulus) / iterationResult.fNrOfIterations;
-			iterationResult.fTotalAngle += MathTools.atan(zX,zY);
 			iterationResult.fLyapunovExponent += (0.5 * Math.log(modulusSqr));
 
 			// calculate Gaussian distances
@@ -241,9 +236,6 @@ public final class FastMandelbrotJuliaFractalIterator extends AFractalIterator
 		iterationResult.fImaginaryComponent = zY;
 		iterationResult.fAngle = Math.atan2(zY,zX);
 		iterationResult.fLyapunovExponent /= iterationResult.fNrOfIterations;
-
-		// normalise the total angle between 0 and 2PI
-		iterationResult.fTotalAngle = iterationResult.fTotalAngle % (2.0 * Math.PI);
 
 		// estimate curvature and striping
 		double prevCurvature = 0.0;

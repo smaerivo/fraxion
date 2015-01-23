@@ -100,12 +100,16 @@
 				<b>multiple threads</b> that are executed on the available number of CPU 
 				cores in the system, including hyperthreads (the amount can be 
 				controlled via the <b>Set number of CPU cores to use</b> option in the 
-				<b>Multithreading</b> menu). All results are stored in an <b>iteration 
-				result buffer</b>. Subsequently, the application uses the selected 
-				colouring algorithms to create an <b>image buffer</b>, which is then 
-				displayed on the screen. If the colouring is changed later on, then the 
-				application only needs to recreate the image buffer instead of 
-				recalculating the entire result buffer.
+				<b>Multithreading</b> menu). In case of multiple available CPU cores, 
+				Fraxion leaves 1 unused by default in order to leave to some processing 
+				power for other applications.	Fraxion calculates and stores up to 17 
+				parameters for each point in the complex plane, explaining its strenuous 
+				computation times. All results are stored in an <b>iteration result 
+				buffer</b>. Subsequently, the application uses the selected colouring 
+				algorithms to create an <b>image buffer</b>, which is then displayed on 
+				the screen. If the colouring is changed later on, then the application 
+				only needs to recreate the image buffer instead of recalculating the 
+				entire result buffer.
 			</p>
 
 			<p>
@@ -175,9 +179,7 @@
 				<li>Saving zoom sequences as AVI frames (frame-zzzz.png)</li>
 				<li>Aliasing via stochastic supersampling</li>
 				<li>Moving JCustomColorMapChooser's sliders around</li>
-				<li>Showing progress updates on colouring</li>
 				<li>On-the-fly compilation of custom fractal formulas</li>
-				<li>Overlay complex plane grid lines</li>
 			</ul>
 
 		<h2>The original Mandelbrot</h2>

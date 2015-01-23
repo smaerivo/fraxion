@@ -1,7 +1,7 @@
 // -----------------------------------------------
 // Filename      : AConvergentFractalIterator.java
 // Author        : Sven Maerivoet
-// Last modified : 16/12/2014
+// Last modified : 22/01/2015
 // Target        : Java VM (1.8)
 // -----------------------------------------------
 
@@ -35,7 +35,7 @@ import org.sm.smtools.util.*;
  * <B>Note that this is an abstract class.</B>
  * 
  * @author  Sven Maerivoet
- * @version 16/12/2014
+ * @version 22/01/2015
  */
 public abstract class AConvergentFractalIterator extends AFractalIterator
 {
@@ -385,12 +385,7 @@ public abstract class AConvergentFractalIterator extends AFractalIterator
 		    ++iterationResult.fNrOfIterations;
       	iterationResult.fExponentialIterationCount += Math.exp(-z.modulus() / kFixedExponentialSmoothingCrispness / z.subtract(zPrevious).modulus());
       	double modulus = z.modulus();
-      	if (modulus > iterationResult.fMaxModulus) {
-        	iterationResult.fMaxModulus = modulus;
-      	}
-				iterationResult.fTotalDistance += modulus;
 				iterationResult.fAverageDistance = ((iterationResult.fAverageDistance * (iterationResult.fNrOfIterations - 1)) + modulus) / iterationResult.fNrOfIterations;				
-				iterationResult.fTotalAngle += MathTools.atan(z.realComponent(),z.imaginaryComponent());
 				iterationResult.fLyapunovExponent += Math.log(modulus);
 
 				// calculate Gaussian distances
@@ -426,9 +421,6 @@ public abstract class AConvergentFractalIterator extends AFractalIterator
 			iterationResult.fAngle = z.argument();
 			iterationResult.fLyapunovExponent /= iterationResult.fNrOfIterations;
 			iterationResult.fRootIndex = 1;
-
-			// normalise the total angle between 0 and 2PI
-			iterationResult.fTotalAngle = iterationResult.fTotalAngle % (2.0 * Math.PI);
 
 			// estimate curvature and striping
 			double prevCurvature = 0.0;
