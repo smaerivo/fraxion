@@ -2652,9 +2652,19 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 	@Override
 	public void keyReleased(KeyEvent e)
 	{
-		if (e.getKeyCode() == KeyEvent.VK_F1) {
-			showHelpTopic(EHelpTopic.kGeneralInformation);
+		if (e.getKeyCode() == KeyEvent.VK_LEFT) {
+			actionPerformed(new ActionEvent(this,ActionEvent.ACTION_LAST+1,kActionCommandMenuItemNavigationPanLeft));
 		}
+		else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
+			actionPerformed(new ActionEvent(this,ActionEvent.ACTION_LAST+1,kActionCommandMenuItemNavigationPanRight));
+		}
+		else if (e.getKeyCode() == KeyEvent.VK_UP) {
+			actionPerformed(new ActionEvent(this,ActionEvent.ACTION_LAST+1,kActionCommandMenuItemNavigationPanUp));
+		}
+		else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
+			actionPerformed(new ActionEvent(this,ActionEvent.ACTION_LAST+1,kActionCommandMenuItemNavigationPanDown));
+		}
+//XXX
 /*
 		else if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
 			if (fIteratorController.isBusy()) {
@@ -2662,6 +2672,9 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			}
 		}
 */
+		else if (e.getKeyCode() == KeyEvent.VK_F1) {
+			showHelpTopic(EHelpTopic.kGeneralInformation);
+		}
 	}
 
 	/*********************
@@ -2928,22 +2941,18 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			menu.setMnemonic(I18NL10N.translateMnemonic(I18NL10N.translate("menu.Navigation.Mnemonic")));
 				menuItem = constructMenuItem(kActionCommandMenuItemNavigationPanLeft,false);
 				menuItem.setActionCommand(kActionCommandMenuItemNavigationPanLeft);
-				menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT,0));
 				menuItem.addActionListener(this);
 			menu.add(menuItem);
 				menuItem = constructMenuItem(kActionCommandMenuItemNavigationPanRight,false);
 				menuItem.setActionCommand(kActionCommandMenuItemNavigationPanRight);
-				menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT,0));
 				menuItem.addActionListener(this);
 			menu.add(menuItem);
 				menuItem = constructMenuItem(kActionCommandMenuItemNavigationPanUp,false);
 				menuItem.setActionCommand(kActionCommandMenuItemNavigationPanUp);
-				menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_UP,0));
 				menuItem.addActionListener(this);
 			menu.add(menuItem);
 				menuItem = constructMenuItem(kActionCommandMenuItemNavigationPanDown,false);
 				menuItem.setActionCommand(kActionCommandMenuItemNavigationPanDown);
-				menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN,0));
 				menuItem.addActionListener(this);
 			menu.add(menuItem);
 				menuItem = constructMenuItem(kActionCommandMenuItemNavigationSetPanningSize,false);
