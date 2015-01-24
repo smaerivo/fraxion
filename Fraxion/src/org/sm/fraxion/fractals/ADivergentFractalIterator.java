@@ -1,7 +1,7 @@
 // ----------------------------------------------
 // Filename      : ADivergentFractalIterator.java
 // Author        : Sven Maerivoet
-// Last modified : 22/01/2015
+// Last modified : 24/01/2015
 // Target        : Java VM (1.8)
 // ----------------------------------------------
 
@@ -33,7 +33,7 @@ import org.sm.smtools.math.complex.*;
  * <B>Note that this is an abstract class.</B>
  * 
  * @author  Sven Maerivoet
- * @version 22/01/2015
+ * @version 24/01/2015
  */
 public abstract class ADivergentFractalIterator extends AFractalIterator
 {
@@ -123,10 +123,12 @@ public abstract class ADivergentFractalIterator extends AFractalIterator
 		}
 
 		double[] curvatures = new double[maxNrOfCurvaturesStripings];
-		double[] stripings = new double[maxNrOfCurvaturesStripings];
+		double[] angles = new double[maxNrOfCurvaturesStripings];
 
-		iterationResult.fMinimumGaussianIntegersDistance = Double.MAX_VALUE;
-		iterationResult.fAverageGaussianIntegersDistance = 0.0;
+		double minimumInteriorGaussianIntegersDistance = Double.MAX_VALUE;
+		double minimumExteriorGaussianIntegersDistance = Double.MAX_VALUE;
+		double averageInteriorGaussianIntegersDistance = 0.0;
+		double averageExteriorGaussianIntegersDistance = 0.0;
 
 		while (((fixedNrOfIterations == 0) && (modulusSqr <= fEscapeRadiusSqr) && (iterationResult.fNrOfIterations < maxNrOfIterations)) ||
 					(fixedNrOfIterations > 0) && (iterationResult.fNrOfIterations < fixedNrOfIterations)) {
@@ -143,7 +145,7 @@ public abstract class ADivergentFractalIterator extends AFractalIterator
 
 			if (fCalculateAdvancedColoring) {
 				curvatures[(int) iterationResult.fNrOfIterations] = Math.abs(z.subtract(zPrevious).divide(zPrevious.subtract(zPreviousPrevious)).argument());
-				stripings[(int) iterationResult.fNrOfIterations] = 0.5 * Math.sin(fStripingDensity * z.argument()) + 0.5;
+				angles[(int) iterationResult.fNrOfIterations] = z.argument();
 			}
 
 			modulusSqr = z.modulusSquared();
@@ -156,15 +158,23 @@ public abstract class ADivergentFractalIterator extends AFractalIterator
 
 			// calculate Gaussian distances
 			if (fCalculateAdvancedColoring) {
-				double zx = z.realComponent();
-				double zy = z.imaginaryComponent();
-				double xClosestGaussian = Math.round(zx * fGaussianIntegersTrapFactor) / fGaussianIntegersTrapFactor;
-				double yClosestGaussian = Math.round(zy * fGaussianIntegersTrapFactor) / fGaussianIntegersTrapFactor;
-				double gaussianDistance = Math.sqrt(((zx - xClosestGaussian) * (zx - xClosestGaussian)) + ((zy - yClosestGaussian) * (zy - yClosestGaussian)));
-				if (gaussianDistance < iterationResult.fMinimumGaussianIntegersDistance) {
-					iterationResult.fMinimumGaussianIntegersDistance = gaussianDistance;
+				double zX = z.realComponent();
+				double zY = z.imaginaryComponent();
+				double xClosestInteriorGaussian = Math.round(zX * fInteriorGaussianIntegersTrapFactor) / fInteriorGaussianIntegersTrapFactor;
+				double yClosestInteriorGaussian = Math.round(zY * fInteriorGaussianIntegersTrapFactor) / fInteriorGaussianIntegersTrapFactor;
+				double interiorGaussianDistance = Math.sqrt(((zX - xClosestInteriorGaussian) * (zX - xClosestInteriorGaussian)) + ((zY - yClosestInteriorGaussian) * (zY - yClosestInteriorGaussian)));
+				if (interiorGaussianDistance < minimumInteriorGaussianIntegersDistance) {
+					minimumInteriorGaussianIntegersDistance = interiorGaussianDistance;
 				}
-				iterationResult.fAverageGaussianIntegersDistance = ((iterationResult.fAverageGaussianIntegersDistance * (iterationResult.fNrOfIterations - 1)) + gaussianDistance) / iterationResult.fNrOfIterations;				
+				averageInteriorGaussianIntegersDistance = ((averageInteriorGaussianIntegersDistance * (iterationResult.fNrOfIterations - 1)) + interiorGaussianDistance) / iterationResult.fNrOfIterations;
+
+				double xClosestExteriorGaussian = Math.round(zX * fExteriorGaussianIntegersTrapFactor) / fExteriorGaussianIntegersTrapFactor;
+				double yClosestExteriorGaussian = Math.round(zY * fExteriorGaussianIntegersTrapFactor) / fExteriorGaussianIntegersTrapFactor;
+				double exteriorGaussianDistance = Math.sqrt(((zX - xClosestExteriorGaussian) * (zX - xClosestExteriorGaussian)) + ((zY - yClosestExteriorGaussian) * (zY - yClosestExteriorGaussian)));
+				if (exteriorGaussianDistance < minimumExteriorGaussianIntegersDistance) {
+					minimumExteriorGaussianIntegersDistance = exteriorGaussianDistance;
+				}
+				averageExteriorGaussianIntegersDistance = ((averageExteriorGaussianIntegersDistance * (iterationResult.fNrOfIterations - 1)) + exteriorGaussianDistance) / iterationResult.fNrOfIterations;
 			}
 
 			if (saveOrbit) {
@@ -188,12 +198,21 @@ public abstract class ADivergentFractalIterator extends AFractalIterator
 			iterationResult.fStriping = 0.0;
 			for (int i = 0; i < iterationResult.fNrOfIterations; ++i) {
 				iterationResult.fCurvature += curvatures[i];
-				iterationResult.fStriping += stripings[i];
+				double striping = 0.0;
+				if (iterationResult.fNrOfIterations == maxNrOfIterations) {
+					striping = (0.5 * Math.sin(fInteriorStripingDensity * angles[i]) + 0.5);
+					iterationResult.fStriping += striping;
+				}
+				else {
+					striping = (0.5 * Math.sin(fExteriorStripingDensity * angles[i]) + 0.5);
+					iterationResult.fStriping += striping;
+				}
 				if (i < (iterationResult.fNrOfIterations - 1)) {
 					prevCurvature += curvatures[i];
-					prevStriping += stripings[i];
+					prevStriping += striping;
 				}
 			}
+
 			if (iterationResult.fNrOfIterations > 0) {
 				iterationResult.fCurvature /= iterationResult.fNrOfIterations;
 				iterationResult.fStriping /= iterationResult.fNrOfIterations;
@@ -202,7 +221,16 @@ public abstract class ADivergentFractalIterator extends AFractalIterator
 					prevStriping /= (iterationResult.fNrOfIterations - 1.0);
 				}
 			}
-		}
+
+			if (iterationResult.fNrOfIterations == maxNrOfIterations) {
+				iterationResult.fMinimumGaussianIntegersDistance = minimumInteriorGaussianIntegersDistance;
+				iterationResult.fAverageGaussianIntegersDistance = averageInteriorGaussianIntegersDistance;
+			}
+			else {
+				iterationResult.fMinimumGaussianIntegersDistance = minimumExteriorGaussianIntegersDistance;
+				iterationResult.fAverageGaussianIntegersDistance = averageExteriorGaussianIntegersDistance;
+			}
+		} // if (fCalculateAdvancedColoring)
 
 		// adjust for an assumed infinite number of iterations
 		if (iterationResult.fNrOfIterations == maxNrOfIterations) {

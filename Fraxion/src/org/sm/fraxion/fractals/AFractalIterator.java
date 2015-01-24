@@ -1,7 +1,7 @@
 // -------------------------------------
 // Filename      : AFractalIterator.java
 // Author        : Sven Maerivoet
-// Last modified : 20/01/2015
+// Last modified : 24/01/2015
 // Target        : Java VM (1.8)
 // -------------------------------------
 
@@ -38,7 +38,7 @@ import org.sm.smtools.util.*;
  * <B>Note that this is an abstract class.</B>
  * 
  * @author  Sven Maerivoet
- * @version 20/01/2015
+ * @version 24/01/2015
  */
 public abstract class AFractalIterator
 {
@@ -76,8 +76,10 @@ public abstract class AFractalIterator
 	protected ComplexNumber fZ0;
 	protected int fFixedNrOfIterations;
 	protected boolean fCalculateAdvancedColoring;
-	protected double fStripingDensity;
-	protected double fGaussianIntegersTrapFactor;
+	protected double fInteriorStripingDensity;
+	protected double fExteriorStripingDensity;
+	protected double fInteriorGaussianIntegersTrapFactor;
+	protected double fExteriorGaussianIntegersTrapFactor;
 
 	/****************
 	 * CONSTRUCTORS *
@@ -97,8 +99,10 @@ public abstract class AFractalIterator
 		setComplexBounds(getDefaultP1(),getDefaultP2());
 		resetMainFractalOrbitStartingPoint();
 		setCalculateAdvancedColoring(false);
-		setStripingDensity(4.0);
-		setGaussianIntegersTrapFactor(1.0);
+		setInteriorStripingDensity(4.0);
+		setExteriorStripingDensity(4.0);
+		setInteriorGaussianIntegersTrapFactor(1.0);
+		setExteriorGaussianIntegersTrapFactor(1.0);
 	}
 
 	/******************
@@ -377,45 +381,85 @@ public abstract class AFractalIterator
 	}
 
 	/**
-	 * Sets the striping density.
+	 * Sets the interior striping density.
 	 *
-	 * @param stripingDensity  the striping density
+	 * @param interiorStripingDensity  the interior striping density
 	 */
-	public final void setStripingDensity(double stripingDensity)
+	public final void setInteriorStripingDensity(double interiorStripingDensity)
 	{
-		fStripingDensity = stripingDensity;
+		fInteriorStripingDensity = interiorStripingDensity;
 	}
 
 	/**
-	 * Returns the striping density.
+	 * Returns the interior striping density.
 	 *
-	 * @return the striping density
+	 * @return the interior striping density
 	 */
-	public final double getStripingDensity()
+	public final double getInteriorStripingDensity()
 	{
-		return fStripingDensity;
+		return fInteriorStripingDensity;
 	}
 
 	/**
-	 * Sets the Gaussian integers trap factor.
+	 * Sets the exterior striping density.
 	 *
-	 * @param gaussianIntegersTrapFactor  the Gaussian integers trap factor
+	 * @param exteriorStripingDensity  the exterior striping density
 	 */
-	public final void setGaussianIntegersTrapFactor(double gaussianIntegersTrapFactor)
+	public final void setExteriorStripingDensity(double exteriorStripingDensity)
 	{
-		fGaussianIntegersTrapFactor = gaussianIntegersTrapFactor;
+		fExteriorStripingDensity = exteriorStripingDensity;
 	}
 
 	/**
-	 * Returns the Gaussian integers trap factor.
+	 * Returns the exterior striping density.
 	 *
-	 * @return the Gaussian integers trap factor
+	 * @return the exterior striping density
 	 */
-	public final double getGaussianIntegersTrapFactor()
+	public final double getExteriorStripingDensity()
 	{
-		return fGaussianIntegersTrapFactor;
+		return fExteriorStripingDensity;
+	}
+
+	/**
+	 * Sets the interior Gaussian integers trap factor.
+	 *
+	 * @param interiorGaussianIntegersTrapFactor  the interior Gaussian integers trap factor
+	 */
+	public final void setInteriorGaussianIntegersTrapFactor(double interiorGaussianIntegersTrapFactor)
+	{
+		fInteriorGaussianIntegersTrapFactor = interiorGaussianIntegersTrapFactor;
+	}
+
+	/**
+	 * Returns the interior Gaussian integers trap factor.
+	 *
+	 * @return the interior Gaussian integers trap factor
+	 */
+	public final double getInteriorGaussianIntegersTrapFactor()
+	{
+		return fInteriorGaussianIntegersTrapFactor;
 	}
 	
+	/**
+	 * Sets the exterior Gaussian integers trap factor.
+	 *
+	 * @param exteriorGaussianIntegersTrapFactor  the exterior Gaussian integers trap factor
+	 */
+	public final void setExteriorGaussianIntegersTrapFactor(double exteriorGaussianIntegersTrapFactor)
+	{
+		fExteriorGaussianIntegersTrapFactor = exteriorGaussianIntegersTrapFactor;
+	}
+
+	/**
+	 * Returns the exterior Gaussian integers trap factor.
+	 *
+	 * @return the exterior Gaussian integers trap factor
+	 */
+	public final double getExteriorGaussianIntegersTrapFactor()
+	{
+		return fExteriorGaussianIntegersTrapFactor;
+	}
+
 	/**
 	 * Helper method for converting a complex number to a screen location.
 	 *
@@ -491,8 +535,10 @@ public abstract class AFractalIterator
 		setScreenBounds(tfp.getNextInteger(),tfp.getNextInteger());
 		setComplexBounds(new ComplexNumber(tfp.getNextDouble(),tfp.getNextDouble()),new ComplexNumber(tfp.getNextDouble(),tfp.getNextDouble()));
 		setMainFractalOrbitStartingPoint(new ComplexNumber(tfp.getNextDouble(),tfp.getNextDouble()));
-		setStripingDensity(tfp.getNextDouble());
-		setGaussianIntegersTrapFactor(tfp.getNextDouble());
+		setInteriorStripingDensity(tfp.getNextDouble());
+		setExteriorStripingDensity(tfp.getNextDouble());
+		setInteriorGaussianIntegersTrapFactor(tfp.getNextDouble());
+		setExteriorGaussianIntegersTrapFactor(tfp.getNextDouble());
 		loadCustomParameters(tfp);
 	}
 
@@ -552,10 +598,16 @@ public abstract class AFractalIterator
 		tfw.writeDouble(fZ0.imaginaryComponent());
 		tfw.writeLn();
 
-		tfw.writeDouble(fStripingDensity);
+		tfw.writeDouble(fInteriorStripingDensity);
 		tfw.writeLn();
 
-		tfw.writeDouble(fGaussianIntegersTrapFactor);
+		tfw.writeDouble(fExteriorStripingDensity);
+		tfw.writeLn();
+
+		tfw.writeDouble(fInteriorGaussianIntegersTrapFactor);
+		tfw.writeLn();
+
+		tfw.writeDouble(fExteriorGaussianIntegersTrapFactor);
 		tfw.writeLn();
 
 		saveCustomParameters(tfw);

@@ -2142,11 +2142,25 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorUseStriping)) {
 			fFractalPanel.setInteriorColoringMethod(ColoringParameters.EColoringMethod.kStriping);
 		}
+		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorSetStripingDensity)) {
+			StripingDensityChooser stripingDensityChooser = new StripingDensityChooser(this,fIteratorController.getFractalIterator().getInteriorStripingDensity());
+			if (!stripingDensityChooser.isCancelled()) {
+				fIteratorController.getFractalIterator().setInteriorStripingDensity(stripingDensityChooser.getSelectedStripingDensity());
+				fIteratorController.recalc();
+			}
+		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorUseMinimumGaussianIntegersDistance)) {
 			fFractalPanel.setInteriorColoringMethod(ColoringParameters.EColoringMethod.kMinimumGaussianIntegersDistance);
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorUseAverageGaussianIntegersDistance)) {
 			fFractalPanel.setInteriorColoringMethod(ColoringParameters.EColoringMethod.kAverageGaussianIntegersDistance);
+		}
+		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorSetGaussianIntegersTrapFactor)) {
+			GaussianIntegersTrapFactorChooser gaussianIntegersTrapFactorChooser = new GaussianIntegersTrapFactorChooser(this,fIteratorController.getFractalIterator().getInteriorGaussianIntegersTrapFactor());
+			if (!gaussianIntegersTrapFactorChooser.isCancelled()) {
+				fIteratorController.getFractalIterator().setInteriorGaussianIntegersTrapFactor(gaussianIntegersTrapFactorChooser.getSelectedGaussianIntegersTrapFactor());
+				fIteratorController.recalc();
+			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorUseFixedColor)) {
 			fFractalPanel.setExteriorColoringMethod(ColoringParameters.EColoringMethod.kFixedColor);
@@ -2230,11 +2244,10 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorUseStriping)) {
 			fFractalPanel.setExteriorColoringMethod(ColoringParameters.EColoringMethod.kStriping);
 		}
-		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorSetStripingDensity) ||
-						command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorSetStripingDensity)) {
-			StripingDensityChooser stripingDensityChooser = new StripingDensityChooser(this,fIteratorController.getFractalIterator().getStripingDensity());
+		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorSetStripingDensity)) {
+			StripingDensityChooser stripingDensityChooser = new StripingDensityChooser(this,fIteratorController.getFractalIterator().getExteriorStripingDensity());
 			if (!stripingDensityChooser.isCancelled()) {
-				fIteratorController.getFractalIterator().setStripingDensity(stripingDensityChooser.getSelectedStripingDensity());
+				fIteratorController.getFractalIterator().setExteriorStripingDensity(stripingDensityChooser.getSelectedStripingDensity());
 				fIteratorController.recalc();
 			}
 		}
@@ -2244,11 +2257,10 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorUseAverageGaussianIntegersDistance)) {
 			fFractalPanel.setExteriorColoringMethod(ColoringParameters.EColoringMethod.kAverageGaussianIntegersDistance);
 		}
-		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorSetGaussianIntegersTrapFactor) ||
-						command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorSetGaussianIntegersTrapFactor)) {
-			GaussianIntegersTrapFactorChooser gaussianIntegersTrapFactorChooser = new GaussianIntegersTrapFactorChooser(this,fIteratorController.getFractalIterator().getGaussianIntegersTrapFactor());
+		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorSetGaussianIntegersTrapFactor)) {
+			GaussianIntegersTrapFactorChooser gaussianIntegersTrapFactorChooser = new GaussianIntegersTrapFactorChooser(this,fIteratorController.getFractalIterator().getExteriorGaussianIntegersTrapFactor());
 			if (!gaussianIntegersTrapFactorChooser.isCancelled()) {
-				fIteratorController.getFractalIterator().setGaussianIntegersTrapFactor(gaussianIntegersTrapFactorChooser.getSelectedGaussianIntegersTrapFactor());
+				fIteratorController.getFractalIterator().setExteriorGaussianIntegersTrapFactor(gaussianIntegersTrapFactorChooser.getSelectedGaussianIntegersTrapFactor());
 				fIteratorController.recalc();
 			}
 		}
