@@ -439,7 +439,8 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 	 *************************/
 
 	static {
-		DevelopMode.deactivate();
+//XXX
+		DevelopMode.activate();
 
 		// hack for JDK7 and above
 		System.setProperty("java.util.Arrays.useLegacyMergeSort","true");
@@ -932,7 +933,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemNavigationInvertPanningDirections)) {
-			// ignore (this is handled via the KeyListener)
+			// ignore (this is automatically handled via the KeyListener)
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemNavigationShowZoomInformation)) {
 			fFractalPanel.setShowZoomInformation(fMenuItems.get(kActionCommandMenuItemNavigationShowZoomInformation).isSelected());
@@ -2656,7 +2657,10 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 	@Override
 	public void keyPressed(KeyEvent e)
 	{
-		// ignore
+		// support continuous key pressing when navigating the viewport
+		if (fFractalPanel.getShowMainFractalOverview()) {
+			keyReleased(e);
+		}
 	}
 
 	/**
@@ -2665,16 +2669,60 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 	public void keyReleased(KeyEvent e)
 	{
 		if (e.getKeyCode() == KeyEvent.VK_LEFT) {
-			actionPerformed(new ActionEvent(this,ActionEvent.ACTION_LAST+1,kActionCommandMenuItemNavigationPanLeft));
+			if (fFractalPanel.getShowMainFractalOverview()) {
+				Point vp = fFractalScrollPane.getViewport().getViewPosition();
+				vp.x -= kScrollbarBlockIncrement;
+				if (vp.x < 0) {
+					vp.x = 0;
+				}
+				fFractalScrollPane.getViewport().setViewPosition(vp);
+			}
+			else {
+				actionPerformed(new ActionEvent(this,ActionEvent.ACTION_LAST+1,kActionCommandMenuItemNavigationPanLeft));
+			}
 		}
 		else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
-			actionPerformed(new ActionEvent(this,ActionEvent.ACTION_LAST+1,kActionCommandMenuItemNavigationPanRight));
+			if (fFractalPanel.getShowMainFractalOverview()) {
+				Point vp = fFractalScrollPane.getViewport().getViewPosition();
+				Dimension vs = fFractalScrollPane.getViewport().getViewSize();
+				Dimension es = fFractalScrollPane.getViewport().getExtentSize();
+				vp.x += kScrollbarBlockIncrement;
+				if ((vp.x + es.width) > vs.width) {
+					vp.x = vs.width - es.width + 1;
+				}
+				fFractalScrollPane.getViewport().setViewPosition(vp);
+			}
+			else {
+				actionPerformed(new ActionEvent(this,ActionEvent.ACTION_LAST+1,kActionCommandMenuItemNavigationPanRight));
+			}
 		}
 		else if (e.getKeyCode() == KeyEvent.VK_UP) {
-			actionPerformed(new ActionEvent(this,ActionEvent.ACTION_LAST+1,kActionCommandMenuItemNavigationPanUp));
+			if (fFractalPanel.getShowMainFractalOverview()) {
+				Point vp = fFractalScrollPane.getViewport().getViewPosition();
+				vp.y -= kScrollbarBlockIncrement;
+				if (vp.y < 0) {
+					vp.y = 0;
+				}
+				fFractalScrollPane.getViewport().setViewPosition(vp);
+			}
+			else {
+				actionPerformed(new ActionEvent(this,ActionEvent.ACTION_LAST+1,kActionCommandMenuItemNavigationPanUp));
+			}
 		}
 		else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
-			actionPerformed(new ActionEvent(this,ActionEvent.ACTION_LAST+1,kActionCommandMenuItemNavigationPanDown));
+			if (fFractalPanel.getShowMainFractalOverview()) {
+				Point vp = fFractalScrollPane.getViewport().getViewPosition();
+				Dimension vs = fFractalScrollPane.getViewport().getViewSize();
+				Dimension es = fFractalScrollPane.getViewport().getExtentSize();
+				vp.y += kScrollbarBlockIncrement;
+				if ((vp.y + es.height) > vs.height) {
+					vp.y = vs.height - es.height + 1;
+				}
+				fFractalScrollPane.getViewport().setViewPosition(vp);
+			}
+			else {
+				actionPerformed(new ActionEvent(this,ActionEvent.ACTION_LAST+1,kActionCommandMenuItemNavigationPanDown));
+			}
 		}
 //XXX
 /*
