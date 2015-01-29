@@ -1,6 +1,6 @@
 // ---------------------------------------
 // Filename      : IteratorController.java
-// Last modified : 23/01/2015
+// Last modified : 28/01/2015
 // Author        : Sven Maerivoet
 // Target        : Java VM (1.8)
 // ---------------------------------------
@@ -38,7 +38,7 @@ import org.sm.smtools.math.*;
  * <B>Note that this class cannot be subclassed!</B>
  *
  * @author  Sven Maerivoet
- * @version 23/01/2015
+ * @version 28/01/2015
  */
 public final class IteratorController
 {
@@ -55,6 +55,7 @@ public final class IteratorController
 	// internal datastructures
 	private boolean fIsBusy;
 	private AFractalIterator fFractalIterator;
+	private ColoringParameters fColoringParameters;
 	private FractalPanel fFractalPanel;
 	private JFrame fParentFrame;
 	private JProgressUpdateGlassPane fProgressUpdateGlassPane;
@@ -83,6 +84,8 @@ public final class IteratorController
 		fFractalIterator.setScreenBounds(AFractalIterator.kInitialScreenBounds.width,AFractalIterator.kInitialScreenBounds.height);
 
 		fNrOfBlocksToUse = kDefaultNrOfBlocksToUse;
+
+		fColoringParameters = new ColoringParameters();
 	}
 
 	/******************
@@ -183,6 +186,16 @@ public final class IteratorController
 	public AFractalIterator getFractalIterator()
 	{
 		return fFractalIterator;
+	}
+
+	/**
+	 * Returns the colouring parameters.
+	 *
+	 * @return the colouring parameters
+	 */
+	public ColoringParameters getColoringParameters()
+	{
+		return fColoringParameters;
 	}
 
 	/**

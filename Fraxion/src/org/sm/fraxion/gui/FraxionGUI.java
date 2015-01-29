@@ -1,7 +1,7 @@
 // -------------------------------
 // Filename      : FraxionGUI.java
 // Author        : Sven Maerivoet
-// Last modified : 23/01/2015
+// Last modified : 29/01/2015
 // Target        : Java VM (1.8)
 // -------------------------------
 
@@ -53,7 +53,7 @@ import org.sm.smtools.util.*;
  * <B>Note that this class cannot be subclassed!</B>
  *
  * @author  Sven Maerivoet
- * @version 23/01/2015
+ * @version 29/01/2015
  */
 public final class FraxionGUI extends JStandardGUIApplication implements ActionListener, MouseListener, MouseMotionListener, KeyListener
 {
@@ -234,6 +234,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 	private static final String kActionCommandMenuItemColorMapExteriorYellowBrowns = "menuItem.ColorMap.Exterior.YellowBrowns";
 	private static final String kActionCommandMenuItemColorMapExteriorVioletPurples = "menuItem.ColorMap.Exterior.VioletPurples";
 	private static final String kActionCommandMenuItemColorMapExteriorDeepSpace = "menuItem.ColorMap.Exterior.DeepSpace";
+	private static final String kActionCommandMenuItemColorMapExteriorRandom = "menuItem.ColorMap.Exterior.Random";
 	private static final String kActionCommandMenuItemColorMapExteriorCustom = "menuItem.ColorMap.Exterior.Custom";
 	private static final String kActionCommandMenuItemColorMapExteriorSetCustomColorMap = "menuItem.ColorMap.Exterior.SetCustomColorMap";
 	private static final String kActionCommandMenuItemColorMapExteriorConvertCurrentColorMapToCustomColorMap = "menuItem.ColorMap.Exterior.ConvertCurrentColorMapToCustomColorMap";
@@ -461,7 +462,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 
 		// post initalisation
 		fMenuItems.get(kActionCommandMenuItemNavigationInvertYAxis).setSelected(fIteratorController.getFractalIterator().getInvertYAxis());
-		adjustGUIToFractal();
+		adjustMenusToFractal();
 		setupMarkusLyapunovFractal();
 	}
 
@@ -494,6 +495,8 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 		}
 
 		String command = e.getActionCommand();
+		AFractalIterator fractalIterator = fIteratorController.getFractalIterator();
+		ColoringParameters coloringParameters = fIteratorController.getColoringParameters();
 
 		/*****************
 		 * MENU COMMANDS *
@@ -766,30 +769,29 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 						}
 
 						// if necessary switch to the dual fractal
-						AFractalIterator fractalIterator = fIteratorController.getFractalIterator();
 						if ((fractalIterator instanceof GlynnFractalIterator) ||
 								(fractalIterator instanceof BarnsleyTreeFractalIterator) ||
 								(fractalIterator instanceof PhoenixFractalIterator)) {
-							fIteratorController.getFractalIterator().setFractalType(AFractalIterator.EFractalType.kDualFractal);
+							fractalIterator.setFractalType(AFractalIterator.EFractalType.kDualFractal);
 						}
 
 						// load fractal parameters
-						fIteratorController.getFractalIterator().loadParameters(tfp);
+						fractalIterator.loadParameters(tfp);
 
 						// load fractal colouring parameters
-						fFractalPanel.getColoringParameters().load(tfp);
-						fIteratorController.getFractalIterator().setCalculateAdvancedColoring(fFractalPanel.getColoringParameters().fCalculateAdvancedColoring);
+						coloringParameters.load(tfp);
+						fractalIterator.setCalculateAdvancedColoring(coloringParameters.fCalculateAdvancedColoring);
 
 						// adjust the zoom stack
 						fFractalPanel.getZoomStack().clear();
-						fFractalPanel.getZoomStack().push(fIteratorController.getFractalIterator().getDefaultP1(),fIteratorController.getFractalIterator().getDefaultP2());
-						fFractalPanel.getZoomStack().push(fIteratorController.getFractalIterator().getP1(),fIteratorController.getFractalIterator().getP2());
+						fFractalPanel.getZoomStack().push(fractalIterator.getDefaultP1(),fractalIterator.getDefaultP2());
+						fFractalPanel.getZoomStack().push(fractalIterator.getP1(),fractalIterator.getP2());
 
 						// adjust canvas dimensions
 						fFractalPanel.revalidate();
 						fIteratorController.recalc();
 
-						adjustGUIToFractal();
+						adjustMenusToFractal();
 					}
 					catch (FileDoesNotExistException exc) {
 						JWarningDialog.warn(this,I18NL10N.translate("error.File.FractalParameters.ErrorLoadingFractalParameters"));
@@ -827,10 +829,10 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 						TextFileWriter tfw = new TextFileWriter(filename);
 
 						// save fractal parameters
-						fIteratorController.getFractalIterator().saveParameters(tfw);
+						fractalIterator.saveParameters(tfw);
 
 						// save fractal colouring parameters
-						fFractalPanel.getColoringParameters().save(tfw);
+						coloringParameters.save(tfw);
 
 						JMessageDialog.show(this,I18NL10N.translate("text.File.FractalParameters.Saved"));
 					}
@@ -939,7 +941,8 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			fFractalPanel.setShowZoomInformation(fMenuItems.get(kActionCommandMenuItemNavigationShowZoomInformation).isSelected());
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemNavigationLockAspectRatio)) {
-			fFractalPanel.setLockAspectRatio(fMenuItems.get(kActionCommandMenuItemNavigationLockAspectRatio).isSelected());
+			coloringParameters.fLockAspectRatio = fMenuItems.get(kActionCommandMenuItemNavigationLockAspectRatio).isSelected();
+			fFractalPanel.zoomToStack();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemNavigationCentredZooming)) {
 			fFractalPanel.setCentredZooming(fMenuItems.get(kActionCommandMenuItemNavigationCentredZooming).isSelected());
@@ -960,7 +963,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			fFractalPanel.setShowOverlayGrid(fMenuItems.get(kActionCommandMenuItemNavigationShowOverlayGrid).isSelected());
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemNavigationInvertYAxis)) {
-			fIteratorController.getFractalIterator().setInvertYAxis(fMenuItems.get(kActionCommandMenuItemNavigationInvertYAxis).isSelected());
+			fractalIterator.setInvertYAxis(fMenuItems.get(kActionCommandMenuItemNavigationInvertYAxis).isSelected());
 			fIteratorController.recalc();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemNavigationShowCurrentLocation)) {
@@ -982,8 +985,8 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemNavigationSpecifyScreenBounds)) {
 			ScreenBoundsChooser screenBoundsChooser = new ScreenBoundsChooser(
 				this,
-				fIteratorController.getFractalIterator().getScreenWidth(),
-				fIteratorController.getFractalIterator().getScreenHeight(),
+				fractalIterator.getScreenWidth(),
+				fractalIterator.getScreenHeight(),
 				getWidth(),getHeight(),
 				getScreenInsets(),getInsets(),fFractalScrollPane.getInsets(),
 				fFractalScrollPane.getVerticalScrollBar().getPreferredSize().width,
@@ -997,7 +1000,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 					int newWidth = screenBoundsChooser.getSelectedScreenWidth();
 					int newHeight = screenBoundsChooser.getSelectedScreenHeight();
 					fStoredScreenSizes = screenBoundsChooser.getSelectedStoredScreenSizes();
-					fIteratorController.getFractalIterator().setScreenBounds(newWidth,newHeight);
+					fractalIterator.setScreenBounds(newWidth,newHeight);
 					fFractalPanel.revalidate();
 					fFractalPanel.zoomToStack(newWidth,newHeight);
 				}
@@ -1026,7 +1029,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 				if (proceed) {
 					// reset zoomstack and create new top
 					fFractalPanel.getZoomStack().clear();
-					fFractalPanel.getZoomStack().push(fIteratorController.getFractalIterator().getDefaultP1(),fIteratorController.getFractalIterator().getDefaultP2());
+					fFractalPanel.getZoomStack().push(fractalIterator.getDefaultP1(),fractalIterator.getDefaultP2());
 					fFractalPanel.zoomIn(complexBoundsChooser.getSelectedP1(),complexBoundsChooser.getSelectedP2());
 				}
 			}
@@ -1035,13 +1038,13 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			fDoubleClickMode = EDoubleClickMode.kSwitchMainDualFractal;
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemFractalSwitchFractalType)) {
-			fFractalPanel.switchMainDualFractal();
+			switchMainDualFractal();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemFractalDoubleClickModeSetOrbitStartingPoint)) {
 			fDoubleClickMode = EDoubleClickMode.kChangeOrbitStartingPoint;
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemFractalResetOrbitStartingPoint)) {
-			fIteratorController.getFractalIterator().resetMainFractalOrbitStartingPoint();
+			fractalIterator.resetMainFractalOrbitStartingPoint();
 			fIteratorController.recalc();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemFractalShowInset)) {
@@ -1100,7 +1103,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemFractalSetMaxNrOfIterationsInOrbitAnalyses)) {
-			MaxNrOfIterationsInOrbitAnalysesChooser maxNrOfIterationsInOrbitAnalysesChooser = new MaxNrOfIterationsInOrbitAnalysesChooser(this,fFractalPanel.getMaxNrOfIterationsInOrbitAnalyses(),fIteratorController.getFractalIterator().getMaxNrOfIterations());
+			MaxNrOfIterationsInOrbitAnalysesChooser maxNrOfIterationsInOrbitAnalysesChooser = new MaxNrOfIterationsInOrbitAnalysesChooser(this,fFractalPanel.getMaxNrOfIterationsInOrbitAnalyses(),fractalIterator.getMaxNrOfIterations());
 			if (!maxNrOfIterationsInOrbitAnalysesChooser.isCancelled()) {
 				fFractalPanel.setMaxNrOfIterationsInOrbitAnalyses(maxNrOfIterationsInOrbitAnalysesChooser.getSelectedMaxNrOfIterationsInOrbitAnalyses());
 			}
@@ -1168,7 +1171,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 
 			if (proceed) {
 				// obtain current screen bounds
-				Dimension screenBounds = fIteratorController.getFractalIterator().getScreenBounds();
+				Dimension screenBounds = fractalIterator.getScreenBounds();
 
 				switch (command) {
 					case kActionCommandMenuItemFractalFamilyDefaultMandelbrotJulia:
@@ -1275,7 +1278,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 						break;
 					case kActionCommandMenuItemFractalFamilyDucks:
 						fIteratorController.setFractalIteratorFamily(new DucksFractalIterator());
-						fFractalPanel.setExteriorColoringMethod(ColoringParameters.EColoringMethod.kAverageDistance);
+						coloringParameters.fExteriorColoringMethod = ColoringParameters.EColoringMethod.kAverageDistance;
 						fMenuItems.get(kActionCommandMenuItemColorMapExteriorUseAverageDistance).setSelected(true);
 						break;
 					case kActionCommandMenuItemFractalFamilyBarnsleyTree:
@@ -1343,266 +1346,263 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 						break;
 				}
 
-				AFractalIterator fractalIterator = fIteratorController.getFractalIterator();
-
-				adjustGUIToFractal();
+				adjustMenusToFractal();
 				setupMarkusLyapunovFractal();
 
 				// if necessary switch to the dual fractal
 				if ((fractalIterator instanceof GlynnFractalIterator) ||
 						(fractalIterator instanceof BarnsleyTreeFractalIterator) ||
 						(fractalIterator instanceof PhoenixFractalIterator)) {
-					fIteratorController.getFractalIterator().setFractalType(AFractalIterator.EFractalType.kDualFractal);
+					fractalIterator.setFractalType(AFractalIterator.EFractalType.kDualFractal);
 				}
 
 				// reset zoomstack and create new top
 				fFractalPanel.getZoomStack().clear();
-				fIteratorController.getFractalIterator().setScreenBounds(screenBounds);
-				fFractalPanel.zoomIn(fIteratorController.getFractalIterator().getDefaultP1(),fIteratorController.getFractalIterator().getDefaultP2());
+				fractalIterator.setScreenBounds(screenBounds);
+				fFractalPanel.zoomIn(fractalIterator.getDefaultP1(),fractalIterator.getDefaultP2());
 			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyRandelbrotSetNoiseLevel)) {
-			if (fIteratorController.getFractalIterator() instanceof RandelbrotFractalIterator) {
-				NoiseLevelChooser noiseLevelChooser = new NoiseLevelChooser(this,((RandelbrotFractalIterator) fIteratorController.getFractalIterator()).getNoiseLevel());
+			if (fractalIterator instanceof RandelbrotFractalIterator) {
+				NoiseLevelChooser noiseLevelChooser = new NoiseLevelChooser(this,((RandelbrotFractalIterator) fractalIterator).getNoiseLevel());
 				if (!noiseLevelChooser.isCancelled()) {
 					double noiseLevel = noiseLevelChooser.getSelectedNoiseLevel();
-					((RandelbrotFractalIterator) (fIteratorController.getFractalIterator())).setNoiseLevel(noiseLevel);
+					((RandelbrotFractalIterator) (fractalIterator)).setNoiseLevel(noiseLevel);
 					fIteratorController.recalc();
 				}
 			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyGlynnSetPower)) {
-			if (fIteratorController.getFractalIterator() instanceof GlynnFractalIterator) {
-				PowerChooser powerChooser = new PowerChooser(this,((GlynnFractalIterator) fIteratorController.getFractalIterator()).getPower());
+			if (fractalIterator instanceof GlynnFractalIterator) {
+				PowerChooser powerChooser = new PowerChooser(this,((GlynnFractalIterator) fractalIterator).getPower());
 				if (!powerChooser.isCancelled()) {
 					ComplexNumber power = powerChooser.getSelectedPower();
-					((GlynnFractalIterator) (fIteratorController.getFractalIterator())).setPower(power);
+					((GlynnFractalIterator) (fractalIterator)).setPower(power);
 					fIteratorController.recalc();
 				}
 			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyMultibrotSetPower)) {
-			if (fIteratorController.getFractalIterator() instanceof MultibrotFractalIterator) {
-				PowerChooser powerChooser = new PowerChooser(this,((MultibrotFractalIterator) fIteratorController.getFractalIterator()).getPower());
+			if (fractalIterator instanceof MultibrotFractalIterator) {
+				PowerChooser powerChooser = new PowerChooser(this,((MultibrotFractalIterator) fractalIterator).getPower());
 				if (!powerChooser.isCancelled()) {
 					ComplexNumber power = powerChooser.getSelectedPower();
-					((MultibrotFractalIterator) (fIteratorController.getFractalIterator())).setPower(power);
+					((MultibrotFractalIterator) (fractalIterator)).setPower(power);
 					fIteratorController.recalc();
 				}
 			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyMultibrotPolynomialSetPower)) {
-			if (fIteratorController.getFractalIterator() instanceof MultibrotPolynomialFractalIterator) {
-				PowerChooser powerChooser = new PowerChooser(this,((MultibrotPolynomialFractalIterator) fIteratorController.getFractalIterator()).getPower());
+			if (fractalIterator instanceof MultibrotPolynomialFractalIterator) {
+				PowerChooser powerChooser = new PowerChooser(this,((MultibrotPolynomialFractalIterator) fractalIterator).getPower());
 				if (!powerChooser.isCancelled()) {
 					ComplexNumber power = powerChooser.getSelectedPower();
-					((MultibrotPolynomialFractalIterator) (fIteratorController.getFractalIterator())).setPower(power);
+					((MultibrotPolynomialFractalIterator) (fractalIterator)).setPower(power);
 					fIteratorController.recalc();
 				}
 			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyMultibrotParameterSetPower)) {
-			if (fIteratorController.getFractalIterator() instanceof MultibrotParameterFractalIterator) {
-				PowerChooser powerChooser = new PowerChooser(this,((MultibrotParameterFractalIterator) fIteratorController.getFractalIterator()).getPower());
+			if (fractalIterator instanceof MultibrotParameterFractalIterator) {
+				PowerChooser powerChooser = new PowerChooser(this,((MultibrotParameterFractalIterator) fractalIterator).getPower());
 				if (!powerChooser.isCancelled()) {
 					ComplexNumber power = powerChooser.getSelectedPower();
-					((MultibrotParameterFractalIterator) (fIteratorController.getFractalIterator())).setPower(power);
+					((MultibrotParameterFractalIterator) (fractalIterator)).setPower(power);
 					fIteratorController.recalc();
 				}
 			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyMultibrotInvertedParameterSetPower)) {
-			if (fIteratorController.getFractalIterator() instanceof MultibrotInvertedParameterFractalIterator) {
-				PowerChooser powerChooser = new PowerChooser(this,((MultibrotInvertedParameterFractalIterator) fIteratorController.getFractalIterator()).getPower());
+			if (fractalIterator instanceof MultibrotInvertedParameterFractalIterator) {
+				PowerChooser powerChooser = new PowerChooser(this,((MultibrotInvertedParameterFractalIterator) fractalIterator).getPower());
 				if (!powerChooser.isCancelled()) {
 					ComplexNumber power = powerChooser.getSelectedPower();
-					((MultibrotInvertedParameterFractalIterator) (fIteratorController.getFractalIterator())).setPower(power);
+					((MultibrotInvertedParameterFractalIterator) (fractalIterator)).setPower(power);
 					fIteratorController.recalc();
 				}
 			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyMultibarSetPower)) {
-			if (fIteratorController.getFractalIterator() instanceof MultibarFractalIterator) {
-				PowerChooser powerChooser = new PowerChooser(this,((MultibarFractalIterator) fIteratorController.getFractalIterator()).getPower());
+			if (fractalIterator instanceof MultibarFractalIterator) {
+				PowerChooser powerChooser = new PowerChooser(this,((MultibarFractalIterator) fractalIterator).getPower());
 				if (!powerChooser.isCancelled()) {
 					ComplexNumber power = powerChooser.getSelectedPower();
-					((MultibarFractalIterator) (fIteratorController.getFractalIterator())).setPower(power);
+					((MultibarFractalIterator) (fractalIterator)).setPower(power);
 					fIteratorController.recalc();
 				}
 			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyMultibarPolynomialSetPower)) {
-			if (fIteratorController.getFractalIterator() instanceof MultibarPolynomialFractalIterator) {
-				PowerChooser powerChooser = new PowerChooser(this,((MultibarPolynomialFractalIterator) fIteratorController.getFractalIterator()).getPower());
+			if (fractalIterator instanceof MultibarPolynomialFractalIterator) {
+				PowerChooser powerChooser = new PowerChooser(this,((MultibarPolynomialFractalIterator) fractalIterator).getPower());
 				if (!powerChooser.isCancelled()) {
 					ComplexNumber power = powerChooser.getSelectedPower();
-					((MultibarPolynomialFractalIterator) (fIteratorController.getFractalIterator())).setPower(power);
+					((MultibarPolynomialFractalIterator) (fractalIterator)).setPower(power);
 					fIteratorController.recalc();
 				}
 			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyMultibarParameterSetPower)) {
-			if (fIteratorController.getFractalIterator() instanceof MultibarParameterFractalIterator) {
-				PowerChooser powerChooser = new PowerChooser(this,((MultibarParameterFractalIterator) fIteratorController.getFractalIterator()).getPower());
+			if (fractalIterator instanceof MultibarParameterFractalIterator) {
+				PowerChooser powerChooser = new PowerChooser(this,((MultibarParameterFractalIterator) fractalIterator).getPower());
 				if (!powerChooser.isCancelled()) {
 					ComplexNumber power = powerChooser.getSelectedPower();
-					((MultibarParameterFractalIterator) (fIteratorController.getFractalIterator())).setPower(power);
+					((MultibarParameterFractalIterator) (fractalIterator)).setPower(power);
 					fIteratorController.recalc();
 				}
 			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyMultibarInvertedParameterSetPower)) {
-			if (fIteratorController.getFractalIterator() instanceof MultibarInvertedParameterFractalIterator) {
-				PowerChooser powerChooser = new PowerChooser(this,((MultibarInvertedParameterFractalIterator) fIteratorController.getFractalIterator()).getPower());
+			if (fractalIterator instanceof MultibarInvertedParameterFractalIterator) {
+				PowerChooser powerChooser = new PowerChooser(this,((MultibarInvertedParameterFractalIterator) fractalIterator).getPower());
 				if (!powerChooser.isCancelled()) {
 					ComplexNumber power = powerChooser.getSelectedPower();
-					((MultibarInvertedParameterFractalIterator) (fIteratorController.getFractalIterator())).setPower(power);
+					((MultibarInvertedParameterFractalIterator) (fractalIterator)).setPower(power);
 					fIteratorController.recalc();
 				}
 			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyBurningMultiShipSetPower)) {
-			if (fIteratorController.getFractalIterator() instanceof BurningMultiShipFractalIterator) {
-				PowerChooser powerChooser = new PowerChooser(this,((BurningMultiShipFractalIterator) fIteratorController.getFractalIterator()).getPower());
+			if (fractalIterator instanceof BurningMultiShipFractalIterator) {
+				PowerChooser powerChooser = new PowerChooser(this,((BurningMultiShipFractalIterator) fractalIterator).getPower());
 				if (!powerChooser.isCancelled()) {
 					ComplexNumber power = powerChooser.getSelectedPower();
-					((BurningMultiShipFractalIterator) (fIteratorController.getFractalIterator())).setPower(power);
+					((BurningMultiShipFractalIterator) (fractalIterator)).setPower(power);
 					fIteratorController.recalc();
 				}
 			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyMultiProductExpelbrotSetPower)) {
-			if (fIteratorController.getFractalIterator() instanceof MultiProductExpelbrotFractalIterator) {
-				PowerChooser powerChooser = new PowerChooser(this,((MultiProductExpelbrotFractalIterator) fIteratorController.getFractalIterator()).getPower());
+			if (fractalIterator instanceof MultiProductExpelbrotFractalIterator) {
+				PowerChooser powerChooser = new PowerChooser(this,((MultiProductExpelbrotFractalIterator) fractalIterator).getPower());
 				if (!powerChooser.isCancelled()) {
 					ComplexNumber power = powerChooser.getSelectedPower();
-					((MultiProductExpelbrotFractalIterator) (fIteratorController.getFractalIterator())).setPower(power);
+					((MultiProductExpelbrotFractalIterator) (fractalIterator)).setPower(power);
 					fIteratorController.recalc();
 				}
 			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyMultiSumExpelbrotSetPower)) {
-			if (fIteratorController.getFractalIterator() instanceof MultiSumExpelbrotFractalIterator) {
-				PowerChooser powerChooser = new PowerChooser(this,((MultiSumExpelbrotFractalIterator) fIteratorController.getFractalIterator()).getPower());
+			if (fractalIterator instanceof MultiSumExpelbrotFractalIterator) {
+				PowerChooser powerChooser = new PowerChooser(this,((MultiSumExpelbrotFractalIterator) fractalIterator).getPower());
 				if (!powerChooser.isCancelled()) {
 					ComplexNumber power = powerChooser.getSelectedPower();
-					((MultiSumExpelbrotFractalIterator) (fIteratorController.getFractalIterator())).setPower(power);
+					((MultiSumExpelbrotFractalIterator) (fractalIterator)).setPower(power);
 					fIteratorController.recalc();
 				}
 			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyMultiProductExparbrotSetPower)) {
-			if (fIteratorController.getFractalIterator() instanceof MultiProductExparbrotFractalIterator) {
-				PowerChooser powerChooser = new PowerChooser(this,((MultiProductExparbrotFractalIterator) fIteratorController.getFractalIterator()).getPower());
+			if (fractalIterator instanceof MultiProductExparbrotFractalIterator) {
+				PowerChooser powerChooser = new PowerChooser(this,((MultiProductExparbrotFractalIterator) fractalIterator).getPower());
 				if (!powerChooser.isCancelled()) {
 					ComplexNumber power = powerChooser.getSelectedPower();
-					((MultiProductExparbrotFractalIterator) (fIteratorController.getFractalIterator())).setPower(power);
+					((MultiProductExparbrotFractalIterator) (fractalIterator)).setPower(power);
 					fIteratorController.recalc();
 				}
 			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyMultiSumExparbrotSetPower)) {
-			if (fIteratorController.getFractalIterator() instanceof MultiSumExparbrotFractalIterator) {
-				PowerChooser powerChooser = new PowerChooser(this,((MultiSumExparbrotFractalIterator) fIteratorController.getFractalIterator()).getPower());
+			if (fractalIterator instanceof MultiSumExparbrotFractalIterator) {
+				PowerChooser powerChooser = new PowerChooser(this,((MultiSumExparbrotFractalIterator) fractalIterator).getPower());
 				if (!powerChooser.isCancelled()) {
 					ComplexNumber power = powerChooser.getSelectedPower();
-					((MultiSumExparbrotFractalIterator) (fIteratorController.getFractalIterator())).setPower(power);
+					((MultiSumExparbrotFractalIterator) (fractalIterator)).setPower(power);
 					fIteratorController.recalc();
 				}
 			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyTrigonometricPowerSineSetPower)) {
-			if (fIteratorController.getFractalIterator() instanceof TrigonometricPowerSineFractalIterator) {
-				PowerChooser powerChooser = new PowerChooser(this,((TrigonometricPowerSineFractalIterator) fIteratorController.getFractalIterator()).getPower());
+			if (fractalIterator instanceof TrigonometricPowerSineFractalIterator) {
+				PowerChooser powerChooser = new PowerChooser(this,((TrigonometricPowerSineFractalIterator) fractalIterator).getPower());
 				if (!powerChooser.isCancelled()) {
 					ComplexNumber power = powerChooser.getSelectedPower();
-					((TrigonometricPowerSineFractalIterator) (fIteratorController.getFractalIterator())).setPower(power);
+					((TrigonometricPowerSineFractalIterator) (fractalIterator)).setPower(power);
 					fIteratorController.recalc();
 				}
 			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyTrigonometricPowerCosineSetPower)) {
-			if (fIteratorController.getFractalIterator() instanceof TrigonometricPowerCosineFractalIterator) {
-				PowerChooser powerChooser = new PowerChooser(this,((TrigonometricPowerCosineFractalIterator) fIteratorController.getFractalIterator()).getPower());
+			if (fractalIterator instanceof TrigonometricPowerCosineFractalIterator) {
+				PowerChooser powerChooser = new PowerChooser(this,((TrigonometricPowerCosineFractalIterator) fractalIterator).getPower());
 				if (!powerChooser.isCancelled()) {
 					ComplexNumber power = powerChooser.getSelectedPower();
-					((TrigonometricPowerCosineFractalIterator) (fIteratorController.getFractalIterator())).setPower(power);
+					((TrigonometricPowerCosineFractalIterator) (fractalIterator)).setPower(power);
 					fIteratorController.recalc();
 				}
 			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyTrigonometricPowerTangentSetPower)) {
-			if (fIteratorController.getFractalIterator() instanceof TrigonometricPowerTangentFractalIterator) {
-				PowerChooser powerChooser = new PowerChooser(this,((TrigonometricPowerTangentFractalIterator) fIteratorController.getFractalIterator()).getPower());
+			if (fractalIterator instanceof TrigonometricPowerTangentFractalIterator) {
+				PowerChooser powerChooser = new PowerChooser(this,((TrigonometricPowerTangentFractalIterator) fractalIterator).getPower());
 				if (!powerChooser.isCancelled()) {
 					ComplexNumber power = powerChooser.getSelectedPower();
-					((TrigonometricPowerTangentFractalIterator) (fIteratorController.getFractalIterator())).setPower(power);
+					((TrigonometricPowerTangentFractalIterator) (fractalIterator)).setPower(power);
 					fIteratorController.recalc();
 				}
 			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyTrigonometricPowerCotangentSetPower)) {
-			if (fIteratorController.getFractalIterator() instanceof TrigonometricPowerCotangentFractalIterator) {
-				PowerChooser powerChooser = new PowerChooser(this,((TrigonometricPowerCotangentFractalIterator) fIteratorController.getFractalIterator()).getPower());
+			if (fractalIterator instanceof TrigonometricPowerCotangentFractalIterator) {
+				PowerChooser powerChooser = new PowerChooser(this,((TrigonometricPowerCotangentFractalIterator) fractalIterator).getPower());
 				if (!powerChooser.isCancelled()) {
 					ComplexNumber power = powerChooser.getSelectedPower();
-					((TrigonometricPowerCotangentFractalIterator) (fIteratorController.getFractalIterator())).setPower(power);
+					((TrigonometricPowerCotangentFractalIterator) (fractalIterator)).setPower(power);
 					fIteratorController.recalc();
 				}
 			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyTrigonometricPowerMultiSineSetPower)) {
-			if (fIteratorController.getFractalIterator() instanceof TrigonometricPowerMultiSineFractalIterator) {
-				PowerChooser powerChooser = new PowerChooser(this,((TrigonometricPowerMultiSineFractalIterator) fIteratorController.getFractalIterator()).getPower());
+			if (fractalIterator instanceof TrigonometricPowerMultiSineFractalIterator) {
+				PowerChooser powerChooser = new PowerChooser(this,((TrigonometricPowerMultiSineFractalIterator) fractalIterator).getPower());
 				if (!powerChooser.isCancelled()) {
 					ComplexNumber power = powerChooser.getSelectedPower();
-					((TrigonometricPowerMultiSineFractalIterator) (fIteratorController.getFractalIterator())).setPower(power);
+					((TrigonometricPowerMultiSineFractalIterator) (fractalIterator)).setPower(power);
 					fIteratorController.recalc();
 				}
 			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyTrigonometricPowerMultiCosineSetPower)) {
-			if (fIteratorController.getFractalIterator() instanceof TrigonometricPowerMultiCosineFractalIterator) {
-				PowerChooser powerChooser = new PowerChooser(this,((TrigonometricPowerMultiCosineFractalIterator) fIteratorController.getFractalIterator()).getPower());
+			if (fractalIterator instanceof TrigonometricPowerMultiCosineFractalIterator) {
+				PowerChooser powerChooser = new PowerChooser(this,((TrigonometricPowerMultiCosineFractalIterator) fractalIterator).getPower());
 				if (!powerChooser.isCancelled()) {
 					ComplexNumber power = powerChooser.getSelectedPower();
-					((TrigonometricPowerMultiCosineFractalIterator) (fIteratorController.getFractalIterator())).setPower(power);
+					((TrigonometricPowerMultiCosineFractalIterator) (fractalIterator)).setPower(power);
 					fIteratorController.recalc();
 				}
 			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyTrigonometricPowerMultiTangentSetPower)) {
-			if (fIteratorController.getFractalIterator() instanceof TrigonometricPowerMultiTangentFractalIterator) {
-				PowerChooser powerChooser = new PowerChooser(this,((TrigonometricPowerMultiTangentFractalIterator) fIteratorController.getFractalIterator()).getPower());
+			if (fractalIterator instanceof TrigonometricPowerMultiTangentFractalIterator) {
+				PowerChooser powerChooser = new PowerChooser(this,((TrigonometricPowerMultiTangentFractalIterator) fractalIterator).getPower());
 				if (!powerChooser.isCancelled()) {
 					ComplexNumber power = powerChooser.getSelectedPower();
-					((TrigonometricPowerMultiTangentFractalIterator) (fIteratorController.getFractalIterator())).setPower(power);
+					((TrigonometricPowerMultiTangentFractalIterator) (fractalIterator)).setPower(power);
 					fIteratorController.recalc();
 				}
 			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyTrigonometricPowerMultiCotangentSetPower)) {
-			if (fIteratorController.getFractalIterator() instanceof TrigonometricPowerMultiCotangentFractalIterator) {
-				PowerChooser powerChooser = new PowerChooser(this,((TrigonometricPowerMultiCotangentFractalIterator) fIteratorController.getFractalIterator()).getPower());
+			if (fractalIterator instanceof TrigonometricPowerMultiCotangentFractalIterator) {
+				PowerChooser powerChooser = new PowerChooser(this,((TrigonometricPowerMultiCotangentFractalIterator) fractalIterator).getPower());
 				if (!powerChooser.isCancelled()) {
 					ComplexNumber power = powerChooser.getSelectedPower();
-					((TrigonometricPowerMultiCotangentFractalIterator) (fIteratorController.getFractalIterator())).setPower(power);
+					((TrigonometricPowerMultiCotangentFractalIterator) (fractalIterator)).setPower(power);
 					fIteratorController.recalc();
 				}
 			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyDucksSetFixedNrOfIterations)) {
-			if (fIteratorController.getFractalIterator() instanceof DucksFractalIterator) {
-				FixedNrOfIterationsChooser fixedNrOfIterationsChooser = new FixedNrOfIterationsChooser(this,fIteratorController.getFractalIterator().getFixedNrOfIterations());
+			if (fractalIterator instanceof DucksFractalIterator) {
+				FixedNrOfIterationsChooser fixedNrOfIterationsChooser = new FixedNrOfIterationsChooser(this,fractalIterator.getFixedNrOfIterations());
 				if (!fixedNrOfIterationsChooser.isCancelled()) {
 					int fixedNrOfIterations = fixedNrOfIterationsChooser.getSelectedFixedNrOfIterations();
-					fIteratorController.getFractalIterator().setFixedNrOfIterations(fixedNrOfIterations);
+					fractalIterator.setFixedNrOfIterations(fixedNrOfIterations);
 					fIteratorController.recalc();
 				}
 			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyNewtonRaphsonSetConvergenceParameters)) {
-			AFractalIterator fractalIterator = fIteratorController.getFractalIterator();
 			if (fractalIterator instanceof NovaFractalIterator) {
 				ConvergenceParametersChooser convergenceParametersChooser = new ConvergenceParametersChooser(this,
 					((AConvergentFractalIterator) fractalIterator).getRootTolerance(),
@@ -1632,75 +1632,74 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyNewtonRaphsonAutomaticRootDetectionEnabled)) {
-			if (fIteratorController.getFractalIterator() instanceof AConvergentFractalIterator) {
-				((AConvergentFractalIterator) fIteratorController.getFractalIterator()).setAutomaticRootDetectionEnabled(fMenuItems.get(kActionCommandMenuItemFractalFamilyNewtonRaphsonAutomaticRootDetectionEnabled).isSelected());
-				if (((AConvergentFractalIterator) fIteratorController.getFractalIterator()).getAutomaticRootDetectionEnabled()) {
+			if (fractalIterator instanceof AConvergentFractalIterator) {
+				((AConvergentFractalIterator) fractalIterator).setAutomaticRootDetectionEnabled(fMenuItems.get(kActionCommandMenuItemFractalFamilyNewtonRaphsonAutomaticRootDetectionEnabled).isSelected());
+				if (((AConvergentFractalIterator) fractalIterator).getAutomaticRootDetectionEnabled()) {
 					fIteratorController.recalc();
 				}
 			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyNewtonRaphsonPowerSetPower)) {
-			if (fIteratorController.getFractalIterator() instanceof NewtonRaphsonPowerFractalIterator) {
-				PowerChooser powerChooser = new PowerChooser(this,((NewtonRaphsonPowerFractalIterator) fIteratorController.getFractalIterator()).getPower());
+			if (fractalIterator instanceof NewtonRaphsonPowerFractalIterator) {
+				PowerChooser powerChooser = new PowerChooser(this,((NewtonRaphsonPowerFractalIterator) fractalIterator).getPower());
 				if (!powerChooser.isCancelled()) {
 					ComplexNumber power = powerChooser.getSelectedPower();
-					((NewtonRaphsonPowerFractalIterator) (fIteratorController.getFractalIterator())).setPower(power);
+					((NewtonRaphsonPowerFractalIterator) (fractalIterator)).setPower(power);
 					fIteratorController.recalc();
 				}
 			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyNewtonRaphsonPowerPolynomialSetPower)) {
-			if (fIteratorController.getFractalIterator() instanceof NewtonRaphsonPowerPolynomialFractalIterator) {
-				PowerChooser powerChooser = new PowerChooser(this,((NewtonRaphsonPowerPolynomialFractalIterator) fIteratorController.getFractalIterator()).getPower());
+			if (fractalIterator instanceof NewtonRaphsonPowerPolynomialFractalIterator) {
+				PowerChooser powerChooser = new PowerChooser(this,((NewtonRaphsonPowerPolynomialFractalIterator) fractalIterator).getPower());
 				if (!powerChooser.isCancelled()) {
 					ComplexNumber power = powerChooser.getSelectedPower();
-					((NewtonRaphsonPowerPolynomialFractalIterator) (fIteratorController.getFractalIterator())).setPower(power);
+					((NewtonRaphsonPowerPolynomialFractalIterator) (fractalIterator)).setPower(power);
 					fIteratorController.recalc();
 				}
 			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyNewtonRaphsonTrigonometricPowerSineSetPower)) {
-			if (fIteratorController.getFractalIterator() instanceof NewtonRaphsonTrigonometricPowerSineFractalIterator) {
-				PowerChooser powerChooser = new PowerChooser(this,((NewtonRaphsonTrigonometricPowerSineFractalIterator) fIteratorController.getFractalIterator()).getPower());
+			if (fractalIterator instanceof NewtonRaphsonTrigonometricPowerSineFractalIterator) {
+				PowerChooser powerChooser = new PowerChooser(this,((NewtonRaphsonTrigonometricPowerSineFractalIterator) fractalIterator).getPower());
 				if (!powerChooser.isCancelled()) {
 					ComplexNumber power = powerChooser.getSelectedPower();
-					((NewtonRaphsonTrigonometricPowerSineFractalIterator) (fIteratorController.getFractalIterator())).setPower(power);
+					((NewtonRaphsonTrigonometricPowerSineFractalIterator) (fractalIterator)).setPower(power);
 					fIteratorController.recalc();
 				}
 			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyNewtonRaphsonTrigonometricPowerMultiSineSetPower)) {
-			if (fIteratorController.getFractalIterator() instanceof NewtonRaphsonTrigonometricPowerMultiSineFractalIterator) {
-				PowerChooser powerChooser = new PowerChooser(this,((NewtonRaphsonTrigonometricPowerMultiSineFractalIterator) fIteratorController.getFractalIterator()).getPower());
+			if (fractalIterator instanceof NewtonRaphsonTrigonometricPowerMultiSineFractalIterator) {
+				PowerChooser powerChooser = new PowerChooser(this,((NewtonRaphsonTrigonometricPowerMultiSineFractalIterator) fractalIterator).getPower());
 				if (!powerChooser.isCancelled()) {
 					ComplexNumber power = powerChooser.getSelectedPower();
-					((NewtonRaphsonTrigonometricPowerMultiSineFractalIterator) (fIteratorController.getFractalIterator())).setPower(power);
+					((NewtonRaphsonTrigonometricPowerMultiSineFractalIterator) (fractalIterator)).setPower(power);
 					fIteratorController.recalc();
 				}
 			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyNewtonRaphsonTrigonometricPowerSineOffsetSetPower)) {
-			if (fIteratorController.getFractalIterator() instanceof NewtonRaphsonTrigonometricPowerSineOffsetFractalIterator) {
-				PowerChooser powerChooser = new PowerChooser(this,((NewtonRaphsonTrigonometricPowerSineOffsetFractalIterator) fIteratorController.getFractalIterator()).getPower());
+			if (fractalIterator instanceof NewtonRaphsonTrigonometricPowerSineOffsetFractalIterator) {
+				PowerChooser powerChooser = new PowerChooser(this,((NewtonRaphsonTrigonometricPowerSineOffsetFractalIterator) fractalIterator).getPower());
 				if (!powerChooser.isCancelled()) {
 					ComplexNumber power = powerChooser.getSelectedPower();
-					((NewtonRaphsonTrigonometricPowerSineOffsetFractalIterator) (fIteratorController.getFractalIterator())).setPower(power);
+					((NewtonRaphsonTrigonometricPowerSineOffsetFractalIterator) (fractalIterator)).setPower(power);
 					fIteratorController.recalc();
 				}
 			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyNewtonRaphsonTrigonometricPowerMultiSineOffsetSetPower)) {
-			if (fIteratorController.getFractalIterator() instanceof NewtonRaphsonTrigonometricPowerMultiSineOffsetFractalIterator) {
-				PowerChooser powerChooser = new PowerChooser(this,((NewtonRaphsonTrigonometricPowerMultiSineOffsetFractalIterator) fIteratorController.getFractalIterator()).getPower());
+			if (fractalIterator instanceof NewtonRaphsonTrigonometricPowerMultiSineOffsetFractalIterator) {
+				PowerChooser powerChooser = new PowerChooser(this,((NewtonRaphsonTrigonometricPowerMultiSineOffsetFractalIterator) fractalIterator).getPower());
 				if (!powerChooser.isCancelled()) {
 					ComplexNumber power = powerChooser.getSelectedPower();
-					((NewtonRaphsonTrigonometricPowerMultiSineOffsetFractalIterator) (fIteratorController.getFractalIterator())).setPower(power);
+					((NewtonRaphsonTrigonometricPowerMultiSineOffsetFractalIterator) (fractalIterator)).setPower(power);
 					fIteratorController.recalc();
 				}
 			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyMagnetSetConvergenceParameters)) {
-			AFractalIterator fractalIterator = fIteratorController.getFractalIterator();
 			if (fractalIterator instanceof AMagnetFractalIterator) {
 				ConvergenceParametersChooser convergenceParametersChooser = new ConvergenceParametersChooser(this,
 					((AMagnetFractalIterator) fractalIterator).getRootTolerance());
@@ -1712,55 +1711,57 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyMarkusLyapunovSetRootSequence)) {
-			if (fIteratorController.getFractalIterator() instanceof MarkusLyapunovFractalIterator) {
-				RootSequenceChooser rootSequenceChooser = new RootSequenceChooser(this,((MarkusLyapunovFractalIterator) fIteratorController.getFractalIterator()).getRootSequence());
+			if (fractalIterator instanceof MarkusLyapunovFractalIterator) {
+				RootSequenceChooser rootSequenceChooser = new RootSequenceChooser(this,((MarkusLyapunovFractalIterator) fractalIterator).getRootSequence());
 				if (!rootSequenceChooser.isCancelled()) {
 					String rootSequence = rootSequenceChooser.getSelectedRootSequence();
-					((MarkusLyapunovFractalIterator) (fIteratorController.getFractalIterator())).setRootSequence(rootSequence);
+					((MarkusLyapunovFractalIterator) (fractalIterator)).setRootSequence(rootSequence);
 					fIteratorController.recalc();
 				}
 			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemFractalSetMaxNrOfIterations)) {
-			MaxNrOfIterationsChooser maxNrOfIterationsChooser = new MaxNrOfIterationsChooser(this,fIteratorController.getFractalIterator().getMaxNrOfIterations());
+			MaxNrOfIterationsChooser maxNrOfIterationsChooser = new MaxNrOfIterationsChooser(this,fractalIterator.getMaxNrOfIterations());
 			if (!maxNrOfIterationsChooser.isCancelled()) {
 				int maxNrOfIterations = maxNrOfIterationsChooser.getSelectedMaxNrOfIterations();
-				int discreteColorRange = fFractalPanel.getColorMapDiscreteColorRange();
-				if (discreteColorRange == fIteratorController.getFractalIterator().getMaxNrOfIterations()) {
+				int discreteColorRange = coloringParameters.fColorMapDiscreteColorRange;
+				if (discreteColorRange == fractalIterator.getMaxNrOfIterations()) {
 					discreteColorRange = maxNrOfIterations;
 				}
-				fFractalPanel.getColoringParameters().fColorMapDiscreteColorRange = discreteColorRange;
+				coloringParameters.fColorMapDiscreteColorRange = discreteColorRange;
 
 				// 	adjust colourmap iteration range to comply with the selected maximum number of iterations
-				int colorMapIterationLowRange = fFractalPanel.getColorMapIterationLowRange();
-				int colorMapIterationHighRange = fFractalPanel.getColorMapIterationHighRange();
-				if (maxNrOfIterations < fIteratorController.getFractalIterator().getMaxNrOfIterations()) {
-					if (colorMapIterationLowRange > maxNrOfIterations) {
-						colorMapIterationLowRange = 0;
+				int colorMapLowIterationRange = coloringParameters.fLowIterationRange;
+				int colorMapHighIterationRange = coloringParameters.fHighIterationRange;
+				if (maxNrOfIterations < fractalIterator.getMaxNrOfIterations()) {
+					if (colorMapLowIterationRange > maxNrOfIterations) {
+						colorMapLowIterationRange = 0;
 					}
-					if (colorMapIterationHighRange > maxNrOfIterations) {
-						colorMapIterationHighRange = maxNrOfIterations;
+					if (colorMapHighIterationRange > maxNrOfIterations) {
+						colorMapHighIterationRange = maxNrOfIterations;
 					}
 				}
 				else {
-					colorMapIterationHighRange = maxNrOfIterations;
+					colorMapHighIterationRange = maxNrOfIterations;
 				}
 
-				fFractalPanel.getColoringParameters().fLowIterationRange = colorMapIterationLowRange;
-				fFractalPanel.getColoringParameters().fHighIterationRange = colorMapIterationHighRange;
-				fFractalPanel.setMaxNrOfIterations(maxNrOfIterations);
+				coloringParameters.fLowIterationRange = colorMapLowIterationRange;
+				coloringParameters.fHighIterationRange = colorMapHighIterationRange;
+				fIteratorController.getFractalIterator().setMaxNrOfIterations(maxNrOfIterations);
+				fIteratorController.recalc();
 			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemFractalSetEscapeRadius)) {
-			EscapeRadiusChooser escapeRadiusChooser = new EscapeRadiusChooser(this,fIteratorController.getFractalIterator().getEscapeRadius());
+			EscapeRadiusChooser escapeRadiusChooser = new EscapeRadiusChooser(this,fractalIterator.getEscapeRadius());
 			if (!escapeRadiusChooser.isCancelled()) {
-				fFractalPanel.setEscapeRadius(escapeRadiusChooser.getSelectedEscapeRadius());
+				fIteratorController.getFractalIterator().setEscapeRadius(escapeRadiusChooser.getSelectedEscapeRadius());
+				fIteratorController.recalc();
 			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemFractalCopyCoordinates)) {
 			Point p = fFractalPanel.getMousePosition();
 			if (p != null) {		
-				ComplexNumber c = fIteratorController.getFractalIterator().convertScreenLocationToComplexNumber(new ScreenLocation(p.x,p.y));
+				ComplexNumber c = fractalIterator.convertScreenLocationToComplexNumber(new ScreenLocation(p.x,p.y));
 				StringSelection clipboardContents = new StringSelection(c.toString());
 				Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 				clipboard.setContents(clipboardContents,null);
@@ -1770,215 +1771,280 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			fFractalPanel.repaint();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorBone)) {
-			fFractalPanel.setExteriorColorMap(JGradientColorMap.EColorMap.kBone,fMenuItems.get(kActionCommandMenuItemColorMapExteriorInvertColorMap).isSelected(),fMenuItems.get(kActionCommandMenuItemColorMapExteriorWrapAroundColorMap).isSelected());
+			coloringParameters.fExteriorGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kBone);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorCopper)) {
-			fFractalPanel.setExteriorColorMap(JGradientColorMap.EColorMap.kCopper,fMenuItems.get(kActionCommandMenuItemColorMapExteriorInvertColorMap).isSelected(),fMenuItems.get(kActionCommandMenuItemColorMapExteriorWrapAroundColorMap).isSelected());
+			coloringParameters.fExteriorGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kCopper);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorDiscontinuousBlueWhiteGreen)) {
-			fFractalPanel.setExteriorColorMap(JGradientColorMap.EColorMap.kDiscontinuousBlueWhiteGreen,fMenuItems.get(kActionCommandMenuItemColorMapExteriorInvertColorMap).isSelected(),fMenuItems.get(kActionCommandMenuItemColorMapExteriorWrapAroundColorMap).isSelected());
+			coloringParameters.fExteriorGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kDiscontinuousBlueWhiteGreen);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorDiscontinuousDarkRedYellow)) {
-			fFractalPanel.setExteriorColorMap(JGradientColorMap.EColorMap.kDiscontinuousDarkRedYellow,fMenuItems.get(kActionCommandMenuItemColorMapExteriorInvertColorMap).isSelected(),fMenuItems.get(kActionCommandMenuItemColorMapExteriorWrapAroundColorMap).isSelected());
+			coloringParameters.fExteriorGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kDiscontinuousDarkRedYellow);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorBlackAndWhite)) {
-			fFractalPanel.setExteriorColorMap(JGradientColorMap.EColorMap.kBlackAndWhite,fMenuItems.get(kActionCommandMenuItemColorMapExteriorInvertColorMap).isSelected(),fMenuItems.get(kActionCommandMenuItemColorMapExteriorWrapAroundColorMap).isSelected());
+			coloringParameters.fExteriorGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kBlackAndWhite);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorGrayScale)) {
-			fFractalPanel.setExteriorColorMap(JGradientColorMap.EColorMap.kGrayScale,fMenuItems.get(kActionCommandMenuItemColorMapExteriorInvertColorMap).isSelected(),fMenuItems.get(kActionCommandMenuItemColorMapExteriorWrapAroundColorMap).isSelected());
+			coloringParameters.fExteriorGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kGrayScale);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorGreenRedDiverging)) {
-			fFractalPanel.setExteriorColorMap(JGradientColorMap.EColorMap.kGreenRedDiverging,fMenuItems.get(kActionCommandMenuItemColorMapExteriorInvertColorMap).isSelected(),fMenuItems.get(kActionCommandMenuItemColorMapExteriorWrapAroundColorMap).isSelected());
+			coloringParameters.fExteriorGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kGreenRedDiverging);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorHot)) {
-			fFractalPanel.setExteriorColorMap(JGradientColorMap.EColorMap.kHot,fMenuItems.get(kActionCommandMenuItemColorMapExteriorInvertColorMap).isSelected(),fMenuItems.get(kActionCommandMenuItemColorMapExteriorWrapAroundColorMap).isSelected());
+			coloringParameters.fExteriorGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kHot);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorJet)) {
-			fFractalPanel.setExteriorColorMap(JGradientColorMap.EColorMap.kJet,fMenuItems.get(kActionCommandMenuItemColorMapExteriorInvertColorMap).isSelected(),fMenuItems.get(kActionCommandMenuItemColorMapExteriorWrapAroundColorMap).isSelected());
+			coloringParameters.fExteriorGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kJet);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorHueSaturationBrightness)) {
-			fFractalPanel.setExteriorColorMap(JGradientColorMap.EColorMap.kHueSaturationBrightness,fMenuItems.get(kActionCommandMenuItemColorMapExteriorInvertColorMap).isSelected(),fMenuItems.get(kActionCommandMenuItemColorMapExteriorWrapAroundColorMap).isSelected());
+			coloringParameters.fExteriorGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kHueSaturationBrightness);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorSeparatedRGB)) {
-			fFractalPanel.setExteriorColorMap(JGradientColorMap.EColorMap.kSeparatedRGB,fMenuItems.get(kActionCommandMenuItemColorMapExteriorInvertColorMap).isSelected(),fMenuItems.get(kActionCommandMenuItemColorMapExteriorWrapAroundColorMap).isSelected());
+			coloringParameters.fExteriorGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kSeparatedRGB);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorRed)) {
-			fFractalPanel.setExteriorColorMap(JGradientColorMap.EColorMap.kRed,fMenuItems.get(kActionCommandMenuItemColorMapExteriorInvertColorMap).isSelected(),fMenuItems.get(kActionCommandMenuItemColorMapExteriorWrapAroundColorMap).isSelected());
+			coloringParameters.fExteriorGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kRed);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorGreen)) {
-			fFractalPanel.setExteriorColorMap(JGradientColorMap.EColorMap.kGreen,fMenuItems.get(kActionCommandMenuItemColorMapExteriorInvertColorMap).isSelected(),fMenuItems.get(kActionCommandMenuItemColorMapExteriorWrapAroundColorMap).isSelected());
+			coloringParameters.fExteriorGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kGreen);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorBlue)) {
-			fFractalPanel.setExteriorColorMap(JGradientColorMap.EColorMap.kBlue,fMenuItems.get(kActionCommandMenuItemColorMapExteriorInvertColorMap).isSelected(),fMenuItems.get(kActionCommandMenuItemColorMapExteriorWrapAroundColorMap).isSelected());
+			coloringParameters.fExteriorGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kBlue);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorYellow)) {
-			fFractalPanel.setExteriorColorMap(JGradientColorMap.EColorMap.kYellow,fMenuItems.get(kActionCommandMenuItemColorMapExteriorInvertColorMap).isSelected(),fMenuItems.get(kActionCommandMenuItemColorMapExteriorWrapAroundColorMap).isSelected());
+			coloringParameters.fExteriorGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kYellow);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorCyan)) {
-			fFractalPanel.setExteriorColorMap(JGradientColorMap.EColorMap.kCyan,fMenuItems.get(kActionCommandMenuItemColorMapExteriorInvertColorMap).isSelected(),fMenuItems.get(kActionCommandMenuItemColorMapExteriorWrapAroundColorMap).isSelected());
+			coloringParameters.fExteriorGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kCyan);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorMagenta)) {
-			fFractalPanel.setExteriorColorMap(JGradientColorMap.EColorMap.kMagenta,fMenuItems.get(kActionCommandMenuItemColorMapExteriorInvertColorMap).isSelected(),fMenuItems.get(kActionCommandMenuItemColorMapExteriorWrapAroundColorMap).isSelected());
+			coloringParameters.fExteriorGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kMagenta);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorUltraLightPastel)) {
-			fFractalPanel.setExteriorColorMap(JGradientColorMap.EColorMap.kUltraLightPastel,fMenuItems.get(kActionCommandMenuItemColorMapExteriorInvertColorMap).isSelected(),fMenuItems.get(kActionCommandMenuItemColorMapExteriorWrapAroundColorMap).isSelected());
+			coloringParameters.fExteriorGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kUltraLightPastel);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorLightPastel)) {
-			fFractalPanel.setExteriorColorMap(JGradientColorMap.EColorMap.kLightPastel,fMenuItems.get(kActionCommandMenuItemColorMapExteriorInvertColorMap).isSelected(),fMenuItems.get(kActionCommandMenuItemColorMapExteriorWrapAroundColorMap).isSelected());
+			coloringParameters.fExteriorGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kLightPastel);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorDarkPastel)) {
-			fFractalPanel.setExteriorColorMap(JGradientColorMap.EColorMap.kDarkPastel,fMenuItems.get(kActionCommandMenuItemColorMapExteriorInvertColorMap).isSelected(),fMenuItems.get(kActionCommandMenuItemColorMapExteriorWrapAroundColorMap).isSelected());
+			coloringParameters.fExteriorGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kDarkPastel);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorGreens)) {
-			fFractalPanel.setExteriorColorMap(JGradientColorMap.EColorMap.kGreens,fMenuItems.get(kActionCommandMenuItemColorMapExteriorInvertColorMap).isSelected(),fMenuItems.get(kActionCommandMenuItemColorMapExteriorWrapAroundColorMap).isSelected());
+			coloringParameters.fExteriorGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kGreens);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorBlues)) {
-			fFractalPanel.setExteriorColorMap(JGradientColorMap.EColorMap.kBlues,fMenuItems.get(kActionCommandMenuItemColorMapExteriorInvertColorMap).isSelected(),fMenuItems.get(kActionCommandMenuItemColorMapExteriorWrapAroundColorMap).isSelected());
+			coloringParameters.fExteriorGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kBlues);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorYellowBrowns)) {
-			fFractalPanel.setExteriorColorMap(JGradientColorMap.EColorMap.kYellowBrowns,fMenuItems.get(kActionCommandMenuItemColorMapExteriorInvertColorMap).isSelected(),fMenuItems.get(kActionCommandMenuItemColorMapExteriorWrapAroundColorMap).isSelected());
+			coloringParameters.fExteriorGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kYellowBrowns);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorVioletPurples)) {
-			fFractalPanel.setExteriorColorMap(JGradientColorMap.EColorMap.kVioletPurples,fMenuItems.get(kActionCommandMenuItemColorMapExteriorInvertColorMap).isSelected(),fMenuItems.get(kActionCommandMenuItemColorMapExteriorWrapAroundColorMap).isSelected());
+			coloringParameters.fExteriorGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kVioletPurples);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorDeepSpace)) {
-			fFractalPanel.setExteriorColorMap(JGradientColorMap.EColorMap.kDeepSpace,fMenuItems.get(kActionCommandMenuItemColorMapExteriorInvertColorMap).isSelected(),fMenuItems.get(kActionCommandMenuItemColorMapExteriorWrapAroundColorMap).isSelected());
+			coloringParameters.fExteriorGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kDeepSpace);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorCustom)) {
-			fFractalPanel.setExteriorColorMap(JGradientColorMap.EColorMap.kCustom,fMenuItems.get(kActionCommandMenuItemColorMapExteriorInvertColorMap).isSelected(),fMenuItems.get(kActionCommandMenuItemColorMapExteriorWrapAroundColorMap).isSelected());
+			coloringParameters.fExteriorGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kCustom);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorSetCustomColorMap)) {
-			JCustomColorMapChooser customColorMapChooser = new JCustomColorMapChooser(this,kNrOfCustomColorMapColors,fFractalPanel.getExteriorCustomColorMapComponents());
-			if (!customColorMapChooser.isCancelled()) {
-				fFractalPanel.setExteriorCustomColorMapComponents(customColorMapChooser.getSelectedCustomColorMapComponents());
-				fFractalPanel.setExteriorColorMap(JGradientColorMap.EColorMap.kCustom,fMenuItems.get(kActionCommandMenuItemColorMapExteriorInvertColorMap).isSelected(),fMenuItems.get(kActionCommandMenuItemColorMapExteriorWrapAroundColorMap).isSelected());
+			JCustomColorMapChooser exteriorCustomColorMapChooser = new JCustomColorMapChooser(this,kNrOfCustomColorMapColors,coloringParameters.fExteriorGradientColorMap.getAllCustomColorMapComponents());
+			if (!exteriorCustomColorMapChooser.isCancelled()) {
+				coloringParameters.fExteriorGradientColorMap.setAllCustomColorMapComponents(exteriorCustomColorMapChooser.getSelectedCustomColorMapComponents());
+				coloringParameters.fExteriorGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kCustom);
 				fMenuItems.get(kActionCommandMenuItemColorMapExteriorCustom).setSelected(true);
+				fFractalPanel.recolor();
 			}
+		}
+		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorRandom)) {
+			coloringParameters.fExteriorGradientColorMap.setRandomColorMap(100);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorConvertCurrentColorMapToCustomColorMap)) {
 			if (!fMenuItems.get(kActionCommandMenuItemColorMapExteriorCustom).isSelected()) {
 				if (JConfirmationDialog.confirm(this,I18NL10N.translate("text.ColorMap.OverwriteCustomColorMap"))) {
-					fFractalPanel.setExteriorCustomColorMapComponents(new JGradientColorMap(fFractalPanel.getExteriorColorMap()).convertToComponents(kNrOfCustomColorMapColors));
-					fFractalPanel.setExteriorColorMap(JGradientColorMap.EColorMap.kCustom,fMenuItems.get(kActionCommandMenuItemColorMapExteriorInvertColorMap).isSelected(),fMenuItems.get(kActionCommandMenuItemColorMapExteriorWrapAroundColorMap).isSelected());
+					coloringParameters.fExteriorGradientColorMap.setAllCustomColorMapComponents(coloringParameters.fExteriorGradientColorMap.convertToComponents(kNrOfCustomColorMapColors));
+					coloringParameters.fExteriorGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kCustom);
 					fMenuItems.get(kActionCommandMenuItemColorMapExteriorCustom).setSelected(true);
 					actionPerformed(new ActionEvent(this,ActionEvent.ACTION_LAST+1,kActionCommandMenuItemColorMapExteriorSetCustomColorMap));
+					fFractalPanel.recolor();
 				}
 			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorInvertColorMap)) {
-			fFractalPanel.setExteriorColorMap(fFractalPanel.getExteriorColorMap(),fMenuItems.get(kActionCommandMenuItemColorMapExteriorInvertColorMap).isSelected(),fMenuItems.get(kActionCommandMenuItemColorMapExteriorWrapAroundColorMap).isSelected());
+			coloringParameters.fExteriorColorMapInverted = fMenuItems.get(kActionCommandMenuItemColorMapExteriorInvertColorMap).isSelected();
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorWrapAroundColorMap)) {
-			fFractalPanel.setExteriorColorMap(fFractalPanel.getExteriorColorMap(),fMenuItems.get(kActionCommandMenuItemColorMapExteriorInvertColorMap).isSelected(),fMenuItems.get(kActionCommandMenuItemColorMapExteriorWrapAroundColorMap).isSelected());
+			coloringParameters.fExteriorColorMapWrappedAround = fMenuItems.get(kActionCommandMenuItemColorMapExteriorWrapAroundColorMap).isSelected();
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapUseTigerStripes)) {
-			fFractalPanel.setUseTigerStripes(fMenuItems.get(kActionCommandMenuItemColorMapUseTigerStripes).isSelected());
+			coloringParameters.fUseTigerStripes = fMenuItems.get(kActionCommandMenuItemColorMapUseTigerStripes).isSelected();
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapTigerBone)) {
-			fFractalPanel.setTigerColorMap(JGradientColorMap.EColorMap.kBone);
+			coloringParameters.fTigerGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kBone);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapTigerCopper)) {
-			fFractalPanel.setTigerColorMap(JGradientColorMap.EColorMap.kCopper);
+			coloringParameters.fTigerGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kCopper);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapTigerDiscontinuousBlueWhiteGreen)) {
-			fFractalPanel.setTigerColorMap(JGradientColorMap.EColorMap.kDiscontinuousBlueWhiteGreen);
+			coloringParameters.fTigerGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kDiscontinuousBlueWhiteGreen);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapTigerDiscontinuousDarkRedYellow)) {
-			fFractalPanel.setTigerColorMap(JGradientColorMap.EColorMap.kDiscontinuousDarkRedYellow);
+			coloringParameters.fTigerGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kDiscontinuousDarkRedYellow);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapTigerBlackAndWhite)) {
-			fFractalPanel.setTigerColorMap(JGradientColorMap.EColorMap.kBlackAndWhite);
+			coloringParameters.fTigerGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kBlackAndWhite);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapTigerGrayScale)) {
-			fFractalPanel.setTigerColorMap(JGradientColorMap.EColorMap.kGrayScale);
+			coloringParameters.fTigerGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kGrayScale);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapTigerGreenRedDiverging)) {
-			fFractalPanel.setTigerColorMap(JGradientColorMap.EColorMap.kGreenRedDiverging);
+			coloringParameters.fTigerGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kGreenRedDiverging);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapTigerHot)) {
-			fFractalPanel.setTigerColorMap(JGradientColorMap.EColorMap.kHot);
+			coloringParameters.fTigerGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kHot);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapTigerJet)) {
-			fFractalPanel.setTigerColorMap(JGradientColorMap.EColorMap.kJet);
+			coloringParameters.fTigerGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kJet);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapTigerHueSaturationBrightness)) {
-			fFractalPanel.setTigerColorMap(JGradientColorMap.EColorMap.kHueSaturationBrightness);
+			coloringParameters.fTigerGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kHueSaturationBrightness);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapTigerSeparatedRGB)) {
-			fFractalPanel.setTigerColorMap(JGradientColorMap.EColorMap.kSeparatedRGB);
+			coloringParameters.fTigerGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kSeparatedRGB);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapTigerRed)) {
-			fFractalPanel.setTigerColorMap(JGradientColorMap.EColorMap.kRed);
+			coloringParameters.fTigerGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kRed);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapTigerGreen)) {
-			fFractalPanel.setTigerColorMap(JGradientColorMap.EColorMap.kGreen);
+			coloringParameters.fTigerGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kGreen);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapTigerBlue)) {
-			fFractalPanel.setTigerColorMap(JGradientColorMap.EColorMap.kBlue);
+			coloringParameters.fTigerGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kBlue);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapTigerYellow)) {
-			fFractalPanel.setTigerColorMap(JGradientColorMap.EColorMap.kYellow);
+			coloringParameters.fTigerGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kYellow);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapTigerCyan)) {
-			fFractalPanel.setTigerColorMap(JGradientColorMap.EColorMap.kCyan);
+			coloringParameters.fTigerGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kCyan);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapTigerMagenta)) {
-			fFractalPanel.setTigerColorMap(JGradientColorMap.EColorMap.kMagenta);
+			coloringParameters.fTigerGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kMagenta);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapTigerUltraLightPastel)) {
-			fFractalPanel.setTigerColorMap(JGradientColorMap.EColorMap.kUltraLightPastel);
+			coloringParameters.fTigerGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kUltraLightPastel);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapTigerLightPastel)) {
-			fFractalPanel.setTigerColorMap(JGradientColorMap.EColorMap.kLightPastel);
+			coloringParameters.fTigerGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kDarkPastel);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapTigerDarkPastel)) {
-			fFractalPanel.setTigerColorMap(JGradientColorMap.EColorMap.kDarkPastel);
+			coloringParameters.fTigerGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kDarkPastel);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapTigerGreens)) {
-			fFractalPanel.setTigerColorMap(JGradientColorMap.EColorMap.kGreens);
+			coloringParameters.fTigerGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kGreens);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapTigerBlues)) {
-			fFractalPanel.setTigerColorMap(JGradientColorMap.EColorMap.kBlues);
+			coloringParameters.fTigerGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kBlues);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapTigerYellowBrowns)) {
-			fFractalPanel.setTigerColorMap(JGradientColorMap.EColorMap.kYellowBrowns);
+			coloringParameters.fTigerGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kYellowBrowns);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapTigerVioletPurples)) {
-			fFractalPanel.setTigerColorMap(JGradientColorMap.EColorMap.kVioletPurples);
+			coloringParameters.fTigerGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kVioletPurples);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapTigerDeepSpace)) {
-			fFractalPanel.setTigerColorMap(JGradientColorMap.EColorMap.kDeepSpace);
+			coloringParameters.fTigerGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kDeepSpace);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapTigerCustom)) {
-			fFractalPanel.setTigerColorMap(JGradientColorMap.EColorMap.kCustom);
+			coloringParameters.fTigerGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kCustom);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapTigerSetCustomColorMap)) {
-			JCustomColorMapChooser tigerCustomColorMapChooser = new JCustomColorMapChooser(this,kNrOfCustomColorMapColors,fFractalPanel.getTigerCustomColorMapComponents());
+			JCustomColorMapChooser tigerCustomColorMapChooser = new JCustomColorMapChooser(this,kNrOfCustomColorMapColors,coloringParameters.fTigerGradientColorMap.getAllCustomColorMapComponents());
 			if (!tigerCustomColorMapChooser.isCancelled()) {
-				fFractalPanel.setTigerCustomColorMapComponents(tigerCustomColorMapChooser.getSelectedCustomColorMapComponents());
-				fFractalPanel.setTigerColorMap(JGradientColorMap.EColorMap.kCustom);
+				coloringParameters.fTigerGradientColorMap.setAllCustomColorMapComponents(tigerCustomColorMapChooser.getSelectedCustomColorMapComponents());
+				coloringParameters.fTigerGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kCustom);
 				fMenuItems.get(kActionCommandMenuItemColorMapTigerCustom).setSelected(true);
+				fFractalPanel.recolor();
 			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapTigerConvertCurrentColorMapToCustomColorMap)) {
 			if (!fMenuItems.get(kActionCommandMenuItemColorMapTigerCustom).isSelected()) {
 				if (JConfirmationDialog.confirm(this,I18NL10N.translate("text.ColorMap.OverwriteCustomColorMap"))) {
-					fFractalPanel.setTigerCustomColorMapComponents(new JGradientColorMap(fFractalPanel.getTigerColorMap()).convertToComponents(kNrOfCustomColorMapColors));
-					fFractalPanel.setTigerColorMap(JGradientColorMap.EColorMap.kCustom);
+					coloringParameters.fTigerGradientColorMap.setAllCustomColorMapComponents(coloringParameters.fTigerGradientColorMap.convertToComponents(kNrOfCustomColorMapColors));
+					coloringParameters.fTigerGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kCustom);
 					fMenuItems.get(kActionCommandMenuItemColorMapTigerCustom).setSelected(true);
 					actionPerformed(new ActionEvent(this,ActionEvent.ACTION_LAST+1,kActionCommandMenuItemColorMapTigerSetCustomColorMap));
+					fFractalPanel.recolor();
 				}
 			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapTigerUseFixedColor)) {
-			fFractalPanel.setTigerUseFixedColor(true);
+			coloringParameters.fTigerUseFixedColor = true;
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapTigerSetFixedColor)) {
 			try {
-				Color tigerStripeFixedColor = JColorChooser.showDialog(this,I18NL10N.translate(kActionCommandMenuItemColorMapTigerSetFixedColor),fFractalPanel.getTigerStripeFixedColor());
+				Color tigerStripeFixedColor = JColorChooser.showDialog(this,I18NL10N.translate(kActionCommandMenuItemColorMapTigerSetFixedColor),coloringParameters.fTigerStripeFixedColor);
 				if (tigerStripeFixedColor != null) {
-					fFractalPanel.setTigerStripeFixedColor(tigerStripeFixedColor);
+					coloringParameters.fTigerStripeFixedColor = tigerStripeFixedColor;
 					fTigerStripeColorLabelDecorator.setColor(tigerStripeFixedColor);
+					fFractalPanel.recolor();
 				}
 			}
 			catch (HeadlessException exc) {
@@ -1986,118 +2052,150 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorBone)) {
-			fFractalPanel.setInteriorColorMap(JGradientColorMap.EColorMap.kBone,fMenuItems.get(kActionCommandMenuItemColorMapInteriorInvertColorMap).isSelected(),fMenuItems.get(kActionCommandMenuItemColorMapInteriorWrapAroundColorMap).isSelected());
+			coloringParameters.fInteriorGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kBone);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorCopper)) {
-			fFractalPanel.setInteriorColorMap(JGradientColorMap.EColorMap.kCopper,fMenuItems.get(kActionCommandMenuItemColorMapInteriorInvertColorMap).isSelected(),fMenuItems.get(kActionCommandMenuItemColorMapInteriorWrapAroundColorMap).isSelected());
+			coloringParameters.fInteriorGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kCopper);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorDiscontinuousBlueWhiteGreen)) {
-			fFractalPanel.setInteriorColorMap(JGradientColorMap.EColorMap.kDiscontinuousBlueWhiteGreen,fMenuItems.get(kActionCommandMenuItemColorMapInteriorInvertColorMap).isSelected(),fMenuItems.get(kActionCommandMenuItemColorMapInteriorWrapAroundColorMap).isSelected());
+			coloringParameters.fInteriorGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kDiscontinuousBlueWhiteGreen);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorDiscontinuousDarkRedYellow)) {
-			fFractalPanel.setInteriorColorMap(JGradientColorMap.EColorMap.kDiscontinuousDarkRedYellow,fMenuItems.get(kActionCommandMenuItemColorMapInteriorInvertColorMap).isSelected(),fMenuItems.get(kActionCommandMenuItemColorMapInteriorWrapAroundColorMap).isSelected());
+			coloringParameters.fInteriorGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kDiscontinuousDarkRedYellow);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorBlackAndWhite)) {
-			fFractalPanel.setInteriorColorMap(JGradientColorMap.EColorMap.kBlackAndWhite,fMenuItems.get(kActionCommandMenuItemColorMapInteriorInvertColorMap).isSelected(),fMenuItems.get(kActionCommandMenuItemColorMapInteriorWrapAroundColorMap).isSelected());
+			coloringParameters.fInteriorGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kBlackAndWhite);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorGrayScale)) {
-			fFractalPanel.setInteriorColorMap(JGradientColorMap.EColorMap.kGrayScale,fMenuItems.get(kActionCommandMenuItemColorMapInteriorInvertColorMap).isSelected(),fMenuItems.get(kActionCommandMenuItemColorMapInteriorWrapAroundColorMap).isSelected());
+			coloringParameters.fInteriorGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kGrayScale);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorGreenRedDiverging)) {
-			fFractalPanel.setInteriorColorMap(JGradientColorMap.EColorMap.kGreenRedDiverging,fMenuItems.get(kActionCommandMenuItemColorMapInteriorInvertColorMap).isSelected(),fMenuItems.get(kActionCommandMenuItemColorMapInteriorWrapAroundColorMap).isSelected());
+			coloringParameters.fInteriorGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kGreenRedDiverging);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorHot)) {
-			fFractalPanel.setInteriorColorMap(JGradientColorMap.EColorMap.kHot,fMenuItems.get(kActionCommandMenuItemColorMapInteriorInvertColorMap).isSelected(),fMenuItems.get(kActionCommandMenuItemColorMapInteriorWrapAroundColorMap).isSelected());
+			coloringParameters.fInteriorGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kHot);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorJet)) {
-			fFractalPanel.setInteriorColorMap(JGradientColorMap.EColorMap.kJet,fMenuItems.get(kActionCommandMenuItemColorMapInteriorInvertColorMap).isSelected(),fMenuItems.get(kActionCommandMenuItemColorMapInteriorWrapAroundColorMap).isSelected());
+			coloringParameters.fInteriorGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kJet);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorHueSaturationBrightness)) {
-			fFractalPanel.setInteriorColorMap(JGradientColorMap.EColorMap.kHueSaturationBrightness,fMenuItems.get(kActionCommandMenuItemColorMapInteriorInvertColorMap).isSelected(),fMenuItems.get(kActionCommandMenuItemColorMapInteriorWrapAroundColorMap).isSelected());
+			coloringParameters.fInteriorGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kHueSaturationBrightness);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorSeparatedRGB)) {
-			fFractalPanel.setInteriorColorMap(JGradientColorMap.EColorMap.kSeparatedRGB,fMenuItems.get(kActionCommandMenuItemColorMapInteriorInvertColorMap).isSelected(),fMenuItems.get(kActionCommandMenuItemColorMapInteriorWrapAroundColorMap).isSelected());
+			coloringParameters.fInteriorGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kSeparatedRGB);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorRed)) {
-			fFractalPanel.setInteriorColorMap(JGradientColorMap.EColorMap.kRed,fMenuItems.get(kActionCommandMenuItemColorMapInteriorInvertColorMap).isSelected(),fMenuItems.get(kActionCommandMenuItemColorMapInteriorWrapAroundColorMap).isSelected());
+			coloringParameters.fInteriorGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kRed);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorGreen)) {
-			fFractalPanel.setInteriorColorMap(JGradientColorMap.EColorMap.kGreen,fMenuItems.get(kActionCommandMenuItemColorMapInteriorInvertColorMap).isSelected(),fMenuItems.get(kActionCommandMenuItemColorMapInteriorWrapAroundColorMap).isSelected());
+			coloringParameters.fInteriorGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kGreen);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorBlue)) {
-			fFractalPanel.setInteriorColorMap(JGradientColorMap.EColorMap.kBlue,fMenuItems.get(kActionCommandMenuItemColorMapInteriorInvertColorMap).isSelected(),fMenuItems.get(kActionCommandMenuItemColorMapInteriorWrapAroundColorMap).isSelected());
+			coloringParameters.fInteriorGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kBlue);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorYellow)) {
-			fFractalPanel.setInteriorColorMap(JGradientColorMap.EColorMap.kYellow,fMenuItems.get(kActionCommandMenuItemColorMapInteriorInvertColorMap).isSelected(),fMenuItems.get(kActionCommandMenuItemColorMapInteriorWrapAroundColorMap).isSelected());
+			coloringParameters.fInteriorGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kYellow);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorCyan)) {
-			fFractalPanel.setInteriorColorMap(JGradientColorMap.EColorMap.kCyan,fMenuItems.get(kActionCommandMenuItemColorMapInteriorInvertColorMap).isSelected(),fMenuItems.get(kActionCommandMenuItemColorMapInteriorWrapAroundColorMap).isSelected());
+			coloringParameters.fInteriorGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kCyan);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorMagenta)) {
-			fFractalPanel.setInteriorColorMap(JGradientColorMap.EColorMap.kMagenta,fMenuItems.get(kActionCommandMenuItemColorMapInteriorInvertColorMap).isSelected(),fMenuItems.get(kActionCommandMenuItemColorMapInteriorWrapAroundColorMap).isSelected());
+			coloringParameters.fInteriorGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kMagenta);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorUltraLightPastel)) {
-			fFractalPanel.setInteriorColorMap(JGradientColorMap.EColorMap.kUltraLightPastel,fMenuItems.get(kActionCommandMenuItemColorMapInteriorInvertColorMap).isSelected(),fMenuItems.get(kActionCommandMenuItemColorMapInteriorWrapAroundColorMap).isSelected());
+			coloringParameters.fInteriorGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kUltraLightPastel);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorLightPastel)) {
-			fFractalPanel.setInteriorColorMap(JGradientColorMap.EColorMap.kLightPastel,fMenuItems.get(kActionCommandMenuItemColorMapInteriorInvertColorMap).isSelected(),fMenuItems.get(kActionCommandMenuItemColorMapInteriorWrapAroundColorMap).isSelected());
+			coloringParameters.fInteriorGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kLightPastel);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorDarkPastel)) {
-			fFractalPanel.setInteriorColorMap(JGradientColorMap.EColorMap.kDarkPastel,fMenuItems.get(kActionCommandMenuItemColorMapInteriorInvertColorMap).isSelected(),fMenuItems.get(kActionCommandMenuItemColorMapInteriorWrapAroundColorMap).isSelected());
+			coloringParameters.fInteriorGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kDarkPastel);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorGreens)) {
-			fFractalPanel.setInteriorColorMap(JGradientColorMap.EColorMap.kGreens,fMenuItems.get(kActionCommandMenuItemColorMapInteriorInvertColorMap).isSelected(),fMenuItems.get(kActionCommandMenuItemColorMapInteriorWrapAroundColorMap).isSelected());
+			coloringParameters.fInteriorGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kGreens);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorBlues)) {
-			fFractalPanel.setInteriorColorMap(JGradientColorMap.EColorMap.kBlues,fMenuItems.get(kActionCommandMenuItemColorMapInteriorInvertColorMap).isSelected(),fMenuItems.get(kActionCommandMenuItemColorMapInteriorWrapAroundColorMap).isSelected());
+			coloringParameters.fInteriorGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kBlues);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorYellowBrowns)) {
-			fFractalPanel.setInteriorColorMap(JGradientColorMap.EColorMap.kYellowBrowns,fMenuItems.get(kActionCommandMenuItemColorMapInteriorInvertColorMap).isSelected(),fMenuItems.get(kActionCommandMenuItemColorMapInteriorWrapAroundColorMap).isSelected());
+			coloringParameters.fInteriorGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kYellowBrowns);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorVioletPurples)) {
-			fFractalPanel.setInteriorColorMap(JGradientColorMap.EColorMap.kVioletPurples,fMenuItems.get(kActionCommandMenuItemColorMapInteriorInvertColorMap).isSelected(),fMenuItems.get(kActionCommandMenuItemColorMapInteriorWrapAroundColorMap).isSelected());
+			coloringParameters.fInteriorGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kVioletPurples);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorDeepSpace)) {
-			fFractalPanel.setInteriorColorMap(JGradientColorMap.EColorMap.kDeepSpace,fMenuItems.get(kActionCommandMenuItemColorMapInteriorInvertColorMap).isSelected(),fMenuItems.get(kActionCommandMenuItemColorMapInteriorWrapAroundColorMap).isSelected());
+			coloringParameters.fInteriorGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kDeepSpace);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorCustom)) {
-			fFractalPanel.setInteriorColorMap(JGradientColorMap.EColorMap.kCustom,fMenuItems.get(kActionCommandMenuItemColorMapInteriorInvertColorMap).isSelected(),fMenuItems.get(kActionCommandMenuItemColorMapInteriorWrapAroundColorMap).isSelected());
+			coloringParameters.fInteriorGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kCustom);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorSetCustomColorMap)) {
-			JCustomColorMapChooser interiorCustomColorMapChooser = new JCustomColorMapChooser(this,kNrOfCustomColorMapColors,fFractalPanel.getInteriorCustomColorMapComponents());
+			JCustomColorMapChooser interiorCustomColorMapChooser = new JCustomColorMapChooser(this,kNrOfCustomColorMapColors,coloringParameters.fInteriorGradientColorMap.getAllCustomColorMapComponents());
 			if (!interiorCustomColorMapChooser.isCancelled()) {
-				fFractalPanel.setInteriorCustomColorMapComponents(interiorCustomColorMapChooser.getSelectedCustomColorMapComponents());
-				fFractalPanel.setInteriorColorMap(JGradientColorMap.EColorMap.kCustom,fMenuItems.get(kActionCommandMenuItemColorMapInteriorInvertColorMap).isSelected(),fMenuItems.get(kActionCommandMenuItemColorMapInteriorWrapAroundColorMap).isSelected());
+				coloringParameters.fInteriorGradientColorMap.setAllCustomColorMapComponents(interiorCustomColorMapChooser.getSelectedCustomColorMapComponents());
+				coloringParameters.fInteriorGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kCustom);
 				fMenuItems.get(kActionCommandMenuItemColorMapInteriorCustom).setSelected(true);
+				fFractalPanel.recolor();
 			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorConvertCurrentColorMapToCustomColorMap)) {
 			if (!fMenuItems.get(kActionCommandMenuItemColorMapInteriorCustom).isSelected()) {
 				if (JConfirmationDialog.confirm(this,I18NL10N.translate("text.ColorMap.OverwriteCustomColorMap"))) {
-					fFractalPanel.setInteriorCustomColorMapComponents(new JGradientColorMap(fFractalPanel.getInteriorColorMap()).convertToComponents(kNrOfCustomColorMapColors));
-					fFractalPanel.setInteriorColorMap(JGradientColorMap.EColorMap.kCustom,fMenuItems.get(kActionCommandMenuItemColorMapInteriorInvertColorMap).isSelected(),fMenuItems.get(kActionCommandMenuItemColorMapInteriorWrapAroundColorMap).isSelected());
+					coloringParameters.fInteriorGradientColorMap.setAllCustomColorMapComponents(coloringParameters.fInteriorGradientColorMap.convertToComponents(kNrOfCustomColorMapColors));
+					coloringParameters.fInteriorGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kCustom);
 					fMenuItems.get(kActionCommandMenuItemColorMapInteriorCustom).setSelected(true);
 					actionPerformed(new ActionEvent(this,ActionEvent.ACTION_LAST+1,kActionCommandMenuItemColorMapInteriorSetCustomColorMap));
+					fFractalPanel.recolor();
 				}
 			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorInvertColorMap)) {
-			fFractalPanel.setInteriorColorMap(fFractalPanel.getInteriorColorMap(),fMenuItems.get(kActionCommandMenuItemColorMapInteriorInvertColorMap).isSelected(),fMenuItems.get(kActionCommandMenuItemColorMapInteriorWrapAroundColorMap).isSelected());
+			coloringParameters.fInteriorColorMapInverted = fMenuItems.get(kActionCommandMenuItemColorMapInteriorInvertColorMap).isSelected();
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorWrapAroundColorMap)) {
-			fFractalPanel.setInteriorColorMap(fFractalPanel.getInteriorColorMap(),fMenuItems.get(kActionCommandMenuItemColorMapInteriorInvertColorMap).isSelected(),fMenuItems.get(kActionCommandMenuItemColorMapInteriorWrapAroundColorMap).isSelected());
+			coloringParameters.fInteriorColorMapWrappedAround = fMenuItems.get(kActionCommandMenuItemColorMapInteriorWrapAroundColorMap).isSelected();
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorUseFixedColor)) {
-			fFractalPanel.setInteriorColoringMethod(ColoringParameters.EColoringMethod.kFixedColor);
+			coloringParameters.fInteriorColoringMethod = ColoringParameters.EColoringMethod.kFixedColor;
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorSetFixedColor)) {
 			try {
-				Color interiorColor = JColorChooser.showDialog(this,I18NL10N.translate(kActionCommandMenuItemColorMapInteriorSetFixedColor),fFractalPanel.getInteriorColor());
+				Color interiorColor = JColorChooser.showDialog(this,I18NL10N.translate(kActionCommandMenuItemColorMapInteriorSetFixedColor),coloringParameters.fInteriorColor);
 				if (interiorColor != null) {
-					fFractalPanel.setInteriorColor(interiorColor);
+					coloringParameters.fInteriorColor = interiorColor;
 					fInteriorColorLabelDecorator.setColor(interiorColor);
-					fFractalPanel.setInteriorColoringMethod(ColoringParameters.EColoringMethod.kFixedColor);
+					coloringParameters.fInteriorColoringMethod = ColoringParameters.EColoringMethod.kFixedColor;
 					fMenuItems.get(kActionCommandMenuItemColorMapInteriorUseFixedColor).setSelected(true);
+					fFractalPanel.recolor();
 				}
 			}
 			catch (HeadlessException exc) {
@@ -2105,75 +2203,90 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorUseExponentiallySmoothedLevelSets)) {
-			fFractalPanel.setInteriorColoringMethod(ColoringParameters.EColoringMethod.kSmoothEICLevelSets);
+			coloringParameters.fInteriorColoringMethod = ColoringParameters.EColoringMethod.kSmoothEICLevelSets;
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorUseSectorDecomposition)) {
-			fFractalPanel.setInteriorColoringMethod(ColoringParameters.EColoringMethod.kSectorDecomposition);
+			coloringParameters.fInteriorColoringMethod = ColoringParameters.EColoringMethod.kSectorDecomposition;
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorSetDecompositionSectorRange)) {
-			SectorDecompositionRangeChooser sectorDecompositionRangeChooser = new SectorDecompositionRangeChooser(this,fFractalPanel.getColorMapInteriorSectorDecompositionRange());
+			SectorDecompositionRangeChooser sectorDecompositionRangeChooser = new SectorDecompositionRangeChooser(this,coloringParameters.fColorMapInteriorSectorDecompositionRange);
 			if (!sectorDecompositionRangeChooser.isCancelled()) {
-				fFractalPanel.setColorMapInteriorSectorDecompositionRange(sectorDecompositionRangeChooser.getSelectedSectorDecompositionRange());
+				coloringParameters.fColorMapInteriorSectorDecompositionRange = sectorDecompositionRangeChooser.getSelectedSectorDecompositionRange();
 				// automatically select the binary decomposition
-				fFractalPanel.setInteriorColoringMethod(ColoringParameters.EColoringMethod.kSectorDecomposition);
-				adjustGUIToFractal();
+				coloringParameters.fInteriorColoringMethod = ColoringParameters.EColoringMethod.kSectorDecomposition;
+				adjustMenusToFractal();
+				fFractalPanel.recolor();
 			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorUseRealComponent)) {
-			fFractalPanel.setInteriorColoringMethod(ColoringParameters.EColoringMethod.kRealComponent);
+			coloringParameters.fInteriorColoringMethod = ColoringParameters.EColoringMethod.kRealComponent;
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorUseImaginaryComponent)) {
-			fFractalPanel.setInteriorColoringMethod(ColoringParameters.EColoringMethod.kImaginaryComponent);
+			coloringParameters.fInteriorColoringMethod = ColoringParameters.EColoringMethod.kImaginaryComponent;
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorUseModulus)) {
-			fFractalPanel.setInteriorColoringMethod(ColoringParameters.EColoringMethod.kModulus);
+			coloringParameters.fInteriorColoringMethod = ColoringParameters.EColoringMethod.kModulus;
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorUseAngle)) {
-			fFractalPanel.setInteriorColoringMethod(ColoringParameters.EColoringMethod.kAngle);
+			coloringParameters.fInteriorColoringMethod = ColoringParameters.EColoringMethod.kAngle;
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorUseAverageDistance)) {
-			fFractalPanel.setInteriorColoringMethod(ColoringParameters.EColoringMethod.kAverageDistance);
+			coloringParameters.fInteriorColoringMethod = ColoringParameters.EColoringMethod.kAverageDistance;
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorUseLyapunovExponent)) {
-			fFractalPanel.setInteriorColoringMethod(ColoringParameters.EColoringMethod.kLyapunovExponent);
+			coloringParameters.fInteriorColoringMethod = ColoringParameters.EColoringMethod.kLyapunovExponent;
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorUseCurvature)) {
-			fFractalPanel.setInteriorColoringMethod(ColoringParameters.EColoringMethod.kCurvature);
+			coloringParameters.fInteriorColoringMethod = ColoringParameters.EColoringMethod.kCurvature;
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorUseStriping)) {
-			fFractalPanel.setInteriorColoringMethod(ColoringParameters.EColoringMethod.kStriping);
+			coloringParameters.fInteriorColoringMethod = ColoringParameters.EColoringMethod.kStriping;
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorSetStripingDensity)) {
-			StripingDensityChooser stripingDensityChooser = new StripingDensityChooser(this,fIteratorController.getFractalIterator().getInteriorStripingDensity());
+			StripingDensityChooser stripingDensityChooser = new StripingDensityChooser(this,fractalIterator.getInteriorStripingDensity());
 			if (!stripingDensityChooser.isCancelled()) {
-				fIteratorController.getFractalIterator().setInteriorStripingDensity(stripingDensityChooser.getSelectedStripingDensity());
+				fractalIterator.setInteriorStripingDensity(stripingDensityChooser.getSelectedStripingDensity());
 				fIteratorController.recalc();
 			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorUseMinimumGaussianIntegersDistance)) {
-			fFractalPanel.setInteriorColoringMethod(ColoringParameters.EColoringMethod.kMinimumGaussianIntegersDistance);
+			coloringParameters.fInteriorColoringMethod = ColoringParameters.EColoringMethod.kMinimumGaussianIntegersDistance;
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorUseAverageGaussianIntegersDistance)) {
-			fFractalPanel.setInteriorColoringMethod(ColoringParameters.EColoringMethod.kAverageGaussianIntegersDistance);
+			coloringParameters.fInteriorColoringMethod = ColoringParameters.EColoringMethod.kAverageGaussianIntegersDistance;
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorSetGaussianIntegersTrapFactor)) {
-			GaussianIntegersTrapFactorChooser gaussianIntegersTrapFactorChooser = new GaussianIntegersTrapFactorChooser(this,fIteratorController.getFractalIterator().getInteriorGaussianIntegersTrapFactor());
+			GaussianIntegersTrapFactorChooser gaussianIntegersTrapFactorChooser = new GaussianIntegersTrapFactorChooser(this,fractalIterator.getInteriorGaussianIntegersTrapFactor());
 			if (!gaussianIntegersTrapFactorChooser.isCancelled()) {
-				fIteratorController.getFractalIterator().setInteriorGaussianIntegersTrapFactor(gaussianIntegersTrapFactorChooser.getSelectedGaussianIntegersTrapFactor());
+				fractalIterator.setInteriorGaussianIntegersTrapFactor(gaussianIntegersTrapFactorChooser.getSelectedGaussianIntegersTrapFactor());
 				fIteratorController.recalc();
 			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorUseFixedColor)) {
-			fFractalPanel.setExteriorColoringMethod(ColoringParameters.EColoringMethod.kFixedColor);
+			coloringParameters.fExteriorColoringMethod = ColoringParameters.EColoringMethod.kFixedColor;
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorSetFixedColor)) {
 			try {
-				Color exteriorColor = JColorChooser.showDialog(this,I18NL10N.translate(kActionCommandMenuItemColorMapExteriorSetFixedColor),fFractalPanel.getExteriorColor());
+				Color exteriorColor = JColorChooser.showDialog(this,I18NL10N.translate(kActionCommandMenuItemColorMapExteriorSetFixedColor),coloringParameters.fExteriorColor);
 				if (exteriorColor != null) {
-					fFractalPanel.setExteriorColor(exteriorColor);
+					coloringParameters.fExteriorColor = exteriorColor;
 					fExteriorColorLabelDecorator.setColor(exteriorColor);
-					fFractalPanel.setExteriorColoringMethod(ColoringParameters.EColoringMethod.kFixedColor);
+					coloringParameters.fExteriorColoringMethod = ColoringParameters.EColoringMethod.kFixedColor;
 					fMenuItems.get(kActionCommandMenuItemColorMapExteriorUseFixedColor).setSelected(true);
+					fFractalPanel.recolor();
 				}
 			}
 			catch (HeadlessException exc) {
@@ -2181,48 +2294,59 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorUseDiscreteLevelSets)) {
-			fFractalPanel.setExteriorColoringMethod(ColoringParameters.EColoringMethod.kDiscreteLevelSets);
+			coloringParameters.fExteriorColoringMethod = ColoringParameters.EColoringMethod.kDiscreteLevelSets;
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorUseNormalisedLevelSets)) {
-			fFractalPanel.setExteriorColoringMethod(ColoringParameters.EColoringMethod.kSmoothNICLevelSets);
+			coloringParameters.fExteriorColoringMethod = ColoringParameters.EColoringMethod.kSmoothNICLevelSets;
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorUseExponentiallySmoothedLevelSets)) {
-			fFractalPanel.setExteriorColoringMethod(ColoringParameters.EColoringMethod.kSmoothEICLevelSets);
+			coloringParameters.fExteriorColoringMethod = ColoringParameters.EColoringMethod.kSmoothEICLevelSets;
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorUseSectorDecomposition)) {
-			fFractalPanel.setExteriorColoringMethod(ColoringParameters.EColoringMethod.kSectorDecomposition);
+			coloringParameters.fExteriorColoringMethod = ColoringParameters.EColoringMethod.kSectorDecomposition;
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorSetDecompositionSectorRange)) {
-			SectorDecompositionRangeChooser sectorDecompositionRangeChooser = new SectorDecompositionRangeChooser(this,fFractalPanel.getColorMapExteriorSectorDecompositionRange());
+			SectorDecompositionRangeChooser sectorDecompositionRangeChooser = new SectorDecompositionRangeChooser(this,coloringParameters.fColorMapExteriorSectorDecompositionRange);
 			if (!sectorDecompositionRangeChooser.isCancelled()) {
-				fFractalPanel.setColorMapExteriorSectorDecompositionRange(sectorDecompositionRangeChooser.getSelectedSectorDecompositionRange());
+				coloringParameters.fColorMapExteriorSectorDecompositionRange = sectorDecompositionRangeChooser.getSelectedSectorDecompositionRange();
 				// automatically select the binary decomposition
-				fFractalPanel.setExteriorColoringMethod(ColoringParameters.EColoringMethod.kSectorDecomposition);
-				adjustGUIToFractal();
+				coloringParameters.fExteriorColoringMethod = ColoringParameters.EColoringMethod.kSectorDecomposition;
+				adjustMenusToFractal();
+				fFractalPanel.recolor();
 			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorUseRealComponent)) {
-			fFractalPanel.setExteriorColoringMethod(ColoringParameters.EColoringMethod.kRealComponent);
+			coloringParameters.fExteriorColoringMethod = ColoringParameters.EColoringMethod.kRealComponent;
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorUseImaginaryComponent)) {
-			fFractalPanel.setExteriorColoringMethod(ColoringParameters.EColoringMethod.kImaginaryComponent);
+			coloringParameters.fExteriorColoringMethod = ColoringParameters.EColoringMethod.kImaginaryComponent;
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorUseModulus)) {
-			fFractalPanel.setExteriorColoringMethod(ColoringParameters.EColoringMethod.kModulus);
+			coloringParameters.fExteriorColoringMethod = ColoringParameters.EColoringMethod.kModulus;
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorUseAverageDistance)) {
-			fFractalPanel.setExteriorColoringMethod(ColoringParameters.EColoringMethod.kAverageDistance);
+			coloringParameters.fExteriorColoringMethod = ColoringParameters.EColoringMethod.kAverageDistance;
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorUseAngle)) {
-			fFractalPanel.setExteriorColoringMethod(ColoringParameters.EColoringMethod.kAngle);
+			coloringParameters.fExteriorColoringMethod = ColoringParameters.EColoringMethod.kAngle;
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorUseLyapunovExponent)) {
-			fFractalPanel.setExteriorColoringMethod(ColoringParameters.EColoringMethod.kLyapunovExponent);
+			coloringParameters.fExteriorColoringMethod = ColoringParameters.EColoringMethod.kLyapunovExponent;
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapCalculateAdvancedColoring)) {
 			boolean calculateAdvancedColoring = fMenuItems.get(kActionCommandMenuItemColorMapCalculateAdvancedColoring).isSelected();
-			fFractalPanel.getColoringParameters().fCalculateAdvancedColoring = calculateAdvancedColoring;
-			fIteratorController.getFractalIterator().setCalculateAdvancedColoring(calculateAdvancedColoring);
+			coloringParameters.fCalculateAdvancedColoring = calculateAdvancedColoring;
+			fractalIterator.setCalculateAdvancedColoring(calculateAdvancedColoring);
 			if (calculateAdvancedColoring) {
 				fIteratorController.recalc();
 			}
@@ -2240,193 +2364,223 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			fMenuItems.get(kActionCommandMenuItemColorMapInteriorSetGaussianIntegersTrapFactor).setEnabled(calculateAdvancedColoring);
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorUseCurvature)) {
-			fFractalPanel.setExteriorColoringMethod(ColoringParameters.EColoringMethod.kCurvature);
+			coloringParameters.fExteriorColoringMethod = ColoringParameters.EColoringMethod.kCurvature;
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorUseStriping)) {
-			fFractalPanel.setExteriorColoringMethod(ColoringParameters.EColoringMethod.kStriping);
+			coloringParameters.fExteriorColoringMethod = ColoringParameters.EColoringMethod.kStriping;
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorSetStripingDensity)) {
-			StripingDensityChooser stripingDensityChooser = new StripingDensityChooser(this,fIteratorController.getFractalIterator().getExteriorStripingDensity());
+			StripingDensityChooser stripingDensityChooser = new StripingDensityChooser(this,fractalIterator.getExteriorStripingDensity());
 			if (!stripingDensityChooser.isCancelled()) {
-				fIteratorController.getFractalIterator().setExteriorStripingDensity(stripingDensityChooser.getSelectedStripingDensity());
+				fractalIterator.setExteriorStripingDensity(stripingDensityChooser.getSelectedStripingDensity());
 				fIteratorController.recalc();
 			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorUseMinimumGaussianIntegersDistance)) {
-			fFractalPanel.setExteriorColoringMethod(ColoringParameters.EColoringMethod.kMinimumGaussianIntegersDistance);
+			coloringParameters.fExteriorColoringMethod = ColoringParameters.EColoringMethod.kMinimumGaussianIntegersDistance;
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorUseAverageGaussianIntegersDistance)) {
-			fFractalPanel.setExteriorColoringMethod(ColoringParameters.EColoringMethod.kAverageGaussianIntegersDistance);
+			coloringParameters.fExteriorColoringMethod = ColoringParameters.EColoringMethod.kAverageGaussianIntegersDistance;
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorSetGaussianIntegersTrapFactor)) {
-			GaussianIntegersTrapFactorChooser gaussianIntegersTrapFactorChooser = new GaussianIntegersTrapFactorChooser(this,fIteratorController.getFractalIterator().getExteriorGaussianIntegersTrapFactor());
+			GaussianIntegersTrapFactorChooser gaussianIntegersTrapFactorChooser = new GaussianIntegersTrapFactorChooser(this,fractalIterator.getExteriorGaussianIntegersTrapFactor());
 			if (!gaussianIntegersTrapFactorChooser.isCancelled()) {
-				fIteratorController.getFractalIterator().setExteriorGaussianIntegersTrapFactor(gaussianIntegersTrapFactorChooser.getSelectedGaussianIntegersTrapFactor());
+				fractalIterator.setExteriorGaussianIntegersTrapFactor(gaussianIntegersTrapFactorChooser.getSelectedGaussianIntegersTrapFactor());
 				fIteratorController.recalc();
 			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorUseDiscreteRoots)) {
-			fFractalPanel.setExteriorColoringMethod(ColoringParameters.EColoringMethod.kDiscreteRoots);
+			coloringParameters.fExteriorColoringMethod = ColoringParameters.EColoringMethod.kDiscreteRoots;
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorUseSmoothRoots)) {
-			fFractalPanel.setExteriorColoringMethod(ColoringParameters.EColoringMethod.kSmoothRoots);
+			coloringParameters.fExteriorColoringMethod = ColoringParameters.EColoringMethod.kSmoothRoots;
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorSetBrightnessFactor)) {
-			BrightnessFactorChooser brightnessFactorChooser = new BrightnessFactorChooser(this,fFractalPanel.getBrightnessFactor());
+			BrightnessFactorChooser brightnessFactorChooser = new BrightnessFactorChooser(this,coloringParameters.fBrightnessFactor);
 			if (!brightnessFactorChooser.isCancelled()) {
-				fFractalPanel.setBrightnessFactor(brightnessFactorChooser.getSelectedBrightnessFactor());
+				coloringParameters.fBrightnessFactor = brightnessFactorChooser.getSelectedBrightnessFactor();
+				fFractalPanel.recolor();
 			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapUseBinaryDecomposition)) {
 			// setup exterior colouring
-			fFractalPanel.setExteriorColorMap(JGradientColorMap.EColorMap.kBlackAndWhite,false,false);
-			fFractalPanel.setExteriorColoringMethod(ColoringParameters.EColoringMethod.kSectorDecomposition);
-			fFractalPanel.setColorMapExteriorSectorDecompositionRange(2);
+			coloringParameters.fExteriorColorMapInverted = false;
+			coloringParameters.fExteriorColorMapWrappedAround = false;
+			coloringParameters.fExteriorGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kBlackAndWhite);
+			coloringParameters.fExteriorColoringMethod = ColoringParameters.EColoringMethod.kSectorDecomposition;
+			coloringParameters.fColorMapExteriorSectorDecompositionRange = 2;
 
 			// disable tiger striping
-			fFractalPanel.setUseTigerStripes(false);
+			coloringParameters.fUseTigerStripes = false;
 
 			// setup interior colouring
-			fFractalPanel.setInteriorColorMap(JGradientColorMap.EColorMap.kBlackAndWhite,false,false);
-			fFractalPanel.setColorMapInteriorSectorDecompositionRange(2);
-			fFractalPanel.setInteriorColoringMethod(ColoringParameters.EColoringMethod.kFixedColor);
-			fFractalPanel.setInteriorColor(Color.BLACK);
+			coloringParameters.fInteriorColorMapInverted = false;
+			coloringParameters.fInteriorColorMapWrappedAround = false;
+			coloringParameters.fInteriorGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kBlackAndWhite);
+			coloringParameters.fColorMapInteriorSectorDecompositionRange = 2;
+			coloringParameters.fInteriorColoringMethod = ColoringParameters.EColoringMethod.kFixedColor;
+			coloringParameters.fInteriorColor = Color.BLACK;
 			fInteriorColorLabelDecorator.setColor(Color.BLACK);
 
 			// setup scaling
-			fFractalPanel.setColorMapScaling(ColoringParameters.EColorMapScaling.kLinear);
-			fFractalPanel.setColorMapScalingParameters(1.0,1.0);
+			coloringParameters.fColorMapScaling = ColoringParameters.EColorMapScaling.kLinear;
+			coloringParameters.fColorMapScalingFunctionMultiplier = 1.0;
+			coloringParameters.fColorMapScalingArgumentMultiplier = 1.0;
 
 			// setup iteration range
-			fFractalPanel.setColorMapIterationRange(0,fIteratorController.getFractalIterator().getMaxNrOfIterations());
+			coloringParameters.fLowIterationRange = 0;
+			coloringParameters.fHighIterationRange = fractalIterator.getMaxNrOfIterations();
 
 			// disable colour repetition and offset
-			fFractalPanel.setColorMapRepeatMode(false);
-
-			fFractalPanel.cycleToColorMapColorOffset(0.0);
+			coloringParameters.fColorMapRepeatMode = false;
+			coloringParameters.fColorMapColorOffset = 0.0;
 
 			// disable colour cycling
 			fColorCyclingTimer.stop();
 			fMenuItems.get(kActionCommandMenuItemColorMapCycleColors).setSelected(false);
 
 			// setup colour map usage
-			fFractalPanel.setColorMapUsage(ColoringParameters.EColorMapUsage.kFull);
+			coloringParameters.fColorMapUsage = ColoringParameters.EColorMapUsage.kFull;
 
 			// disable post-processing filters
-			fFractalPanel.setUsePostProcessingFilters(false);
+			coloringParameters.fUsePostProcessingFilters = false;
 
-			adjustGUIToFractal();
+			adjustMenusToFractal();
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapUseContours)) {
 			// reset post-processing filter chain to a single edge-detection filter
-			ColoringParameters coloringParameters = fFractalPanel.getColoringParameters();
 			coloringParameters.fPostProcessingFilterChain = new FilterChain();
 			coloringParameters.fPostProcessingFilterChain.addFilter(new EdgeFilter());
-			fFractalPanel.setUsePostProcessingFilters(true);
-
-			adjustGUIToFractal();
+			coloringParameters.fUsePostProcessingFilters = true;
+			adjustMenusToFractal();
+			fFractalPanel.applyPostProcessingFilters();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapUseDarkSofteningFilter)) {
 			// reset post-processing filter chain to a dark softening filter cascade
-			ColoringParameters coloringParameters = fFractalPanel.getColoringParameters();
 			coloringParameters.fPostProcessingFilterChain = new FilterChain();
 			coloringParameters.fPostProcessingFilterChain.addFilter(new SharpenFilter());
 			coloringParameters.fPostProcessingFilterChain.addFilter(new EdgeFilter());
 			coloringParameters.fPostProcessingFilterChain.addFilter(new BlurFilter());
 			coloringParameters.fPostProcessingFilterChain.addFilter(new PosteriseFilter());
-			fFractalPanel.setUsePostProcessingFilters(true);
-
-			adjustGUIToFractal();
+			coloringParameters.fUsePostProcessingFilters = true;
+			adjustMenusToFractal();
+			fFractalPanel.applyPostProcessingFilters();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapResetToDefault)) {
 			// setup exterior colouring
-			fFractalPanel.setExteriorColorMap(JGradientColorMap.EColorMap.kJet,false,false);
-			fFractalPanel.setExteriorColoringMethod(ColoringParameters.EColoringMethod.kSmoothNICLevelSets);
+			coloringParameters.fExteriorColorMapInverted = false;
+			coloringParameters.fExteriorColorMapWrappedAround = false;
+			coloringParameters.fExteriorGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kJet);
+			coloringParameters.fExteriorColoringMethod = ColoringParameters.EColoringMethod.kSmoothNICLevelSets;
 
 			// disable tiger striping
-			fFractalPanel.setUseTigerStripes(false);
+			coloringParameters.fUseTigerStripes = false;
 
 			// setup interior colouring
-			fFractalPanel.setInteriorColorMap(JGradientColorMap.EColorMap.kJet,false,false);
-			fFractalPanel.setInteriorColoringMethod(ColoringParameters.EColoringMethod.kFixedColor);
-			fFractalPanel.setInteriorColor(Color.BLACK);
+			coloringParameters.fInteriorColorMapInverted = false;
+			coloringParameters.fInteriorColorMapWrappedAround = false;
+			coloringParameters.fInteriorGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kJet);
+			coloringParameters.fInteriorColoringMethod = ColoringParameters.EColoringMethod.kFixedColor;
+			coloringParameters.fInteriorColor = Color.BLACK;
 			fInteriorColorLabelDecorator.setColor(Color.BLACK);
 
 			// setup scaling
-			fFractalPanel.setColorMapScaling(ColoringParameters.EColorMapScaling.kLinear);
-			fFractalPanel.setColorMapScalingParameters(1.0,1.0);
+			coloringParameters.fColorMapScaling = ColoringParameters.EColorMapScaling.kLinear;
+			coloringParameters.fColorMapScalingFunctionMultiplier = 1.0;
+			coloringParameters.fColorMapScalingArgumentMultiplier = 1.0;
 
 			// setup iteration range
-			fFractalPanel.setColorMapIterationRange(0,fIteratorController.getFractalIterator().getMaxNrOfIterations());
+			coloringParameters.fLowIterationRange = 0;
+			coloringParameters.fHighIterationRange = fractalIterator.getMaxNrOfIterations();
 
 			// disable colour repetition and offset
-			fFractalPanel.setColorMapRepeatMode(false);
-
-			fFractalPanel.cycleToColorMapColorOffset(0.0);
+			coloringParameters.fColorMapRepeatMode = false;
+			coloringParameters.fColorMapColorOffset = 0.0;
 
 			// disable colour cycling
 			fColorCyclingTimer.stop();
 			fMenuItems.get(kActionCommandMenuItemColorMapCycleColors).setSelected(false);
 
 			// setup colour map usage
-			fFractalPanel.setColorMapUsage(ColoringParameters.EColorMapUsage.kFull);
+			coloringParameters.fColorMapUsage = ColoringParameters.EColorMapUsage.kFull;
 			
 			// disable post-processing filters
-			fFractalPanel.setUsePostProcessingFilters(false);
+			coloringParameters.fUsePostProcessingFilters = false;
 
-			adjustGUIToFractal();
+			adjustMenusToFractal();
 			setupMarkusLyapunovFractal();
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapUseLinearScaling)) {
-			fFractalPanel.setColorMapScaling(ColoringParameters.EColorMapScaling.kLinear);
-			fMenuItems.get(kActionCommandMenuItemColorMapRestrictHighIterationCountColors).setEnabled(fFractalPanel.getColoringParameters().fColorMapScaling == ColoringParameters.EColorMapScaling.kRankOrder);
+			coloringParameters.fColorMapScaling = ColoringParameters.EColorMapScaling.kLinear;
+			fMenuItems.get(kActionCommandMenuItemColorMapRestrictHighIterationCountColors).setEnabled(coloringParameters.fColorMapScaling == ColoringParameters.EColorMapScaling.kRankOrder);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapUseLogarithmicScaling)) {
-			fFractalPanel.setColorMapScaling(ColoringParameters.EColorMapScaling.kLogarithmic);
-			fMenuItems.get(kActionCommandMenuItemColorMapRestrictHighIterationCountColors).setEnabled(fFractalPanel.getColoringParameters().fColorMapScaling == ColoringParameters.EColorMapScaling.kRankOrder);
+			coloringParameters.fColorMapScaling = ColoringParameters.EColorMapScaling.kLogarithmic;
+			fMenuItems.get(kActionCommandMenuItemColorMapRestrictHighIterationCountColors).setEnabled(coloringParameters.fColorMapScaling == ColoringParameters.EColorMapScaling.kRankOrder);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapUseExponentialScaling)) {
-			fFractalPanel.setColorMapScaling(ColoringParameters.EColorMapScaling.kExponential);
-			fMenuItems.get(kActionCommandMenuItemColorMapRestrictHighIterationCountColors).setEnabled(fFractalPanel.getColoringParameters().fColorMapScaling == ColoringParameters.EColorMapScaling.kRankOrder);
+			coloringParameters.fColorMapScaling = ColoringParameters.EColorMapScaling.kExponential;
+			fMenuItems.get(kActionCommandMenuItemColorMapRestrictHighIterationCountColors).setEnabled(coloringParameters.fColorMapScaling == ColoringParameters.EColorMapScaling.kRankOrder);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapUseSqrtScaling)) {
-			fFractalPanel.setColorMapScaling(ColoringParameters.EColorMapScaling.kSqrt);
-			fMenuItems.get(kActionCommandMenuItemColorMapRestrictHighIterationCountColors).setEnabled(fFractalPanel.getColoringParameters().fColorMapScaling == ColoringParameters.EColorMapScaling.kRankOrder);
+			coloringParameters.fColorMapScaling = ColoringParameters.EColorMapScaling.kSqrt;
+			fMenuItems.get(kActionCommandMenuItemColorMapRestrictHighIterationCountColors).setEnabled(coloringParameters.fColorMapScaling == ColoringParameters.EColorMapScaling.kRankOrder);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapSetScalingParameters)) {
-			ColorMapScalingParametersChooser colorMapScalingParametersChooser = new ColorMapScalingParametersChooser(this,fFractalPanel.getColorMapScalingFunctionMultiplier(),fFractalPanel.getColorMapScalingArgumentMultiplier());
+			ColorMapScalingParametersChooser colorMapScalingParametersChooser = new ColorMapScalingParametersChooser(this,coloringParameters.fColorMapScalingFunctionMultiplier,coloringParameters.fColorMapScalingArgumentMultiplier);
 			if (!colorMapScalingParametersChooser.isCancelled()) {
-				fFractalPanel.setColorMapScalingParameters(colorMapScalingParametersChooser.getSelectedFunctionMultiplier(),colorMapScalingParametersChooser.getSelectedArgumentMultiplier());
+				coloringParameters.fColorMapScalingFunctionMultiplier = colorMapScalingParametersChooser.getSelectedFunctionMultiplier();
+				coloringParameters.fColorMapScalingArgumentMultiplier = colorMapScalingParametersChooser.getSelectedArgumentMultiplier();
+				fFractalPanel.recolor();
 			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapUseRankOrderScaling)) {
-			fFractalPanel.setColorMapScaling(ColoringParameters.EColorMapScaling.kRankOrder);
-			fMenuItems.get(kActionCommandMenuItemColorMapRestrictHighIterationCountColors).setEnabled(fFractalPanel.getColoringParameters().fColorMapScaling == ColoringParameters.EColorMapScaling.kRankOrder);
+			coloringParameters.fColorMapScaling = ColoringParameters.EColorMapScaling.kRankOrder;
+			fMenuItems.get(kActionCommandMenuItemColorMapRestrictHighIterationCountColors).setEnabled(coloringParameters.fColorMapScaling == ColoringParameters.EColorMapScaling.kRankOrder);
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapRestrictHighIterationCountColors)) {
-			fFractalPanel.setRankOrderRestrictHighIterationCountColors(fMenuItems.get(kActionCommandMenuItemColorMapRestrictHighIterationCountColors).isSelected());
+			coloringParameters.fRankOrderRestrictHighIterationCountColors = fMenuItems.get(kActionCommandMenuItemColorMapRestrictHighIterationCountColors).isSelected();
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapSetIterationRange)) {
-			IterationRangeChooser iterationRangeChooser = new IterationRangeChooser(this,fFractalPanel.getColorMapIterationLowRange(),fFractalPanel.getColorMapIterationHighRange(),fIteratorController.getFractalIterator().getMaxNrOfIterations());
+			IterationRangeChooser iterationRangeChooser = new IterationRangeChooser(this,coloringParameters.fLowIterationRange,coloringParameters.fHighIterationRange,fractalIterator.getMaxNrOfIterations());
 			if (!iterationRangeChooser.isCancelled()) {
-				fFractalPanel.setColorMapIterationRange(iterationRangeChooser.getSelectedLowIterationRange(),iterationRangeChooser.getSelectedHighIterationRange());
+				coloringParameters.fLowIterationRange = iterationRangeChooser.getSelectedLowIterationRange();
+				coloringParameters.fHighIterationRange = iterationRangeChooser.getSelectedHighIterationRange();
+				fFractalPanel.recolor();
 			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapRepeatColors)) {
-			fFractalPanel.setColorMapRepeatMode(fMenuItems.get(kActionCommandMenuItemColorMapRepeatColors).isSelected());
+			coloringParameters.fColorMapRepeatMode = fMenuItems.get(kActionCommandMenuItemColorMapRepeatColors).isSelected();
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapSetColorRepetition)) {
-			ColorMapRepetitionChooser colorMapRepetitionChooser = new ColorMapRepetitionChooser(this,fFractalPanel.getColorMapColorRepetition());
+			ColorMapRepetitionChooser colorMapRepetitionChooser = new ColorMapRepetitionChooser(this,coloringParameters.fColorMapColorRepetition);
 			if (!colorMapRepetitionChooser.isCancelled()) {
-				fFractalPanel.setColorMapColorRepetition(colorMapRepetitionChooser.getSelectedColorRepetition());
-				fFractalPanel.setColorMapRepeatMode(true);
+				coloringParameters.fColorMapColorRepetition = colorMapRepetitionChooser.getSelectedColorRepetition();
+				coloringParameters.fColorMapRepeatMode = true;
 				fMenuItems.get(kActionCommandMenuItemColorMapRepeatColors).setSelected(true);
+				fFractalPanel.recolor();
 			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapSetColorOffset)) {
-			ColorMapOffsetChooser colorMapOffsetChooser = new ColorMapOffsetChooser(this,fFractalPanel.getColorMapColorOffset());
+			ColorMapOffsetChooser colorMapOffsetChooser = new ColorMapOffsetChooser(this,coloringParameters.fColorMapColorOffset);
 			if (!colorMapOffsetChooser.isCancelled()) {
-				fFractalPanel.cycleToColorMapColorOffset(colorMapOffsetChooser.getSelectedColorOffset());
+				coloringParameters.fColorMapColorOffset = colorMapOffsetChooser.getSelectedColorOffset();
+				fFractalPanel.applyPostProcessingFilters();
 			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapCycleColors)) {
@@ -2448,40 +2602,47 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapFullColorRange)) {
-			fFractalPanel.setColorMapUsage(ColoringParameters.EColorMapUsage.kFull);
+			coloringParameters.fColorMapUsage = ColoringParameters.EColorMapUsage.kFull;
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapUseLimitedContinuousColorRange)) {
-			fFractalPanel.setColorMapUsage(ColoringParameters.EColorMapUsage.kLimitedContinuous);
+			coloringParameters.fColorMapUsage = ColoringParameters.EColorMapUsage.kLimitedContinuous;
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapSetLimitedContinuousColorRange)) {
-			ColorMapContinuousRangeChooser colorMapContinuousRangeChooser = new ColorMapContinuousRangeChooser(this,fFractalPanel.getColorMapContinuousColorRange());
+			ColorMapContinuousRangeChooser colorMapContinuousRangeChooser = new ColorMapContinuousRangeChooser(this,coloringParameters.fColorMapContinuousColorRange);
 			if (!colorMapContinuousRangeChooser.isCancelled()) {
-				fFractalPanel.setColorMapContinuousColorRange(colorMapContinuousRangeChooser.getSelectedRange());
-				fFractalPanel.setColorMapUsage(ColoringParameters.EColorMapUsage.kLimitedContinuous);
+				coloringParameters.fColorMapContinuousColorRange = colorMapContinuousRangeChooser.getSelectedRange();
+				coloringParameters.fColorMapUsage = ColoringParameters.EColorMapUsage.kLimitedContinuous;
+				coloringParameters.fColorMapUsage = ColoringParameters.EColorMapUsage.kLimitedDiscrete;
 				fMenuItems.get(kActionCommandMenuItemColorMapUseLimitedContinuousColorRange).setSelected(true);
+				fFractalPanel.recolor();
 			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapUseLimitedDiscreteColorRange)) {
-			fFractalPanel.setColorMapUsage(ColoringParameters.EColorMapUsage.kLimitedDiscrete);
+			coloringParameters.fColorMapUsage = ColoringParameters.EColorMapUsage.kLimitedDiscrete;
+			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapSetLimitedDiscreteColorRange)) {
-			ColorMapDiscreteRangeChooser colorMapDiscreteRangeChooser = new ColorMapDiscreteRangeChooser(this,fFractalPanel.getColorMapDiscreteColorRange(),fIteratorController.getFractalIterator().getMaxNrOfIterations());
+			ColorMapDiscreteRangeChooser colorMapDiscreteRangeChooser = new ColorMapDiscreteRangeChooser(this,coloringParameters.fColorMapDiscreteColorRange,fractalIterator.getMaxNrOfIterations());
 			if (!colorMapDiscreteRangeChooser.isCancelled()) {
-				fFractalPanel.setColorMapDiscreteColorRange(colorMapDiscreteRangeChooser.getSelectedRange());
-				fFractalPanel.setColorMapUsage(ColoringParameters.EColorMapUsage.kLimitedDiscrete);
+				coloringParameters.fColorMapDiscreteColorRange = colorMapDiscreteRangeChooser.getSelectedRange();
+				coloringParameters.fColorMapUsage = ColoringParameters.EColorMapUsage.kLimitedDiscrete;
 				fMenuItems.get(kActionCommandMenuItemColorMapUseLimitedDiscreteColorRange).setSelected(true);
+				fFractalPanel.recolor();
 			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapUsePostProcessingFilters)) {
-			fFractalPanel.setUsePostProcessingFilters(fMenuItems.get(kActionCommandMenuItemColorMapUsePostProcessingFilters).isSelected());
+			coloringParameters.fUsePostProcessingFilters = fMenuItems.get(kActionCommandMenuItemColorMapUsePostProcessingFilters).isSelected();
+			fFractalPanel.applyPostProcessingFilters();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorSetupPostProcessingFilters)) {
 			FilterSetupChooser filterSetupChooser = new FilterSetupChooser(this,fFractalPanel);
 			if (!filterSetupChooser.isCancelled()) {
-				fFractalPanel.getColoringParameters().fPostProcessingFilterChain = filterSetupChooser.getSelectedFilterChain();
-				fFractalPanel.setUsePostProcessingFilters(true);
-
-				adjustGUIToFractal();
+				coloringParameters.fPostProcessingFilterChain = filterSetupChooser.getSelectedFilterChain();
+				coloringParameters.fUsePostProcessingFilters = true;
+				adjustMenusToFractal();
+				fFractalPanel.applyPostProcessingFilters();
 			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemMultithreadingRecalculate)) {
@@ -2542,7 +2703,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 		if ((e.getButton() == MouseEvent.BUTTON1) && (e.getClickCount() == 2)) {
 			if (fDoubleClickMode == EDoubleClickMode.kSwitchMainDualFractal) {
 				// switch main and inset fractal types on a double click
-				fFractalPanel.switchMainDualFractal();
+				switchMainDualFractal();
 			}
 			else if (fDoubleClickMode == 	EDoubleClickMode.kChangeOrbitStartingPoint) {
 				Point mousePosition = fFractalPanel.getMousePosition();
@@ -2799,8 +2960,8 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 				if (!fColorCyclingDirectionForward) {
 					sign = -1.0;
 				}
-				double newOffset = MathTools.frac(fFractalPanel.getColorMapColorOffset() + (sign * fColorCyclingSmoothness));
-				fFractalPanel.cycleToColorMapColorOffset(newOffset);
+				fIteratorController.getColoringParameters().fColorMapColorOffset = MathTools.frac(fIteratorController.getColoringParameters().fColorMapColorOffset + (sign * fColorCyclingSmoothness));;
+				fFractalPanel.applyPostProcessingFilters();
 			}
 		};
 
@@ -4132,6 +4293,13 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 
 					subMenu.addSeparator();
 
+						radioButtonMenuItem = constructRadioButtonMenuItem(kActionCommandMenuItemColorMapExteriorRandom,false);
+						radioButtonMenuItem.setSelected(false);
+						radioButtonMenuItem.setActionCommand(kActionCommandMenuItemColorMapExteriorRandom);
+						radioButtonMenuItem.addActionListener(this);
+						buttonGroup.add(radioButtonMenuItem);
+						fMenuItems.put(kActionCommandMenuItemColorMapExteriorRandom,radioButtonMenuItem);
+					subMenu.add(radioButtonMenuItem);
 						radioButtonMenuItem = constructRadioButtonMenuItem(kActionCommandMenuItemColorMapExteriorCustom,false);
 						radioButtonMenuItem.setSelected(false);
 						radioButtonMenuItem.setActionCommand(kActionCommandMenuItemColorMapExteriorCustom);
@@ -4139,7 +4307,6 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 						buttonGroup.add(radioButtonMenuItem);
 						fMenuItems.put(kActionCommandMenuItemColorMapExteriorCustom,radioButtonMenuItem);
 					subMenu.add(radioButtonMenuItem);
-
 						menuItem = constructMenuItem(kMenuItemIndentation + kActionCommandMenuItemColorMapExteriorSetCustomColorMap,false);
 						menuItem.setActionCommand(kActionCommandMenuItemColorMapExteriorSetCustomColorMap);
 						menuItem.addActionListener(this);
@@ -5368,7 +5535,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 
 	/**
 	 */
-	private void adjustGUIToFractal()
+	private void adjustMenusToFractal()
 	{
 		AFractalIterator fractalIterator = fIteratorController.getFractalIterator();
 
@@ -5618,7 +5785,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 		}
 
 		// setup the remaining menu items related to the colouring parameters
-		ColoringParameters coloringParameters = fFractalPanel.getColoringParameters();
+		ColoringParameters coloringParameters = fIteratorController.getColoringParameters();
 
 		JGradientColorMap.EColorMap interiorColorMap = coloringParameters.fInteriorGradientColorMap.getColorMap();
 		switch (interiorColorMap) {
@@ -5783,7 +5950,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			case kLimitedDiscrete: fMenuItems.get(kActionCommandMenuItemColorMapUseLimitedDiscreteColorRange).setSelected(true); break;
 		}
 
-		fMenuItems.get(kActionCommandMenuItemColorMapRestrictHighIterationCountColors).setEnabled(fFractalPanel.getColoringParameters().fColorMapScaling == ColoringParameters.EColorMapScaling.kRankOrder);
+		fMenuItems.get(kActionCommandMenuItemColorMapRestrictHighIterationCountColors).setEnabled(coloringParameters.fColorMapScaling == ColoringParameters.EColorMapScaling.kRankOrder);
 
 		fMenuItems.get(kActionCommandMenuItemColorMapUsePostProcessingFilters).setSelected(coloringParameters.fUsePostProcessingFilters);
 
@@ -5797,23 +5964,51 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 		AFractalIterator fractalIterator = fIteratorController.getFractalIterator();
 
 		if (fractalIterator instanceof MarkusLyapunovFractalIterator) {
-			fFractalPanel.setInteriorColoringMethod(ColoringParameters.EColoringMethod.kLyapunovExponent);
-			fMenuItems.get(kActionCommandMenuItemColorMapInteriorUseLyapunovExponent).setSelected(true);
-			fFractalPanel.setExteriorColoringMethod(ColoringParameters.EColoringMethod.kLyapunovExponent);
-			fMenuItems.get(kActionCommandMenuItemColorMapExteriorUseLyapunovExponent).setSelected(true);
+			ColoringParameters coloringParameters = fIteratorController.getColoringParameters();
 
-			fFractalPanel.setExteriorColorMap(JGradientColorMap.EColorMap.kCopper,false,false);
+			coloringParameters.fExteriorColoringMethod = ColoringParameters.EColoringMethod.kLyapunovExponent;
+			fMenuItems.get(kActionCommandMenuItemColorMapExteriorUseLyapunovExponent).setSelected(true);
+			coloringParameters.fInteriorColoringMethod = ColoringParameters.EColoringMethod.kLyapunovExponent;
+			fMenuItems.get(kActionCommandMenuItemColorMapInteriorUseLyapunovExponent).setSelected(true);
+
+			coloringParameters.fExteriorColorMapInverted = false;
+			coloringParameters.fExteriorColorMapWrappedAround = false;
+			coloringParameters.fExteriorGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kCopper);
 			fMenuItems.get(kActionCommandMenuItemColorMapExteriorCopper).setSelected(true);
 			fMenuItems.get(kActionCommandMenuItemColorMapExteriorInvertColorMap).setSelected(false);
 			fMenuItems.get(kActionCommandMenuItemColorMapExteriorWrapAroundColorMap).setSelected(false);
 
-			fFractalPanel.setInteriorColorMap(JGradientColorMap.EColorMap.kBlue,false,false);
+			coloringParameters.fInteriorColorMapInverted = false;
+			coloringParameters.fInteriorColorMapWrappedAround = false;
+			coloringParameters.fInteriorGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kBlue);
 			fMenuItems.get(kActionCommandMenuItemColorMapInteriorBlue).setSelected(true);
 			fMenuItems.get(kActionCommandMenuItemColorMapInteriorInvertColorMap).setSelected(false);
 			fMenuItems.get(kActionCommandMenuItemColorMapInteriorWrapAroundColorMap).setSelected(false);
 
-			fFractalPanel.setColorMapScaling(ColoringParameters.EColorMapScaling.kRankOrder);
+			coloringParameters.fColorMapScaling = ColoringParameters.EColorMapScaling.kRankOrder;
 			fMenuItems.get(kActionCommandMenuItemColorMapUseRankOrderScaling).setSelected(true);
+		}
+	}
+
+	/**
+	 */
+	private void switchMainDualFractal()
+	{
+		AFractalIterator.EFractalType fractalType = fIteratorController.getFractalIterator().getFractalType();
+
+		if (fractalType == AFractalIterator.EFractalType.kMainFractal) {
+			// obtain the dual parameter
+			Point p = fFractalPanel.getMousePosition();
+			if (p != null) {		
+				ComplexNumber c = fIteratorController.getFractalIterator().convertScreenLocationToComplexNumber(new ScreenLocation(p.x,p.y));
+				fIteratorController.getFractalIterator().setDualParameter(c);
+				fIteratorController.getFractalIterator().setFractalType(AFractalIterator.EFractalType.kDualFractal);
+				fIteratorController.recalc();
+			}
+		}
+		else if (fractalType == AFractalIterator.EFractalType.kDualFractal) {
+			fIteratorController.getFractalIterator().setFractalType(AFractalIterator.EFractalType.kMainFractal);
+			fIteratorController.recalc();
 		}
 	}
 
@@ -6112,8 +6307,8 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 				fIteratorController.getFractalIterator().loadParameters(tfp);
 
 				// load fractal colouring parameters
-				fFractalPanel.getColoringParameters().load(tfp);
-				fIteratorController.getFractalIterator().setCalculateAdvancedColoring(fFractalPanel.getColoringParameters().fCalculateAdvancedColoring);
+				fIteratorController.getColoringParameters().load(tfp);
+				fIteratorController.getFractalIterator().setCalculateAdvancedColoring(fIteratorController.getColoringParameters().fCalculateAdvancedColoring);
 
 				// load iteration buffer
 				fProgressUpdateGlassPane.setVisualisationType(JProgressUpdateGlassPane.EVisualisationType.kBar);
@@ -6145,7 +6340,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 				fFractalPanel.revalidate();
 				fFractalPanel.recolor();
 
-				adjustGUIToFractal();
+				adjustMenusToFractal();
 			}
 			catch (FileDoesNotExistException | FileParseException | UnsupportedFractalException exc) {
 				fException = exc;
@@ -6246,7 +6441,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 				fIteratorController.getFractalIterator().saveParameters(tfw);
 
 				// save fractal colouring parameters
-				fFractalPanel.getColoringParameters().save(tfw);
+				fIteratorController.getColoringParameters().save(tfw);
 
 				// save iteration buffer
 				fProgressUpdateGlassPane.setVisualisationType(JProgressUpdateGlassPane.EVisualisationType.kBar);
