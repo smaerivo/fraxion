@@ -1,7 +1,7 @@
 // ---------------------------------------
 // Filename      : FilterSetupChooser.java
 // Author        : Sven Maerivoet
-// Last modified : 21/12/2014
+// Last modified : 03/02/2015
 // Target        : Java VM (1.8)
 // ---------------------------------------
 
@@ -25,6 +25,7 @@ package org.sm.fraxion.gui.dialogs;
 
 import java.awt.event.*;
 import javax.swing.*;
+import org.sm.fraxion.concurrent.*;
 import org.sm.fraxion.gui.*;
 import org.sm.fraxion.gui.filters.*;
 import org.sm.smtools.application.util.*;
@@ -37,7 +38,7 @@ import org.sm.smtools.swing.util.*;
  * <B>Note that this class cannot be subclassed!</B>
  *
  * @author  Sven Maerivoet
- * @version 21/12/2014
+ * @version 03/02/2015
  */
 public final class FilterSetupChooser extends JDefaultDialog implements ActionListener
 {
@@ -64,6 +65,7 @@ public final class FilterSetupChooser extends JDefaultDialog implements ActionLi
 	private AFilter[] fFilterChain;
 	private int fNrOfFilters;
 	private FractalPanel fFractalPanel;
+	private IteratorController fIteratorController;
 	private JFilterLine[] fFilterLines;
 	private JButton fAddFilterButton;
 	private boolean fAdjusting;
@@ -76,16 +78,17 @@ public final class FilterSetupChooser extends JDefaultDialog implements ActionLi
 	/**
 	 * Constructs a <CODE>FilterSetupChooser</CODE> object.
 	 *
-	 * @param owner         the owning window
-	 * @param fractalPanel  a reference to the GUI's fractal panel
+	 * @param owner               the owning window
+	 * @param fractalPanel        a reference to the GUI's fractal panel
+	 * @param iteratorController  a reference to the iterator controller
 	 */
-	public FilterSetupChooser(JFrame owner, FractalPanel fractalPanel)
+	public FilterSetupChooser(JFrame owner, FractalPanel fractalPanel, IteratorController iteratorController)
 	{
 		super(owner,
 			JDefaultDialog.EModality.kModal,
 			JDefaultDialog.ESize.kFixedSize,
 			JDefaultDialog.EType.kOkCancel,
-			new Object[] {fractalPanel},
+			new Object[] {fractalPanel,iteratorController},
 			JDefaultDialog.EActivation.kImmediately);
 	}
 
@@ -225,10 +228,11 @@ public final class FilterSetupChooser extends JDefaultDialog implements ActionLi
 	protected void initialiseClass(Object[] parameters)
 	{
 		fFractalPanel = (FractalPanel) parameters[0];
+		fIteratorController = (IteratorController) parameters[1];
 
-		FilterChain originalFilterChain = fFractalPanel.getColoringParameters().fPostProcessingFilterChain;
+		FilterChain originalFilterChain = fIteratorController.getColoringParameters().fPostProcessingFilterChain;
 		fBackupFilterChain = originalFilterChain.clone();
-		fBackupUsePostProcessingFilters = fFractalPanel.getColoringParameters().fUsePostProcessingFilters;
+		fBackupUsePostProcessingFilters = fIteratorController.getColoringParameters().fUsePostProcessingFilters;
 
 		fFilterChain = new AFilter[kNrOfAvailableFilters];
 		for (fNrOfFilters = 0; fNrOfFilters < originalFilterChain.size(); ++fNrOfFilters) {
@@ -243,8 +247,8 @@ public final class FilterSetupChooser extends JDefaultDialog implements ActionLi
 	@Override
 	protected void cancelSelected()
 	{
-		fFractalPanel.getColoringParameters().fPostProcessingFilterChain = fBackupFilterChain;
-		fFractalPanel.setUsePostProcessingFilters(fBackupUsePostProcessingFilters);
+		fIteratorController.getColoringParameters().fPostProcessingFilterChain = fBackupFilterChain;
+		fIteratorController.getColoringParameters().fUsePostProcessingFilters = fBackupUsePostProcessingFilters;
 	}
 
 	/**
@@ -329,12 +333,13 @@ public final class FilterSetupChooser extends JDefaultDialog implements ActionLi
 		}
 
 		if (fAutoProofCheckBox.isSelected()) {
-			fFractalPanel.getColoringParameters().fPostProcessingFilterChain = getSelectedFilterChain();
-			fFractalPanel.setUsePostProcessingFilters(true);
+			fIteratorController.getColoringParameters().fPostProcessingFilterChain = getSelectedFilterChain();
+			fIteratorController.getColoringParameters().fUsePostProcessingFilters = true;
 		}
 		else {
-			fFractalPanel.setUsePostProcessingFilters(false);
+			fIteratorController.getColoringParameters().fUsePostProcessingFilters = false;
 		}
+		fFractalPanel.applyPostProcessingFilters();
 	}
 
 	/*****************

@@ -1,7 +1,7 @@
 // -------------------------------
 // Filename      : FraxionGUI.java
 // Author        : Sven Maerivoet
-// Last modified : 29/01/2015
+// Last modified : 03/02/2015
 // Target        : Java VM (1.8)
 // -------------------------------
 
@@ -53,7 +53,7 @@ import org.sm.smtools.util.*;
  * <B>Note that this class cannot be subclassed!</B>
  *
  * @author  Sven Maerivoet
- * @version 29/01/2015
+ * @version 03/02/2015
  */
 public final class FraxionGUI extends JStandardGUIApplication implements ActionListener, MouseListener, MouseMotionListener, KeyListener
 {
@@ -268,6 +268,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 	private static final String kActionCommandMenuItemColorMapTigerYellowBrowns = "menuItem.ColorMap.Tiger.YellowBrowns";
 	private static final String kActionCommandMenuItemColorMapTigerVioletPurples = "menuItem.ColorMap.Tiger.VioletPurples";
 	private static final String kActionCommandMenuItemColorMapTigerDeepSpace = "menuItem.ColorMap.Tiger.DeepSpace";
+	private static final String kActionCommandMenuItemColorMapTigerRandom = "menuItem.ColorMap.Tiger.Random";
 	private static final String kActionCommandMenuItemColorMapTigerCustom = "menuItem.ColorMap.Tiger.Custom";
 	private static final String kActionCommandMenuItemColorMapTigerSetCustomColorMap = "menuItem.ColorMap.Tiger.SetCustomColorMap";
 	private static final String kActionCommandMenuItemColorMapTigerConvertCurrentColorMapToCustomColorMap = "menuItem.ColorMap.Tiger.ConvertCurrentColorMapToCustomColorMap";
@@ -299,6 +300,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 	private static final String kActionCommandMenuItemColorMapInteriorYellowBrowns = "menuItem.ColorMap.Interior.YellowBrowns";
 	private static final String kActionCommandMenuItemColorMapInteriorVioletPurples = "menuItem.ColorMap.Interior.VioletPurples";
 	private static final String kActionCommandMenuItemColorMapInteriorDeepSpace = "menuItem.ColorMap.Interior.DeepSpace";
+	private static final String kActionCommandMenuItemColorMapInteriorRandom = "menuItem.ColorMap.Interior.Random";
 	private static final String kActionCommandMenuItemColorMapInteriorCustom = "menuItem.ColorMap.Interior.Custom";
 	private static final String kActionCommandMenuItemColorMapInteriorSetCustomColorMap = "menuItem.ColorMap.Interior.SetCustomColorMap";
 	private static final String kActionCommandMenuItemColorMapInteriorConvertCurrentColorMapToCustomColorMap = "menuItem.ColorMap.Interior.ConvertCurrentColorMapToCustomColorMap";
@@ -768,6 +770,8 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 							throw (new UnsupportedFractalException(filename,familyName));
 						}
 
+						fractalIterator = fIteratorController.getFractalIterator();
+
 						// if necessary switch to the dual fractal
 						if ((fractalIterator instanceof GlynnFractalIterator) ||
 								(fractalIterator instanceof BarnsleyTreeFractalIterator) ||
@@ -787,11 +791,11 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 						fFractalPanel.getZoomStack().push(fractalIterator.getDefaultP1(),fractalIterator.getDefaultP2());
 						fFractalPanel.getZoomStack().push(fractalIterator.getP1(),fractalIterator.getP2());
 
+						adjustMenusToFractal();
+
 						// adjust canvas dimensions
 						fFractalPanel.revalidate();
 						fIteratorController.recalc();
-
-						adjustMenusToFractal();
 					}
 					catch (FileDoesNotExistException exc) {
 						JWarningDialog.warn(this,I18NL10N.translate("error.File.FractalParameters.ErrorLoadingFractalParameters"));
@@ -1884,7 +1888,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorRandom)) {
-			coloringParameters.fExteriorGradientColorMap.setRandomColorMap(100);
+			coloringParameters.fExteriorGradientColorMap.setRandomColorMap(kNrOfCustomColorMapColors);
 			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorConvertCurrentColorMapToCustomColorMap)) {
@@ -1912,106 +1916,137 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapTigerBone)) {
 			coloringParameters.fTigerGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kBone);
+			coloringParameters.fTigerUseFixedColor = false;
 			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapTigerCopper)) {
 			coloringParameters.fTigerGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kCopper);
+			coloringParameters.fTigerUseFixedColor = false;
 			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapTigerDiscontinuousBlueWhiteGreen)) {
 			coloringParameters.fTigerGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kDiscontinuousBlueWhiteGreen);
+			coloringParameters.fTigerUseFixedColor = false;
 			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapTigerDiscontinuousDarkRedYellow)) {
 			coloringParameters.fTigerGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kDiscontinuousDarkRedYellow);
+			coloringParameters.fTigerUseFixedColor = false;
 			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapTigerBlackAndWhite)) {
 			coloringParameters.fTigerGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kBlackAndWhite);
+			coloringParameters.fTigerUseFixedColor = false;
 			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapTigerGrayScale)) {
 			coloringParameters.fTigerGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kGrayScale);
+			coloringParameters.fTigerUseFixedColor = false;
 			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapTigerGreenRedDiverging)) {
 			coloringParameters.fTigerGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kGreenRedDiverging);
+			coloringParameters.fTigerUseFixedColor = false;
 			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapTigerHot)) {
 			coloringParameters.fTigerGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kHot);
+			coloringParameters.fTigerUseFixedColor = false;
 			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapTigerJet)) {
 			coloringParameters.fTigerGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kJet);
+			coloringParameters.fTigerUseFixedColor = false;
 			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapTigerHueSaturationBrightness)) {
 			coloringParameters.fTigerGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kHueSaturationBrightness);
+			coloringParameters.fTigerUseFixedColor = false;
 			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapTigerSeparatedRGB)) {
 			coloringParameters.fTigerGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kSeparatedRGB);
+			coloringParameters.fTigerUseFixedColor = false;
 			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapTigerRed)) {
 			coloringParameters.fTigerGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kRed);
+			coloringParameters.fTigerUseFixedColor = false;
 			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapTigerGreen)) {
 			coloringParameters.fTigerGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kGreen);
+			coloringParameters.fTigerUseFixedColor = false;
 			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapTigerBlue)) {
 			coloringParameters.fTigerGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kBlue);
+			coloringParameters.fTigerUseFixedColor = false;
 			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapTigerYellow)) {
 			coloringParameters.fTigerGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kYellow);
+			coloringParameters.fTigerUseFixedColor = false;
 			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapTigerCyan)) {
 			coloringParameters.fTigerGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kCyan);
+			coloringParameters.fTigerUseFixedColor = false;
 			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapTigerMagenta)) {
 			coloringParameters.fTigerGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kMagenta);
+			coloringParameters.fTigerUseFixedColor = false;
 			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapTigerUltraLightPastel)) {
 			coloringParameters.fTigerGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kUltraLightPastel);
+			coloringParameters.fTigerUseFixedColor = false;
 			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapTigerLightPastel)) {
 			coloringParameters.fTigerGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kDarkPastel);
+			coloringParameters.fTigerUseFixedColor = false;
 			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapTigerDarkPastel)) {
 			coloringParameters.fTigerGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kDarkPastel);
+			coloringParameters.fTigerUseFixedColor = false;
 			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapTigerGreens)) {
 			coloringParameters.fTigerGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kGreens);
+			coloringParameters.fTigerUseFixedColor = false;
 			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapTigerBlues)) {
 			coloringParameters.fTigerGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kBlues);
+			coloringParameters.fTigerUseFixedColor = false;
 			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapTigerYellowBrowns)) {
 			coloringParameters.fTigerGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kYellowBrowns);
+			coloringParameters.fTigerUseFixedColor = false;
 			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapTigerVioletPurples)) {
 			coloringParameters.fTigerGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kVioletPurples);
+			coloringParameters.fTigerUseFixedColor = false;
 			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapTigerDeepSpace)) {
 			coloringParameters.fTigerGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kDeepSpace);
+			coloringParameters.fTigerUseFixedColor = false;
+			fFractalPanel.recolor();
+		}
+		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapTigerRandom)) {
+			coloringParameters.fTigerGradientColorMap.setRandomColorMap(kNrOfCustomColorMapColors);
+			coloringParameters.fTigerUseFixedColor = false;
 			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapTigerCustom)) {
 			coloringParameters.fTigerGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kCustom);
+			coloringParameters.fTigerUseFixedColor = false;
 			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapTigerSetCustomColorMap)) {
@@ -2019,6 +2054,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			if (!tigerCustomColorMapChooser.isCancelled()) {
 				coloringParameters.fTigerGradientColorMap.setAllCustomColorMapComponents(tigerCustomColorMapChooser.getSelectedCustomColorMapComponents());
 				coloringParameters.fTigerGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kCustom);
+				coloringParameters.fTigerUseFixedColor = false;
 				fMenuItems.get(kActionCommandMenuItemColorMapTigerCustom).setSelected(true);
 				fFractalPanel.recolor();
 			}
@@ -2028,6 +2064,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 				if (JConfirmationDialog.confirm(this,I18NL10N.translate("text.ColorMap.OverwriteCustomColorMap"))) {
 					coloringParameters.fTigerGradientColorMap.setAllCustomColorMapComponents(coloringParameters.fTigerGradientColorMap.convertToComponents(kNrOfCustomColorMapColors));
 					coloringParameters.fTigerGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kCustom);
+					coloringParameters.fTigerUseFixedColor = false;
 					fMenuItems.get(kActionCommandMenuItemColorMapTigerCustom).setSelected(true);
 					actionPerformed(new ActionEvent(this,ActionEvent.ACTION_LAST+1,kActionCommandMenuItemColorMapTigerSetCustomColorMap));
 					fFractalPanel.recolor();
@@ -2043,6 +2080,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 				Color tigerStripeFixedColor = JColorChooser.showDialog(this,I18NL10N.translate(kActionCommandMenuItemColorMapTigerSetFixedColor),coloringParameters.fTigerStripeFixedColor);
 				if (tigerStripeFixedColor != null) {
 					coloringParameters.fTigerStripeFixedColor = tigerStripeFixedColor;
+					coloringParameters.fTigerUseFixedColor = true;
 					fTigerStripeColorLabelDecorator.setColor(tigerStripeFixedColor);
 					fFractalPanel.recolor();
 				}
@@ -2149,6 +2187,10 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorDeepSpace)) {
 			coloringParameters.fInteriorGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kDeepSpace);
+			fFractalPanel.recolor();
+		}
+		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorRandom)) {
+			coloringParameters.fInteriorGradientColorMap.setRandomColorMap(kNrOfCustomColorMapColors);
 			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorCustom)) {
@@ -2637,13 +2679,13 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			fFractalPanel.applyPostProcessingFilters();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorSetupPostProcessingFilters)) {
-			FilterSetupChooser filterSetupChooser = new FilterSetupChooser(this,fFractalPanel);
+			FilterSetupChooser filterSetupChooser = new FilterSetupChooser(this,fFractalPanel,fIteratorController);
 			if (!filterSetupChooser.isCancelled()) {
 				coloringParameters.fPostProcessingFilterChain = filterSetupChooser.getSelectedFilterChain();
 				coloringParameters.fUsePostProcessingFilters = true;
 				adjustMenusToFractal();
-				fFractalPanel.applyPostProcessingFilters();
 			}
+			fFractalPanel.applyPostProcessingFilters();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemMultithreadingRecalculate)) {
 			fIteratorController.recalc();
@@ -4556,6 +4598,13 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 
 						subMenu.addSeparator();
 
+							radioButtonMenuItem = constructRadioButtonMenuItem(kActionCommandMenuItemColorMapTigerRandom,false);
+							radioButtonMenuItem.setSelected(false);
+							radioButtonMenuItem.setActionCommand(kActionCommandMenuItemColorMapTigerRandom);
+							radioButtonMenuItem.addActionListener(this);
+							buttonGroup.add(radioButtonMenuItem);
+							fMenuItems.put(kActionCommandMenuItemColorMapTigerRandom,radioButtonMenuItem);
+						subMenu.add(radioButtonMenuItem);
 							radioButtonMenuItem = constructRadioButtonMenuItem(kActionCommandMenuItemColorMapTigerCustom,false);
 							radioButtonMenuItem.setSelected(false);
 							radioButtonMenuItem.setActionCommand(kActionCommandMenuItemColorMapTigerCustom);
@@ -4962,6 +5011,13 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 
 								subSubMenu.addSeparator();
 
+									radioButtonMenuItem = constructRadioButtonMenuItem(kActionCommandMenuItemColorMapInteriorRandom,false);
+									radioButtonMenuItem.setSelected(false);
+									radioButtonMenuItem.setActionCommand(kActionCommandMenuItemColorMapInteriorRandom);
+									radioButtonMenuItem.addActionListener(this);
+									buttonGroup.add(radioButtonMenuItem);
+									fMenuItems.put(kActionCommandMenuItemColorMapInteriorRandom,radioButtonMenuItem);
+								subSubMenu.add(radioButtonMenuItem);
 									radioButtonMenuItem = constructRadioButtonMenuItem(kActionCommandMenuItemColorMapInteriorCustom,false);
 									radioButtonMenuItem.setSelected(false);
 									radioButtonMenuItem.setActionCommand(kActionCommandMenuItemColorMapInteriorCustom);

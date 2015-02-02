@@ -1,7 +1,7 @@
 // ---------------------------------------
 // Filename      : ColoringParameters.java
 // Author        : Sven Maerivoet
-// Last modified : 22/01/2015
+// Last modified : 02/02/2015
 // Target        : Java VM (1.8)
 // ---------------------------------------
 
@@ -35,7 +35,7 @@ import org.sm.smtools.util.*;
  * <B>Note that this class cannot be subclassed!</B>
  * 
  * @author  Sven Maerivoet
- * @version 22/01/2015
+ * @version 02/02/2015
  */
 public final class ColoringParameters
 {
@@ -119,11 +119,17 @@ public final class ColoringParameters
 	public void load(TextFileParser tfp) throws FileParseException
 	{
 		fInteriorGradientColorMap = new JGradientColorMap(JGradientColorMap.EColorMap.valueOf(tfp.getNextString()));
-		if (fInteriorGradientColorMap.getColorMap() == JGradientColorMap.EColorMap.kCustom) {
+		if (fInteriorGradientColorMap.getColorMap() == JGradientColorMap.EColorMap.kRandom) {
+			fInteriorGradientColorMap.loadRandomColorMapComponents(tfp);
+		}
+		else if (fInteriorGradientColorMap.getColorMap() == JGradientColorMap.EColorMap.kCustom) {
 			fInteriorGradientColorMap.loadCustomColorMapComponents(tfp);
 		}
 		fExteriorGradientColorMap = new JGradientColorMap(JGradientColorMap.EColorMap.valueOf(tfp.getNextString()));
-		if (fExteriorGradientColorMap.getColorMap() == JGradientColorMap.EColorMap.kCustom) {
+		if (fExteriorGradientColorMap.getColorMap() == JGradientColorMap.EColorMap.kRandom) {
+			fExteriorGradientColorMap.loadRandomColorMapComponents(tfp);
+		}
+		else if (fExteriorGradientColorMap.getColorMap() == JGradientColorMap.EColorMap.kCustom) {
 			fExteriorGradientColorMap.loadCustomColorMapComponents(tfp);
 		}
 		fInteriorColorMapInverted = tfp.getNextBoolean();
@@ -133,7 +139,10 @@ public final class ColoringParameters
 		fCalculateAdvancedColoring = tfp.getNextBoolean();
 		fUseTigerStripes = tfp.getNextBoolean();
 		fTigerGradientColorMap = new JGradientColorMap(JGradientColorMap.EColorMap.valueOf(tfp.getNextString()));
-		if (fTigerGradientColorMap.getColorMap() == JGradientColorMap.EColorMap.kCustom) {
+		if (fTigerGradientColorMap.getColorMap() == JGradientColorMap.EColorMap.kRandom) {
+			fTigerGradientColorMap.loadRandomColorMapComponents(tfp);
+		}
+		else if (fTigerGradientColorMap.getColorMap() == JGradientColorMap.EColorMap.kCustom) {
 			fTigerGradientColorMap.loadCustomColorMapComponents(tfp);
 		}
 		fTigerUseFixedColor = tfp.getNextBoolean();
@@ -173,14 +182,20 @@ public final class ColoringParameters
 		JGradientColorMap.EColorMap interiorColorMap = fInteriorGradientColorMap.getColorMap();
 		tfw.writeString(interiorColorMap.toString());
 		tfw.writeLn();
-		if (interiorColorMap == JGradientColorMap.EColorMap.kCustom) {
+		if (interiorColorMap == JGradientColorMap.EColorMap.kRandom) {
+			fInteriorGradientColorMap.saveRandomColorMapComponents(tfw);
+		}
+		else if (interiorColorMap == JGradientColorMap.EColorMap.kCustom) {
 			fInteriorGradientColorMap.saveCustomColorMapComponents(tfw);
 		}
 
 		JGradientColorMap.EColorMap exteriorColorMap = fExteriorGradientColorMap.getColorMap();
-		tfw.writeString(fExteriorGradientColorMap.getColorMap().toString());
+		tfw.writeString(exteriorColorMap.toString());
 		tfw.writeLn();
-		if (exteriorColorMap == JGradientColorMap.EColorMap.kCustom) {
+		if (exteriorColorMap == JGradientColorMap.EColorMap.kRandom) {
+			fExteriorGradientColorMap.saveRandomColorMapComponents(tfw);
+		}
+		else if (exteriorColorMap == JGradientColorMap.EColorMap.kCustom) {
 			fExteriorGradientColorMap.saveCustomColorMapComponents(tfw);
 		}
 
@@ -203,9 +218,12 @@ public final class ColoringParameters
 		tfw.writeLn();
 
 		JGradientColorMap.EColorMap tigerColorMap = fTigerGradientColorMap.getColorMap();
-		tfw.writeString(fTigerGradientColorMap.getColorMap().toString());
+		tfw.writeString(tigerColorMap.toString());
 		tfw.writeLn();
-		if (tigerColorMap == JGradientColorMap.EColorMap.kCustom) {
+		if (tigerColorMap == JGradientColorMap.EColorMap.kRandom) {
+			fTigerGradientColorMap.saveRandomColorMapComponents(tfw);
+		}
+		else if (tigerColorMap == JGradientColorMap.EColorMap.kCustom) {
 			fTigerGradientColorMap.saveCustomColorMapComponents(tfw);
 		}
 

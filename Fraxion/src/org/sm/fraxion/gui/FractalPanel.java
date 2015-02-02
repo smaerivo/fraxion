@@ -1151,10 +1151,10 @@ public final class FractalPanel extends JPanel
 		} // for index
 
 //XXX
-System.out.println("------------------");
-System.out.println("mi " + fractalIterationRangeInformation.fInteriorMinNrOfIterations + " / Mi " + fractalIterationRangeInformation.fInteriorMaxNrOfIterations);
-System.out.println("me " + fractalIterationRangeInformation.fExteriorMinNrOfIterations + " / Me " + fractalIterationRangeInformation.fExteriorMaxNrOfIterations);
-System.out.println("------------------");
+//System.out.println("------------------");
+//System.out.println("mi " + fractalIterationRangeInformation.fInteriorMinNrOfIterations + " / Mi " + fractalIterationRangeInformation.fInteriorMaxNrOfIterations);
+//System.out.println("me " + fractalIterationRangeInformation.fExteriorMinNrOfIterations + " / Me " + fractalIterationRangeInformation.fExteriorMaxNrOfIterations);
+//System.out.println("------------------");
 		// second pass: construct histogram for ranked colours (containing values between 0 and 1)
 		if (coloringParameters.fColorMapScaling == ColoringParameters.EColorMapScaling.kRankOrder) {
 

@@ -121,6 +121,7 @@ public final class IteratorTask extends ATask
 		for (int x = 0; x < fFractalResultBuffer.fWidth; ++x) {
 			for (int y = 0; y < fFractalResultBuffer.fHeight; ++y) {
 				int index = x + (y * fFractalResultBuffer.fWidth);
+
 				if (fractalType == AFractalIterator.EFractalType.kMainFractal) {
 					fFractalResultBuffer.fBuffer[index] = fFractalIterator.iterateMainFractal(new ScreenLocation(x + fS1.fX,y + fS1.fY),false);
 				}
