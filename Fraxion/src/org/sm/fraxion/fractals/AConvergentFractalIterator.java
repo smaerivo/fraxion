@@ -1,7 +1,7 @@
 // -----------------------------------------------
 // Filename      : AConvergentFractalIterator.java
 // Author        : Sven Maerivoet
-// Last modified : 24/01/2015
+// Last modified : 08/02/2015
 // Target        : Java VM (1.8)
 // -----------------------------------------------
 
@@ -35,7 +35,7 @@ import org.sm.smtools.util.*;
  * <B>Note that this is an abstract class.</B>
  * 
  * @author  Sven Maerivoet
- * @version 24/01/2015
+ * @version 08/02/2015
  */
 public abstract class AConvergentFractalIterator extends AFractalIterator
 {
@@ -135,14 +135,15 @@ public abstract class AConvergentFractalIterator extends AFractalIterator
 	}
 
 	/**
-	 * Returns the default escape radius of 2.0.
+	 * Returns the default escape radius of 100.0.
 	 * 
-	 * @return the default escape radius of 2.0
+	 * @return the default escape radius of 100.0
 	 */
 	@Override
 	public double getDefaultEscapeRadius()
 	{
-		return 2.0;
+		// use a high iteration radius to trap more complicated roots
+		return 100.0;
 	}
 
 	/**
@@ -379,7 +380,7 @@ public abstract class AConvergentFractalIterator extends AFractalIterator
 
 			// have we converged sufficiently close to a root?
 			rootDistance = z.subtract(zPrevious).modulus();
-			if (rootDistance < fRootTolerance) {
+			if ((rootDistance < fRootTolerance)  && (z.modulus() < fEscapeRadius)) {
       	convergedOnRoot = true;
       }
       else {
@@ -422,8 +423,7 @@ public abstract class AConvergentFractalIterator extends AFractalIterator
 		if (iterationResult.fNrOfIterations == fMaxNrOfIterations) {
 			iterationResult.fNrOfIterations = IterationResult.kInfinity;
 		}
-
-		if (convergedOnRoot) {
+		else if (convergedOnRoot) {
 			iterationResult.fNormalisedIterationCount = iterationResult.fNrOfIterations + (rootDistance / fRootTolerance);
 			iterationResult.fRealComponent = z.realComponent();
 			iterationResult.fImaginaryComponent = z.imaginaryComponent();
@@ -468,7 +468,7 @@ public abstract class AConvergentFractalIterator extends AFractalIterator
 				double fraction = MathTools.frac(iterationResult.fNormalisedIterationCount);
 				iterationResult.fCurvature = (fraction * iterationResult.fCurvature) + ((1.0 - fraction) * prevCurvature);
 				iterationResult.fStriping = (fraction * iterationResult.fStriping) + ((1.0 - fraction) * prevStriping);
-			}
+			} // if (fCalculateAdvancedColoring)
 
 			if (iterationResult.fNrOfIterations == maxNrOfIterations) {
 				iterationResult.fMinimumGaussianIntegersDistance = minimumInteriorGaussianIntegersDistance;
@@ -478,7 +478,7 @@ public abstract class AConvergentFractalIterator extends AFractalIterator
 				iterationResult.fMinimumGaussianIntegersDistance = minimumExteriorGaussianIntegersDistance;
 				iterationResult.fAverageGaussianIntegersDistance = averageExteriorGaussianIntegersDistance;
 			}
-		} // if (fCalculateAdvancedColoring)
+		} // if (convergedOnRoot)
 
 		return iterationResult;
 	}

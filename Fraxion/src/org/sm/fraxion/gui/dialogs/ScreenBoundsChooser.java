@@ -1,7 +1,7 @@
 // ----------------------------------------
 // Filename      : ScreenBoundsChooser.java
 // Author        : Sven Maerivoet
-// Last modified : 23/01/2015
+// Last modified : 07/02/2015
 // Target        : Java VM (1.8)
 // ----------------------------------------
 
@@ -40,7 +40,7 @@ import org.sm.smtools.swing.util.*;
  * <B>Note that this class cannot be subclassed!</B>
  *
  * @author  Sven Maerivoet
- * @version 23/01/2015
+ * @version 07/02/2015
  */
 public final class ScreenBoundsChooser extends JDefaultDialog implements ActionListener
 {
@@ -360,6 +360,19 @@ public final class ScreenBoundsChooser extends JDefaultDialog implements ActionL
 
 			fPaperSizeWidthInputField.setText(String.valueOf(paperWidth));
 			fPaperSizeHeightInputField.setText(String.valueOf(paperHeight));
+
+			// apply resolution
+			int selectedPaperSizePPIIndex = fPaperSizePPIComboBox.getSelectedIndex();
+			fScreenWidth = (int) Math.round(((double) paperWidth / 10.0 / 2.54) * (double) kPaperSizePPIs[selectedPaperSizePPIIndex]);
+			fScreenHeight = (int) Math.round(((double) paperHeight / 10.0 / 2.54) * (double) kPaperSizePPIs[selectedPaperSizePPIIndex]);
+
+			fScreenSizeWidthInputField.setText(String.valueOf(fScreenWidth));
+			fScreenSizeHeightInputField.setText(String.valueOf(fScreenHeight));
+			updateGUI();
+		}
+		else if ((source == fPaperSizeWidthInputField) || (source == fPaperSizeHeightInputField)) {
+			int paperWidth = Integer.parseInt(fPaperSizeWidthInputField.getText());
+			int paperHeight = Integer.parseInt(fPaperSizeHeightInputField.getText());
 
 			// apply resolution
 			int selectedPaperSizePPIIndex = fPaperSizePPIComboBox.getSelectedIndex();

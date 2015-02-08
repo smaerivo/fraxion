@@ -1,6 +1,6 @@
 // ---------------------------------------
 // Filename      : IteratorController.java
-// Last modified : 28/01/2015
+// Last modified : 08/02/2015
 // Author        : Sven Maerivoet
 // Target        : Java VM (1.8)
 // ---------------------------------------
@@ -38,7 +38,7 @@ import org.sm.smtools.math.*;
  * <B>Note that this class cannot be subclassed!</B>
  *
  * @author  Sven Maerivoet
- * @version 28/01/2015
+ * @version 08/02/2015
  */
 public final class IteratorController
 {

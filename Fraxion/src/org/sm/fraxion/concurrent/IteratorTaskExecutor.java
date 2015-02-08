@@ -1,7 +1,7 @@
 // -----------------------------------------
 // Filename      : IteratorTaskExecutor.java
 // Author        : Sven Maerivoet
-// Last modified : 19/01/2015
+// Last modified : 08/02/2015
 // Target        : Java VM (1.8)
 // -----------------------------------------
 
@@ -23,7 +23,6 @@
 
 package org.sm.fraxion.concurrent;
 
-import java.util.*;
 import javax.swing.*;
 import org.sm.fraxion.fractals.*;
 import org.sm.fraxion.fractals.util.*;
@@ -42,12 +41,13 @@ import org.sm.smtools.util.*;
  * <B>Note that this class cannot be subclassed!</B>
  *
  * @author  Sven Maerivoet
- * @version 19/01/2015
+ * @version 08/02/2015
  */
 public class IteratorTaskExecutor extends TaskExecutor
 {
 	// interface specific constants
 	private static final int kNrOfKDEPDFBins = 100;
+	private static final int kMaxNrOfRoots = 1024;
 
 	// internal datastructures
 	private JProgressUpdateGlassPane fProgressUpdateGlassPane;
@@ -161,11 +161,11 @@ public class IteratorTaskExecutor extends TaskExecutor
 	@Override
 	protected void finishTasks()
 	{
-		// assembling partial iteration results into the fractal result buffer
+		// assemble partial iteration results into the fractal result buffer
 		int width = fFractalIterator.getScreenWidth();
 		int height = fFractalIterator.getScreenHeight();
 		fFractalResultBuffer = new IterationBuffer(width,height);
-		// assemble partial iteration results into the fractal result buffer
+
 		for (ATask aTask : getTasks()) {
 			IteratorTask task = (IteratorTask) aTask;
 			IterationBuffer partialResult = task.getResult();
@@ -181,56 +181,47 @@ public class IteratorTaskExecutor extends TaskExecutor
 			}
 		}
 
-//XXX
-/*
-		fProgressUpdateGlassPane = new JProgressUpdateGlassPane();
-		fProgressUpdateGlassPane.done();
-		fProgressUpdateGlassPane.reset();
-		TE te = new TE(fProgressUpdateGlassPane);
-//System.out.println("Start executing...");
-		te.execute();
-*/
-		
 		// autodetect roots of convergent fractals
 		if (fFractalIterator instanceof AConvergentFractalIterator) {
-
 			if (((AConvergentFractalIterator) fFractalIterator).getAutomaticRootDetectionEnabled()) {
-//XXX
-//System.out.println("Autodetect roots of convergent fractals...");
-//Chrono chrono = new Chrono();
-//chrono.start();
 
-				ArrayList<ComplexNumber> roots = new ArrayList<ComplexNumber>();
-				double maxObservedExponentialIterationCount = 0.0;
-				double rootTolerance = ((AConvergentFractalIterator) fFractalIterator).getRootTolerance();
+			ComplexNumber[] roots = new ComplexNumber[kMaxNrOfRoots];
+			int nrOfRoots = 0;
+			double maxObservedExponentialIterationCount = 0.0;
+			double rootTolerance = ((AConvergentFractalIterator) fFractalIterator).getRootTolerance();
 
-				for (int index = 0; index < fFractalResultBuffer.fBuffer.length; ++index) {
-					IterationResult iterationResult = fFractalResultBuffer.fBuffer[index];
+			for (int index = 0; index < fFractalResultBuffer.fBuffer.length; ++index) {
+				IterationResult iterationResult = fFractalResultBuffer.fBuffer[index];
 
-					// did we converge on a root?
-					if ((iterationResult != null) && (iterationResult.fRootIndex > 0)) {
-						ComplexNumber z = new ComplexNumber(iterationResult.fRealComponent,iterationResult.fImaginaryComponent);
+				// did we converge on a root?
+				if ((iterationResult != null) && (iterationResult.fRootIndex > 0)) {
+					ComplexNumber z = new ComplexNumber(iterationResult.fRealComponent,iterationResult.fImaginaryComponent);
 
-						// try to find root
-						boolean rootFound = false;
-						for (int rootIndex = 0; rootIndex < roots.size(); ++rootIndex) {
-							ComplexNumber candidateRoot = roots.get(rootIndex);
-							if (z.subtract(candidateRoot).modulus() < rootTolerance) {
-								iterationResult.fRootIndex = rootIndex + 1;
-								if (iterationResult.fExponentialIterationCount > maxObservedExponentialIterationCount) {
-									maxObservedExponentialIterationCount = iterationResult.fExponentialIterationCount;
-								}
-								rootFound = true;
+					// try to find root
+					boolean rootFound = false;
+					for (int rootIndex = 0; rootIndex < nrOfRoots; ++rootIndex) {
+						ComplexNumber candidateRoot = roots[rootIndex];
+						if (z.subtract(candidateRoot).modulus() < rootTolerance) {
+							iterationResult.fRootIndex = rootIndex;
+							if (iterationResult.fExponentialIterationCount > maxObservedExponentialIterationCount) {
+								maxObservedExponentialIterationCount = iterationResult.fExponentialIterationCount;
 							}
+							rootFound = true;
 						}
-						if (!rootFound) {
-							roots.add(z);
-						}
-					} // if ((iterationResult != null) && (iterationResult.fRootIndex > 0))
-				} // for index
+					}
 
-				((AConvergentFractalIterator) fFractalIterator).setMaxObservedExponentialIterationCount(maxObservedExponentialIterationCount);
-//System.out.println("  Done: " + String.valueOf(chrono.getElapsedTimeInMilliseconds()) + "ms needed");
+					// store root if we haven't encountered it
+					if ((!rootFound) && (nrOfRoots < kMaxNrOfRoots)  && (iterationResult.fRootIndex > 0) && (!iterationResult.liesInInterior())) {
+						roots[nrOfRoots] = z;
+						iterationResult.fRootIndex = nrOfRoots;
+						++nrOfRoots;
+					}
+				} // if ((iterationResult != null) && (iterationResult.fRootIndex > 0))
+
+				fProgressUpdateGlassPane.signalProgressUpdate();
+			} // for index
+
+			((AConvergentFractalIterator) fFractalIterator).setMaxObservedExponentialIterationCount(maxObservedExponentialIterationCount);
 			} // if (((AConvergentFractalIterator) fFractalIterator).getAutomaticRootDetectionEnabled())
 		} // if (fFractalIterator instanceof AConvergentFractalIterator)
 
@@ -245,7 +236,7 @@ public class IteratorTaskExecutor extends TaskExecutor
 						fIterationsRawPDFData[index] = fFractalResultBuffer.fBuffer[index].fNrOfIterations;
 					}
 					else {
-					fIterationsRawPDFData[index] = maxNrOfIterations;
+						fIterationsRawPDFData[index] = maxNrOfIterations;
 					}
 				}
 			} // for index
@@ -291,42 +282,4 @@ public class IteratorTaskExecutor extends TaskExecutor
 			}
 		}
 	}
-
-//XXX
-/*
-	private class TE extends TaskExecutor
-	{
-		public TE(JProgressUpdateGlassPane progressUpdateGlassPane)
-		{
-			super(progressUpdateGlassPane);
-			System.out.println("TE::ctor()");
-			setNrOfThreadsToUse(1);
-			for (int i = 0; i < 100; ++i) {
-				T t = new T();
-				addTask(t);
-			}
-		}
-		protected void finishTasks()
-		{
-			System.out.println("TE::finishTasks()");
-		}
-	}
-	
-	private class T extends ATask
-	{
-		public T()
-		{
-			System.out.println("  T::ctor()");
-		}
-		protected void executeTask()
-		{
-			System.out.println("  T::executeTask()");
-			Chrono.wait(10);
-		}
-		protected void finishTask()
-		{
-			System.out.println("  T::finishTask()");
-		}
-	}
-*/	
 }

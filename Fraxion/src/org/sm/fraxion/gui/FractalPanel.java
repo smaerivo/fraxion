@@ -1,7 +1,7 @@
 // ---------------------------------
 // Filename      : FractalPanel.java
 // Author        : Sven Maerivoet
-// Last modified : 29/01/2015
+// Last modified : 04/02/2015
 // Target        : Java VM (1.8)
 // ---------------------------------
 
@@ -57,7 +57,7 @@ import org.sm.smtools.util.*;
  * <B>Note that this class cannot be subclassed!</B>
  * 
  * @author  Sven Maerivoet
- * @version 29/01/2015
+ * @version 04/02/2015
  */
 public final class FractalPanel extends JPanel
 {
@@ -844,6 +844,16 @@ public final class FractalPanel extends JPanel
 		Graphics2D fRenderBufferGraphics = (Graphics2D) g; // use 2D graphics functionality
 		fRenderBufferGraphics.setRenderingHint(RenderingHints.KEY_RENDERING,RenderingHints.VALUE_RENDER_QUALITY);
 		fRenderBufferGraphics.drawImage(fRenderBuffer,0,0,null);
+//XXX
+/*
+Dimension	viewportExtentSize = fViewport.getExtentSize();
+int vpWidth = viewportExtentSize.width;
+int vpHeight = viewportExtentSize.height;
+System.out.println();
+System.out.println("FractalPanel::paintComponent()");
+System.out.println("  -> " + width + " / " + height);
+System.out.println("  -> " + vpWidth + " / " + vpHeight);
+*/
 		fRenderBufferGraphics.dispose();
 		g.dispose();
 	}
@@ -899,7 +909,8 @@ public final class FractalPanel extends JPanel
 	 */
 	private void initialise()
 	{
-		fShowInset = true;
+//XXX
+		fShowInset = !true;
 		fAutoSuppressDualFractal = true;
 		fInsetSizePercentage = 25;
 		fAutoZoomInset = false;
@@ -1116,8 +1127,6 @@ public final class FractalPanel extends JPanel
 							fractalIterationRangeInformation.fExteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fExteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fLyapunovExponent);
 							fractalIterationRangeInformation.fExteriorMaxNrOfIterations = Math.max(fractalIterationRangeInformation.fExteriorMaxNrOfIterations,fractalResultBuffer.fBuffer[index].fLyapunovExponent);
 							exteriorRankColoringHistogram[fractalIterationRangeInformation.fExteriorRankColoringHistogramNrOfPoints++] = fractalResultBuffer.fBuffer[index].fLyapunovExponent;
-//XXX
-//System.out.println("m " + fractalIterationRangeInformation.fExteriorMinNrOfIterations + " / M " + fractalIterationRangeInformation.fExteriorMaxNrOfIterations);
 						}
 						else if (coloringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kCurvature) {
 							fractalIterationRangeInformation.fExteriorMinNrOfIterations = Math.min(fractalIterationRangeInformation.fExteriorMinNrOfIterations,fractalResultBuffer.fBuffer[index].fCurvature);
@@ -1150,11 +1159,6 @@ public final class FractalPanel extends JPanel
 			} // if (fractalResultBuffer.fBuffer[index] != null)
 		} // for index
 
-//XXX
-//System.out.println("------------------");
-//System.out.println("mi " + fractalIterationRangeInformation.fInteriorMinNrOfIterations + " / Mi " + fractalIterationRangeInformation.fInteriorMaxNrOfIterations);
-//System.out.println("me " + fractalIterationRangeInformation.fExteriorMinNrOfIterations + " / Me " + fractalIterationRangeInformation.fExteriorMaxNrOfIterations);
-//System.out.println("------------------");
 		// second pass: construct histogram for ranked colours (containing values between 0 and 1)
 		if (coloringParameters.fColorMapScaling == ColoringParameters.EColorMapScaling.kRankOrder) {
 
@@ -1187,6 +1191,12 @@ public final class FractalPanel extends JPanel
 		if ((fractalResultBuffer == null) || ((fractalResultBuffer != null) && (fractalResultBuffer.fBuffer == null))) {
 			return null;
 		}
+//XXX
+/*
+System.out.println();
+System.out.println("FractalPanel::colorFractal()");
+System.out.println("  -> " + fractalResultBuffer.fWidth + " / " + fractalResultBuffer.fHeight);
+*/
 
 		// 	third pass to determine colour-mapped iteration counts
 		ColoringParameters coloringParameters = fIteratorController.getColoringParameters();
@@ -1265,20 +1275,9 @@ public final class FractalPanel extends JPanel
 									(!iterationResult.liesInInterior() && (coloringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kAngle))) {
 						nrOfIterations = iterationResult.fAngle;
 					}
-/*
-					else if ((iterationResult.liesInInterior() && (fColoringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kLyapunovExponent)) ||
-									(!iterationResult.liesInInterior() && (fColoringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kLyapunovExponent))) {
+					else if ((iterationResult.liesInInterior() && (coloringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kLyapunovExponent)) ||
+									(!iterationResult.liesInInterior() && (coloringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kLyapunovExponent))) {
 						nrOfIterations = iterationResult.fLyapunovExponent;
-					}
-*/
-//XXX
-					else if (iterationResult.liesInInterior() && (coloringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kLyapunovExponent)) {
-						nrOfIterations = iterationResult.fLyapunovExponent;
-//System.out.println("  LE-i " + iterationResult.fLyapunovExponent + " / m " + fractalIterationRangeInformation.fInteriorMinNrOfIterations + " / M " + fractalIterationRangeInformation.fInteriorMaxNrOfIterations);
-					}
-					else if (!iterationResult.liesInInterior() && (coloringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kLyapunovExponent)) {
-						nrOfIterations = iterationResult.fLyapunovExponent;
-//System.out.println("  LE-e " + iterationResult.fLyapunovExponent + " / m " + fractalIterationRangeInformation.fExteriorMinNrOfIterations + " / M " + fractalIterationRangeInformation.fExteriorMaxNrOfIterations);
 					}
 					else if ((iterationResult.liesInInterior() && (coloringParameters.fInteriorColoringMethod == ColoringParameters.EColoringMethod.kCurvature)) ||
 									(!iterationResult.liesInInterior() && (coloringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kCurvature))) {
@@ -1300,10 +1299,6 @@ public final class FractalPanel extends JPanel
 																													(coloringParameters.fExteriorColoringMethod == ColoringParameters.EColoringMethod.kSmoothRoots))) {
 						nrOfIterations = iterationResult.fRootIndex;
 					}
-
-//XXX
-//System.out.println(nrOfIterations + " / " + fractalIterationRangeInformation.fExteriorMaxNrOfIntegralIterations +
-//		" / " + fColoringParameters.fLowIterationRange + " / " + fColoringParameters.fHighIterationRange);
 
 					// bound the shown iterations (irrespective of the minimum and maximum observed)
 					if (iterationResult.liesInInterior() ||
@@ -1361,8 +1356,6 @@ public final class FractalPanel extends JPanel
 									// manual code optimisation: calculate the rank directly
 									colorIndex = (double) lookupIndex / ((double) fractalIterationRangeInformation.fExteriorRankColoringHistogramNrOfPoints - 1.0);
 								}
-//XXX
-//System.out.println("eRank " + colorIndex);
 							}
 
 							// restrict high iteration counts if necessary

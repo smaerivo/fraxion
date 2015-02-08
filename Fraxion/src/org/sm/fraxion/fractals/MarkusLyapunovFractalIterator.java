@@ -1,7 +1,7 @@
 // --------------------------------------------------
 // Filename      : MarkusLyapunovFractalIterator.java
 // Author        : Sven Maerivoet
-// Last modified : 22/01/2015
+// Last modified : 04/02/2015
 // Target        : Java VM (1.8)
 // --------------------------------------------------
 
@@ -33,7 +33,7 @@ import org.sm.smtools.util.*;
  * The <CODE>MarkusLyapunovFractalIterator</CODE> class provides a base class for Markus-Lyapunov fractals.
  * 
  * @author  Sven Maerivoet
- * @version 22/01/2015
+ * @version 04/02/2015
  */
 public class MarkusLyapunovFractalIterator extends AFractalIterator
 {
@@ -217,7 +217,6 @@ public class MarkusLyapunovFractalIterator extends AFractalIterator
 			// calculate the Lyapunov exponent after initialisation of the sequence
 			if (iteration >= nrOfWarmUpIterations) {
 				iterationResult.fLyapunovExponent += Math.log(Math.abs(r * (1 - (2.0 * x)))) / kLog2;
-				iterationResult.fAverageDistance = ((iterationResult.fAverageDistance * (iterationResult.fNrOfIterations - 1)) + x) / iterationResult.fNrOfIterations;				
 
 				if (saveOrbit) {
 					int iterationArrayPos = iteration - nrOfWarmUpIterations;
@@ -229,9 +228,6 @@ public class MarkusLyapunovFractalIterator extends AFractalIterator
 		}
 
 		iterationResult.fLyapunovExponent /= (double) fMaxNrOfIterations;
-
-		iterationResult.fModulus = x;
-		iterationResult.fRealComponent = x;
 
 		// mark chaotic points
 		if (iterationResult.fLyapunovExponent > 0) {
