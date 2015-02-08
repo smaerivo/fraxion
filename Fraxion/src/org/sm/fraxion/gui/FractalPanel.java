@@ -1,7 +1,7 @@
 // ---------------------------------
 // Filename      : FractalPanel.java
 // Author        : Sven Maerivoet
-// Last modified : 04/02/2015
+// Last modified : 08/02/2015
 // Target        : Java VM (1.8)
 // ---------------------------------
 
@@ -57,7 +57,7 @@ import org.sm.smtools.util.*;
  * <B>Note that this class cannot be subclassed!</B>
  * 
  * @author  Sven Maerivoet
- * @version 04/02/2015
+ * @version 08/02/2015
  */
 public final class FractalPanel extends JPanel
 {

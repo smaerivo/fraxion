@@ -1,7 +1,7 @@
 // -------------------------------
 // Filename      : FraxionGUI.java
 // Author        : Sven Maerivoet
-// Last modified : 05/02/2015
+// Last modified : 08/02/2015
 // Target        : Java VM (1.8)
 // -------------------------------
 
@@ -53,7 +53,7 @@ import org.sm.smtools.util.*;
  * <B>Note that this class cannot be subclassed!</B>
  *
  * @author  Sven Maerivoet
- * @version 05/02/2015
+ * @version 08/02/2015
  */
 public final class FraxionGUI extends JStandardGUIApplication implements ActionListener, MouseListener, MouseMotionListener, KeyListener
 {

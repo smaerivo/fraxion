@@ -83,17 +83,6 @@ public class NovaFractalIterator extends AConvergentFractalIterator
 		return (new ComplexNumber(+0.8,+1.15));
 	}
 
-	/**
-	 * Returns the default escape radius of 2.0.
-	 * 
-	 * @return the default escape radius of 2.0
-	 */
-	@Override
-	public double getDefaultEscapeRadius()
-	{
-		return 2.0;
-	}
-
 	/*********************
 	 * PROTECTED METHODS *
 	 *********************/
