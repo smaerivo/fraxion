@@ -425,6 +425,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 	private JLabel fStatusBarCalculationTimeLabel;
 	private JProgressUpdateGlassPane fProgressUpdateGlassPane;
 	private HashMap<String,JMenuItem> fMenuItems;
+	private String fLastSelectedFractal;
 	private ArrayList<String> fFractalFamilyMenuItems;
 	private double fNavigationPanningSize;
 	private ColorLabelDecorator fInteriorColorLabelDecorator;
@@ -1353,6 +1354,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 
 				adjustMenusToFractal();
 				setupMarkusLyapunovFractal();
+				fLastSelectedFractal = command;
 
 				// if necessary switch to the dual fractal
 				if ((fractalIterator instanceof GlynnFractalIterator) ||
@@ -1366,6 +1368,9 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 				fractalIterator.setScreenBounds(screenBounds);
 				fFractalPanel.zoomIn(fractalIterator.getDefaultP1(),fractalIterator.getDefaultP2());
 			} // if (proceed)
+			else {
+				fMenuItems.get(fLastSelectedFractal).setSelected(true);
+			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyRandelbrotSetNoiseLevel)) {
 			if (fractalIterator instanceof RandelbrotFractalIterator) {
@@ -2977,6 +2982,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 		fIteratorController.installGUIControls(this,fProgressUpdateGlassPane,fFractalPanel,fStatusBarCalculationTimeLabel,fResources);
 
 		fFractalFamilyMenuItems = new ArrayList<String>();
+		fLastSelectedFractal = kActionCommandMenuItemFractalFamilyDefaultMandelbrotJulia;
 
 		fNavigationPanningSize = 0.25;
 
