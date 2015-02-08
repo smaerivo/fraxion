@@ -443,8 +443,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 	 *************************/
 
 	static {
-//XXX
-		DevelopMode.activate();
+		DevelopMode.deactivate();
 
 		// hack for JDK7 and above
 		System.setProperty("java.util.Arrays.useLegacyMergeSort","true");

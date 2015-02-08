@@ -27,7 +27,7 @@
 			<tocitem text="Originele Julia" target="fractal_types_original_julia" />
 			<tocitem text="Lambda" target="fractal_types_lambda" />
 			<tocitem text="Omgekeerde Lambda" target="fractal_types_inverse_lambda" />
-			<tocitem text="Brandend Ship" target="fractal_types_burning_ship" />
+			<tocitem text="Brandend Schip" target="fractal_types_burning_ship" />
 			<tocitem text="Roofvogel" target="fractal_types_bird_of_prey" />
 			<tocitem text="Glynn" target="fractal_types_glynn" />
 			<tocitem text="Spin" target="fractal_types_spider" />
@@ -39,6 +39,10 @@
 				<tocitem text="Multibrot Veelterm" target="fractal_types_multibrot_polynomial" />
 				<tocitem text="Multibrot Parameter" target="fractal_types_multibrot_parameter" />
 				<tocitem text="Multibrot Omgekeerde Parameter" target="fractal_types_multibrot_inverted_parameter" />
+			</tocitem>
+
+			<tocitem text="Brandend Multischip">
+				<tocitem text="Brandend Multischip" target="fractal_types_burning_multiship" />
 			</tocitem>
 
 			<tocitem text="Multibar">

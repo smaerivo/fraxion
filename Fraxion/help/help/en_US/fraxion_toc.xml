@@ -48,6 +48,10 @@
 				<tocitem text="Multibar Inverted Parameter" target="fractal_types_multibar_inverted_parameter" />
 			</tocitem>
 
+			<tocitem text="Burning Multiship">
+				<tocitem text="Burning Multiship" target="fractal_types_burning_multiship" />
+			</tocitem>
+
 			<tocitem text="Exponential">
 				<tocitem text="Multi Product Expelbrot" target="fractal_types_multiproductexpelbrot" />
 				<tocitem text="Multi Sum Expelbrot" target="fractal_types_multisumexpelbrot" />

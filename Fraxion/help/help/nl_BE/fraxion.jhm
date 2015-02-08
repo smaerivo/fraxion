@@ -31,6 +31,8 @@
 	<mapID target="fractal_types_multibar_parameter" url="content/fractal_types/power/multibar/fractal_types_multibar_parameter.html"></mapID>
 	<mapID target="fractal_types_multibar_inverted_parameter" url="content/fractal_types/power/multibar/fractal_types_multibar_inverted_parameter.html"></mapID>
 
+	<mapID target="fractal_types_burning_multiship" url="content/fractal_types/power/burning_multiship/fractal_types_burning_multiship.html"></mapID>
+
 	<mapID target="fractal_types_multiproductexpelbrot" url="content/fractal_types/power/exponential/fractal_types_multiproductexpelbrot.html"></mapID>
 	<mapID target="fractal_types_multisumexpelbrot" url="content/fractal_types/power/exponential/fractal_types_multisumexpelbrot.html"></mapID>
 	<mapID target="fractal_types_multiproductexparbrot" url="content/fractal_types/power/exponential/fractal_types_multiproductexparbrot.html"></mapID>
