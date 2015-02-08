@@ -96,6 +96,7 @@ public final class FractalPanel extends JPanel
 	private BufferedImage fInsetFractalImageBuffer;
 	private BufferedImage fRenderBuffer;
 	private Graphics2D fRenderBufferGraphics;
+	private boolean fRevalidating;
 	private boolean fShowInset;
 	private boolean fAutoSuppressDualFractal;
 	private int fInsetX;
@@ -797,6 +798,7 @@ public final class FractalPanel extends JPanel
 	 */
 	public void recolor()
 	{
+		fRevalidating = false;
 		prepareFractalColoringInformation(fIteratorController.getFractalResultBuffer(),fMainFractalIterationRangeInformation);
 		applyPostProcessingFilters();
 	}
@@ -811,6 +813,15 @@ public final class FractalPanel extends JPanel
 		fFractalImageBuffer = colorFractal(fIteratorController.getFractalResultBuffer(),fMainFractalIterationRangeInformation);
 		fInsetDirty = true;
 		repaint();
+	}
+
+	/**
+	 */
+	@Override
+	public void revalidate()
+	{
+		fRevalidating = true;
+		super.revalidate();
 	}
 
 	/**
@@ -831,29 +842,29 @@ public final class FractalPanel extends JPanel
 			return;
 		}
 
+		// use 2D graphics functionality
+		Graphics2D fRenderBufferGraphics = (Graphics2D) g;
+		fRenderBufferGraphics.setRenderingHint(RenderingHints.KEY_RENDERING,RenderingHints.VALUE_RENDER_QUALITY);
+
 		// create the render buffer
 		fRenderBuffer = new BufferedImage(width,height,BufferedImage.TYPE_INT_RGB);
 
-		// copy the current fractal image to the render buffer
-		fRenderBuffer.setData(fFractalImageBuffer.getData());
+		// stretch the current image as the panel is probably being resized
+		if ((fRevalidating) && (fRenderBuffer != null)) {
+			((Graphics2D) (fRenderBuffer.getGraphics())).drawImage(fFractalImageBuffer,0,0,width,height,null);
+		}
+		else {
+			// copy the current fractal image to the render buffer
+			fRenderBuffer.setData(fFractalImageBuffer.getData());
+		}
 
 		// supplement the render buffer with onscreen miscellaneous information
 		renderSupplementalInformation();
 
 		// copy the render buffer to the screen
-		Graphics2D fRenderBufferGraphics = (Graphics2D) g; // use 2D graphics functionality
 		fRenderBufferGraphics.setRenderingHint(RenderingHints.KEY_RENDERING,RenderingHints.VALUE_RENDER_QUALITY);
 		fRenderBufferGraphics.drawImage(fRenderBuffer,0,0,null);
-//XXX
-/*
-Dimension	viewportExtentSize = fViewport.getExtentSize();
-int vpWidth = viewportExtentSize.width;
-int vpHeight = viewportExtentSize.height;
-System.out.println();
-System.out.println("FractalPanel::paintComponent()");
-System.out.println("  -> " + width + " / " + height);
-System.out.println("  -> " + vpWidth + " / " + vpHeight);
-*/
+
 		fRenderBufferGraphics.dispose();
 		g.dispose();
 	}
@@ -909,8 +920,7 @@ System.out.println("  -> " + vpWidth + " / " + vpHeight);
 	 */
 	private void initialise()
 	{
-//XXX
-		fShowInset = !true;
+		fShowInset = true;
 		fAutoSuppressDualFractal = true;
 		fInsetSizePercentage = 25;
 		fAutoZoomInset = false;
@@ -1191,12 +1201,6 @@ System.out.println("  -> " + vpWidth + " / " + vpHeight);
 		if ((fractalResultBuffer == null) || ((fractalResultBuffer != null) && (fractalResultBuffer.fBuffer == null))) {
 			return null;
 		}
-//XXX
-/*
-System.out.println();
-System.out.println("FractalPanel::colorFractal()");
-System.out.println("  -> " + fractalResultBuffer.fWidth + " / " + fractalResultBuffer.fHeight);
-*/
 
 		// 	third pass to determine colour-mapped iteration counts
 		ColoringParameters coloringParameters = fIteratorController.getColoringParameters();

@@ -3070,9 +3070,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 	@Override
 	protected final Dimension setupInitialGUISize()
 	{
-//XXX
-//		return (new Dimension(JStandardGUIApplication.kFullScreenGUI,JStandardGUIApplication.kFullScreenGUI));
-		return (new Dimension(400,300));
+		return (new Dimension(JStandardGUIApplication.kFullScreenGUI,JStandardGUIApplication.kFullScreenGUI));
 	}
 
 	/**
