@@ -1,7 +1,7 @@
 // ----------------------------------------
 // Filename      : ScreenBoundsChooser.java
 // Author        : Sven Maerivoet
-// Last modified : 07/02/2015
+// Last modified : 11/02/2015
 // Target        : Java VM (1.8)
 // ----------------------------------------
 
@@ -40,7 +40,7 @@ import org.sm.smtools.swing.util.*;
  * <B>Note that this class cannot be subclassed!</B>
  *
  * @author  Sven Maerivoet
- * @version 07/02/2015
+ * @version 11/02/2015
  */
 public final class ScreenBoundsChooser extends JDefaultDialog implements ActionListener
 {
@@ -177,13 +177,8 @@ public final class ScreenBoundsChooser extends JDefaultDialog implements ActionL
 	private JFrame fOwner;
 	private int fScreenWidth;
 	private int fScreenHeight;
-	private int fMainWidth;
-	private int fMainHeight;
-	private Insets fScreenInsets;
-	private Insets fMainInsets;
-	private Insets fScrollInsets;
-	private int fScrollBarWidth;
-	private int fScrollBarHeight;
+	private int fCurrentWindowWidth;
+	private int fCurrentWindowHeight;
 	private JLabel fScreenSizeListLabel;
 	private JComboBox<String> fScreenSizeComboBox;
 	private JLabel fScreenSizeWidthLabel;
@@ -221,25 +216,20 @@ public final class ScreenBoundsChooser extends JDefaultDialog implements ActionL
 	/**
 	 * Constructs a <CODE>ScreenBoundsChooser</CODE> object.
 	 *
-	 * @param owner              the owning frame
-	 * @param screenWidth        the initial screen width
-	 * @param screenHeight       the initial screen height
-	 * @param mainWidth          the main width
-	 * @param mainHeight         the main height
-	 * @param screenInsets       the screen insets
-	 * @param mainInsets         the main insets
-	 * @param scrollInsets       the scroll insets
-	 * @param scrollBarWidth     the width of the vertical scrollbar
-	 * @param scrollBarHeight    the height of the horizontal scrollbar
-	 * @param storedScreenSizes  the list with stored screen sizes
+	 * @param owner                the owning frame
+	 * @param screenWidth          the initial screen width
+	 * @param screenHeight         the initial screen height
+	 * @param currentWindowWidth   the main width
+	 * @param currentWindowHeight  the main height
+	 * @param storedScreenSizes    the list with stored screen sizes
 	 */
-	public ScreenBoundsChooser(JFrame owner, int screenWidth, int screenHeight, int mainWidth, int mainHeight, Insets screenInsets, Insets mainInsets, Insets scrollInsets, int scrollBarWidth, int scrollBarHeight, ArrayList<StoredScreenSize> storedScreenSizes)
+	public ScreenBoundsChooser(JFrame owner, int screenWidth, int screenHeight, int currentWindowWidth, int currentWindowHeight, ArrayList<StoredScreenSize> storedScreenSizes)
 	{
 		super(owner,
 			JDefaultDialog.EModality.kModal,
 			JDefaultDialog.ESize.kFixedSize,
 			JDefaultDialog.EType.kOkCancel,
-			new Object[] {owner,screenWidth,screenHeight,mainWidth,mainHeight,screenInsets,mainInsets,scrollInsets,scrollBarWidth,scrollBarHeight,storedScreenSizes},
+			new Object[] {owner,screenWidth,screenHeight,currentWindowWidth,currentWindowHeight,storedScreenSizes},
 			JDefaultDialog.EActivation.kImmediately);
 	}
 
@@ -341,8 +331,8 @@ public final class ScreenBoundsChooser extends JDefaultDialog implements ActionL
 		}
 		else if (source == fUsePhysicalWindowSizeButton) {
 			// subtract the insets of the current window and OS specifics (e.g., taskbar)
-			fScreenWidth = fMainWidth - fScreenInsets.left - fScreenInsets.right - fMainInsets.left - fMainInsets.right - fScrollInsets.left - fScrollInsets.right - fScrollBarWidth;
-			fScreenHeight = fMainHeight - fScreenInsets.top - fScreenInsets.bottom - fMainInsets.top - fMainInsets.bottom - fScrollInsets.top - fScrollInsets.bottom - fScrollBarHeight;
+			fScreenWidth = fCurrentWindowWidth;
+			fScreenHeight = fCurrentWindowHeight;
 			fScreenSizeWidthInputField.setText(String.valueOf(fScreenWidth));
 			fScreenSizeHeightInputField.setText(String.valueOf(fScreenHeight));
 			updateGUI();
@@ -464,14 +454,9 @@ public final class ScreenBoundsChooser extends JDefaultDialog implements ActionL
 		fOwner = (JFrame) parameters[0];
 		fScreenWidth = (Integer) parameters[1];
 		fScreenHeight = (Integer) parameters[2];
-		fMainWidth = (Integer) parameters[3];
-		fMainHeight = (Integer) parameters[4];
-		fScreenInsets = (Insets) parameters[5];
-		fMainInsets = (Insets) parameters[6];
-		fScrollInsets = (Insets) parameters[7];
-		fScrollBarWidth = (Integer) parameters[8];
-		fScrollBarHeight = (Integer) parameters[9];
-		fStoredScreenSizes = (ArrayList<StoredScreenSize>) parameters[10];
+		fCurrentWindowWidth = (Integer) parameters[3];
+		fCurrentWindowHeight = (Integer) parameters[4];
+		fStoredScreenSizes = (ArrayList<StoredScreenSize>) parameters[5];
 	}
 
 	/**

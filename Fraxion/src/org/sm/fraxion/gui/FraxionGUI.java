@@ -1,7 +1,7 @@
 // -------------------------------
 // Filename      : FraxionGUI.java
 // Author        : Sven Maerivoet
-// Last modified : 08/02/2015
+// Last modified : 12/02/2015
 // Target        : Java VM (1.8)
 // -------------------------------
 
@@ -53,7 +53,7 @@ import org.sm.smtools.util.*;
  * <B>Note that this class cannot be subclassed!</B>
  *
  * @author  Sven Maerivoet
- * @version 08/02/2015
+ * @version 12/02/2015
  */
 public final class FraxionGUI extends JStandardGUIApplication implements ActionListener, MouseListener, MouseMotionListener, KeyListener
 {
@@ -416,8 +416,10 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 
 	// internal datastructures
 	private IteratorController fIteratorController;
+	private JPanel fContentPane;
 	private JScrollPane fFractalScrollPane;
 	private FractalPanel fFractalPanel;
+	private JToolBar fToolBar;
 	private int fColorCyclingDelay;
 	private double fColorCyclingSmoothness;
 	private boolean fColorCyclingDirectionForward;
@@ -443,7 +445,8 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 	 *************************/
 
 	static {
-		DevelopMode.deactivate();
+//XXX
+		DevelopMode.activate();
 
 		// hack for JDK7 and above
 		System.setProperty("java.util.Arrays.useLegacyMergeSort","true");
@@ -986,14 +989,27 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			fFractalPanel.setShowMainFractalOverview(fMenuItems.get(kActionCommandMenuItemNavigationShowMainFractalOverview).isSelected());
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemNavigationSpecifyScreenBounds)) {
+			Insets screenInsets = getScreenInsets();
+			Insets mainInsets = getInsets();
+			Insets scrollInsets = fFractalScrollPane.getInsets();
+			int currentWindowWidth = getWidth() - screenInsets.left - screenInsets.right - mainInsets.left - mainInsets.right - scrollInsets.left - scrollInsets.right - fFractalScrollPane.getVerticalScrollBar().getPreferredSize().width;
+			int currentWindowHeight = getHeight() - screenInsets.top - screenInsets.bottom - mainInsets.top - mainInsets.bottom - scrollInsets.top - scrollInsets.bottom - fFractalScrollPane.getHorizontalScrollBar().getPreferredSize().height;
+
+			// subtract the toolbar's size if it is not floating
+			BorderLayout layout = (BorderLayout) fContentPane.getLayout();
+			if ((fToolBar == layout.getLayoutComponent(BorderLayout.EAST)) || (fToolBar == layout.getLayoutComponent(BorderLayout.WEST))) {
+				currentWindowWidth -= fToolBar.getWidth();
+			}
+			else if ((fToolBar == layout.getLayoutComponent(BorderLayout.NORTH)) || (fToolBar == layout.getLayoutComponent(BorderLayout.SOUTH))) {
+				currentWindowHeight -= fToolBar.getHeight();
+			}
+
 			ScreenBoundsChooser screenBoundsChooser = new ScreenBoundsChooser(
 				this,
 				fractalIterator.getScreenWidth(),
 				fractalIterator.getScreenHeight(),
-				getWidth(),getHeight(),
-				getScreenInsets(),getInsets(),fFractalScrollPane.getInsets(),
-				fFractalScrollPane.getVerticalScrollBar().getPreferredSize().width,
-				fFractalScrollPane.getHorizontalScrollBar().getPreferredSize().height,
+				currentWindowWidth,
+				currentWindowHeight,
 				fStoredScreenSizes);
 			if (!screenBoundsChooser.isCancelled()) {
 				if (!screenBoundsChooser.isProjectedMemoryUsageAvailable()) {
@@ -3107,6 +3123,9 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 	@Override
 	protected void setupContentPane(JPanel contentPane)
 	{
+		// retain a reference to the embedded contentpane
+		fContentPane = contentPane;
+
 		contentPane.setLayout(new BorderLayout());
 				// create a panel containing a background drop
 				try {
@@ -3126,10 +3145,46 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			fFractalScrollPane.getVerticalScrollBar().setUnitIncrement(kScrollbarBlockIncrement);
 			fFractalScrollPane.addMouseListener(this);
 			fFractalScrollPane.addMouseMotionListener(this);
-			fFractalScrollPane.addMouseMotionListener(this);
 			fFractalScrollPane.getViewport().setScrollMode(JViewport.SIMPLE_SCROLL_MODE); // enable smooth scrolling when updating the various panels
 			fFractalPanel.setViewport(fFractalScrollPane.getViewport());
 		contentPane.add(fFractalScrollPane,BorderLayout.CENTER);
+
+//XXX
+		JButton button = null;
+
+			fToolBar = new JToolBar("toolBar");
+				button = new JButton("Reset zoom");
+				button.setActionCommand(kActionCommandMenuItemNavigationResetZoom);
+				button.addActionListener(this);
+			fToolBar.add(button);
+				button = new JButton("Inset");
+				button.setActionCommand(kActionCommandMenuItemFractalShowInset);
+				button.addActionListener(this);
+			fToolBar.add(button);
+				button = new JButton("Iterations");
+				button.setActionCommand(kActionCommandMenuItemFractalSetMaxNrOfIterations);
+				button.addActionListener(this);
+			fToolBar.add(button);
+				button = new JButton("Escape radius");
+				button.setActionCommand(kActionCommandMenuItemFractalSetEscapeRadius);
+				button.addActionListener(this);
+			fToolBar.add(button);
+				button = new JButton("Reset colouring");
+				button.setActionCommand(kActionCommandMenuItemColorMapResetToDefault);
+				button.addActionListener(this);
+			fToolBar.add(button);
+				button = new JButton("Random colouring");
+				button.setActionCommand(kActionCommandMenuItemColorMapExteriorRandom);
+				button.addActionListener(this);
+			fToolBar.add(button);
+				button = new JButton("Help");
+				button.setActionCommand(kActionCommandMenuItemHelpColoringSchemes);
+				button.addActionListener(this);
+			fToolBar.add(button);
+			fToolBar.addSeparator();
+			fToolBar.setFloatable(true);
+			fToolBar.setRollover(true);
+		contentPane.add(fToolBar,BorderLayout.NORTH);
 	}
 
 	/**
