@@ -1,7 +1,7 @@
 // -------------------------------
 // Filename      : FraxionGUI.java
 // Author        : Sven Maerivoet
-// Last modified : 12/02/2015
+// Last modified : 14/02/2015
 // Target        : Java VM (1.8)
 // -------------------------------
 
@@ -53,7 +53,7 @@ import org.sm.smtools.util.*;
  * <B>Note that this class cannot be subclassed!</B>
  *
  * @author  Sven Maerivoet
- * @version 12/02/2015
+ * @version 14/02/2015
  */
 public final class FraxionGUI extends JStandardGUIApplication implements ActionListener, MouseListener, MouseMotionListener, KeyListener
 {
@@ -80,15 +80,20 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 	private static final String kActionCommandMenuItemNavigationSetPanningSize = "menuItem.Navigation.SetPanningSize";
 	private static final String kActionCommandMenuItemNavigationInvertPanningDirections = "menuItem.Navigation.InvertPanningDirections";
 	private static final String kActionCommandMenuItemNavigationShowZoomInformation = "menuItem.Navigation.ShowZoomInformation";
+	private static final String kActionCommandMenuItemNavigationShowZoomInformationToggle = kActionCommandMenuItemNavigationShowZoomInformation + ".Toggle";
 	private static final String kActionCommandMenuItemNavigationLockAspectRatio = "menuItem.Navigation.LockAspectRatio";
 	private static final String kActionCommandMenuItemNavigationCentredZooming = "menuItem.Navigation.CentredZooming";
 	private static final String kActionCommandMenuItemNavigationResetZoom = "menuItem.Navigation.ResetZoom";
 	private static final String kActionCommandMenuItemNavigationZoomToLevel = "menuItem.Navigation.ZoomToLevel";
 	private static final String kActionCommandMenuItemNavigationShowAxes = "menuItem.Navigation.ShowAxes";
+	private static final String kActionCommandMenuItemNavigationShowAxesToggle = kActionCommandMenuItemNavigationShowAxes + ".Toggle";
 	private static final String kActionCommandMenuItemNavigationShowOverlayGrid = "menuItem.Navigation.ShowOverlayGrid";
+	private static final String kActionCommandMenuItemNavigationShowOverlayGridToggle = kActionCommandMenuItemNavigationShowOverlayGrid + ".Toggle";
 	private static final String kActionCommandMenuItemNavigationInvertYAxis = "menuItem.Navigation.InvertYAxis";
 	private static final String kActionCommandMenuItemNavigationShowCurrentLocation = "menuItem.Navigation.ShowCurrentLocation";
+	private static final String kActionCommandMenuItemNavigationShowCurrentLocationToggle = kActionCommandMenuItemNavigationShowCurrentLocation + ".Toggle";
 	private static final String kActionCommandMenuItemNavigationShowMagnifyingGlass = "menuItem.Navigation.ShowMagnifyingGlass";
+	private static final String kActionCommandMenuItemNavigationShowMagnifyingGlassToggle = kActionCommandMenuItemNavigationShowMagnifyingGlass + ".Toggle";
 	private static final String kActionCommandMenuItemNavigationSetMagnifyingGlassSize = "menuItem.Navigation.SetMagnifyingGlassSize";
 	private static final String kActionCommandMenuItemNavigationShowMainFractalOverview = "menuItem.Navigation.ShowMainFractalOverview";
 	private static final String kActionCommandMenuItemNavigationSpecifyScreenBounds = "menuItem.Navigation.SpecifyScreenBounds";
@@ -99,14 +104,17 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 	private static final String kActionCommandMenuItemFractalDoubleClickModeSetOrbitStartingPoint = "menuItem.Fractal.DoubleClickModeSetOrbitStartingPoint";
 	private static final String kActionCommandMenuItemFractalResetOrbitStartingPoint = "menuItem.Fractal.ResetOrbitStartingPoint";
 	private static final String kActionCommandMenuItemFractalShowInset = "menuItem.Fractal.ShowInset";
+	private static final String kActionCommandMenuItemFractalShowInsetToggle = kActionCommandMenuItemFractalShowInset + ".Toggle";
 	private static final String kActionCommandMenuItemFractalAutoSuppressDualFractal = "menuItem.Fractal.AutoSuppressDualFractal";
 	private static final String kActionCommandMenuItemFractalAutoZoomInset = "menuItem.Fractal.AutoZoomInset";
 	private static final String kActionCommandMenuItemFractalSetInsetSize = "menuItem.Fractal.SetInsetSize";
 	private static final String kActionCommandMenuItemFractalInsetFractalIsDeformedMainFractal = "menuItem.Fractal.InsetFractalIsDeformedMainFractal";
 	private static final String kActionCommandMenuItemFractalShowOrbits = "menuItem.Fractal.ShowOrbits";
+	private static final String kActionCommandMenuItemFractalShowOrbitsToggle = kActionCommandMenuItemFractalShowOrbits + ".Toggle";
 	private static final String kActionCommandMenuItemFractalShowOrbitPaths = "menuItem.Fractal.ShowOrbitPaths";
 	private static final String kActionCommandMenuItemFractalScaleOrbitsToScreen = "menuItem.Fractal.ScaleOrbitsToScreen";
 	private static final String kActionCommandMenuItemFractalShowOrbitAnalyses = "menuItem.Fractal.ShowOrbitAnalyses";
+	private static final String kActionCommandMenuItemFractalShowOrbitAnalysesToggle = kActionCommandMenuItemFractalShowOrbitAnalyses + ".Toggle";
 	private static final String kActionCommandMenuItemFractalShowIterationDistribution = "menuItem.Fractal.ShowIterationDistribution";
 	private static final String kActionCommandMenuItemFractalSetOrbitAnalysesPanelSize = "menuItem.Fractal.SetOrbitAnalysesPanelSize";
 	private static final String kActionCommandMenuItemFractalSetMaxNrOfIterationsInOrbitAnalyses = "menuItem.Fractal.SetMaxNrOfIterationsInOrbitAnalyses";
@@ -354,7 +362,9 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 	private static final String kActionCommandMenuItemColorMapUseSqrtScaling = "menuItem.ColorMap.UseSqrtScaling";
 	private static final String kActionCommandMenuItemColorMapSetScalingParameters = "menuItem.ColorMap.SetScalingParameters";
 	private static final String kActionCommandMenuItemColorMapUseRankOrderScaling = "menuItem.ColorMap.UseRankOrderScaling";
+	private static final String kActionCommandMenuItemColorMapUseRankOrderScalingToggle = kActionCommandMenuItemColorMapUseRankOrderScaling + ".Toggle";
 	private static final String kActionCommandMenuItemColorMapRestrictHighIterationCountColors = "menuItem.ColorMap.RestrictHighIterationCountColors";
+	private static final String kActionCommandMenuItemColorMapRestrictHighIterationCountColorsToggle = kActionCommandMenuItemColorMapRestrictHighIterationCountColors + ".Toggle";
 	private static final String kActionCommandMenuItemColorMapUseBinaryDecomposition = "menuItem.ColorMap.UseBinaryDecomposition";
 	private static final String kActionCommandMenuItemColorMapUseContours = "menuItem.ColorMap.UseContours";
 	private static final String kActionCommandMenuItemColorMapUseDarkSofteningFilter = "menuItem.ColorMap.UseDarkSofteningFilter";
@@ -427,6 +437,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 	private JLabel fStatusBarCalculationTimeLabel;
 	private JProgressUpdateGlassPane fProgressUpdateGlassPane;
 	private HashMap<String,JMenuItem> fMenuItems;
+	private HashMap<String,AbstractButton> fToolBarToggles;
 	private String fLastSelectedFractal;
 	private ArrayList<String> fFractalFamilyMenuItems;
 	private double fNavigationPanningSize;
@@ -445,8 +456,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 	 *************************/
 
 	static {
-//XXX
-		DevelopMode.activate();
+		DevelopMode.deactivate();
 
 		// hack for JDK7 and above
 		System.setProperty("java.util.Arrays.useLegacyMergeSort","true");
@@ -945,6 +955,11 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemNavigationShowZoomInformation)) {
 			fFractalPanel.setShowZoomInformation(fMenuItems.get(kActionCommandMenuItemNavigationShowZoomInformation).isSelected());
+			fToolBarToggles.get(kActionCommandMenuItemNavigationShowZoomInformationToggle).setSelected(fMenuItems.get(kActionCommandMenuItemNavigationShowZoomInformation).isSelected());
+		}
+		else if (command.equalsIgnoreCase(kActionCommandMenuItemNavigationShowZoomInformationToggle)) {
+			fFractalPanel.setShowZoomInformation(fToolBarToggles.get(kActionCommandMenuItemNavigationShowZoomInformationToggle).isSelected());
+			fMenuItems.get(kActionCommandMenuItemNavigationShowZoomInformation).setSelected(fToolBarToggles.get(kActionCommandMenuItemNavigationShowZoomInformationToggle).isSelected());
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemNavigationLockAspectRatio)) {
 			coloringParameters.fLockAspectRatio = fMenuItems.get(kActionCommandMenuItemNavigationLockAspectRatio).isSelected();
@@ -964,9 +979,19 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemNavigationShowAxes)) {
 			fFractalPanel.setShowAxes(fMenuItems.get(kActionCommandMenuItemNavigationShowAxes).isSelected());
+			fToolBarToggles.get(kActionCommandMenuItemNavigationShowAxesToggle).setSelected(fMenuItems.get(kActionCommandMenuItemNavigationShowAxes).isSelected());
+		}
+		else if (command.equalsIgnoreCase(kActionCommandMenuItemNavigationShowAxesToggle)) {
+			fFractalPanel.setShowAxes(fToolBarToggles.get(kActionCommandMenuItemNavigationShowAxesToggle).isSelected());
+			fMenuItems.get(kActionCommandMenuItemNavigationShowAxes).setSelected(fToolBarToggles.get(kActionCommandMenuItemNavigationShowAxesToggle).isSelected());
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemNavigationShowOverlayGrid)) {
 			fFractalPanel.setShowOverlayGrid(fMenuItems.get(kActionCommandMenuItemNavigationShowOverlayGrid).isSelected());
+			fToolBarToggles.get(kActionCommandMenuItemNavigationShowOverlayGridToggle).setSelected(fMenuItems.get(kActionCommandMenuItemNavigationShowOverlayGrid).isSelected());
+		}
+		else if (command.equalsIgnoreCase(kActionCommandMenuItemNavigationShowOverlayGridToggle)) {
+			fFractalPanel.setShowOverlayGrid(fToolBarToggles.get(kActionCommandMenuItemNavigationShowOverlayGridToggle).isSelected());
+			fMenuItems.get(kActionCommandMenuItemNavigationShowOverlayGrid).setSelected(fToolBarToggles.get(kActionCommandMenuItemNavigationShowOverlayGridToggle).isSelected());
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemNavigationInvertYAxis)) {
 			fractalIterator.setInvertYAxis(fMenuItems.get(kActionCommandMenuItemNavigationInvertYAxis).isSelected());
@@ -974,10 +999,21 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemNavigationShowCurrentLocation)) {
 			fFractalPanel.setShowCurrentLocation(fMenuItems.get(kActionCommandMenuItemNavigationShowCurrentLocation).isSelected());
+			fToolBarToggles.get(kActionCommandMenuItemNavigationShowCurrentLocationToggle).setSelected(fMenuItems.get(kActionCommandMenuItemNavigationShowCurrentLocation).isSelected());
+			changeLocationMouseCursor();
+		}
+		else if (command.equalsIgnoreCase(kActionCommandMenuItemNavigationShowCurrentLocationToggle)) {
+			fFractalPanel.setShowCurrentLocation(fToolBarToggles.get(kActionCommandMenuItemNavigationShowCurrentLocationToggle).isSelected());
+			fMenuItems.get(kActionCommandMenuItemNavigationShowCurrentLocation).setSelected(fToolBarToggles.get(kActionCommandMenuItemNavigationShowCurrentLocationToggle).isSelected());
 			changeLocationMouseCursor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemNavigationShowMagnifyingGlass)) {
 			fFractalPanel.setShowMagnifyingGlass(fMenuItems.get(kActionCommandMenuItemNavigationShowMagnifyingGlass).isSelected());
+			fToolBarToggles.get(kActionCommandMenuItemNavigationShowMagnifyingGlassToggle).setSelected(fMenuItems.get(kActionCommandMenuItemNavigationShowMagnifyingGlass).isSelected());
+		}
+		else if (command.equalsIgnoreCase(kActionCommandMenuItemNavigationShowMagnifyingGlassToggle)) {
+			fFractalPanel.setShowMagnifyingGlass(fToolBarToggles.get(kActionCommandMenuItemNavigationShowMagnifyingGlassToggle).isSelected());
+			fMenuItems.get(kActionCommandMenuItemNavigationShowMagnifyingGlass).setSelected(fToolBarToggles.get(kActionCommandMenuItemNavigationShowMagnifyingGlassToggle).isSelected());
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemNavigationSetMagnifyingGlassSize)) {
 			MagnifyingGlassSizeChooser magnifyingGlassSizeChooser = new MagnifyingGlassSizeChooser(this,fFractalPanel.getMagnifyingGlassRegion(),fFractalPanel.getMagnifyingGlassSize());
@@ -1068,6 +1104,11 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemFractalShowInset)) {
 			fFractalPanel.setShowInset(fMenuItems.get(kActionCommandMenuItemFractalShowInset).isSelected());
+			fToolBarToggles.get(kActionCommandMenuItemFractalShowInsetToggle).setSelected(fMenuItems.get(kActionCommandMenuItemFractalShowInset).isSelected());
+		}
+		else if (command.equalsIgnoreCase(kActionCommandMenuItemFractalShowInsetToggle)) {
+			fFractalPanel.setShowInset(fToolBarToggles.get(kActionCommandMenuItemFractalShowInsetToggle).isSelected());
+			fMenuItems.get(kActionCommandMenuItemFractalShowInset).setSelected(fToolBarToggles.get(kActionCommandMenuItemFractalShowInsetToggle).isSelected());
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemFractalAutoSuppressDualFractal)) {
 			fFractalPanel.setAutoSuppressDualFractal(fMenuItems.get(kActionCommandMenuItemFractalAutoSuppressDualFractal).isSelected());
@@ -1086,6 +1127,11 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemFractalShowOrbits)) {
 			fFractalPanel.setShowOrbits(fMenuItems.get(kActionCommandMenuItemFractalShowOrbits).isSelected());
+			fToolBarToggles.get(kActionCommandMenuItemFractalShowOrbitsToggle).setSelected(fMenuItems.get(kActionCommandMenuItemFractalShowOrbits).isSelected());
+		}
+		else if (command.equalsIgnoreCase(kActionCommandMenuItemFractalShowOrbitsToggle)) {
+			fFractalPanel.setShowOrbits(fToolBarToggles.get(kActionCommandMenuItemFractalShowOrbitsToggle).isSelected());
+			fMenuItems.get(kActionCommandMenuItemFractalShowOrbits).setSelected(fToolBarToggles.get(kActionCommandMenuItemFractalShowOrbitsToggle).isSelected());
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemFractalShowOrbitPaths)) {
 			fFractalPanel.setShowOrbitPaths(fMenuItems.get(kActionCommandMenuItemFractalShowOrbitPaths).isSelected());
@@ -1105,6 +1151,11 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemFractalShowOrbitAnalyses)) {
 			fFractalPanel.setShowOrbitAnalyses(fMenuItems.get(kActionCommandMenuItemFractalShowOrbitAnalyses).isSelected());
+			fToolBarToggles.get(kActionCommandMenuItemFractalShowOrbitAnalysesToggle).setSelected(fMenuItems.get(kActionCommandMenuItemFractalShowOrbitAnalyses).isSelected());
+		}
+		else if (command.equalsIgnoreCase(kActionCommandMenuItemFractalShowOrbitAnalysesToggle)) {
+			fFractalPanel.setShowOrbitAnalyses(fToolBarToggles.get(kActionCommandMenuItemFractalShowOrbitAnalysesToggle).isSelected());
+			fMenuItems.get(kActionCommandMenuItemFractalShowOrbitAnalyses).setSelected(fToolBarToggles.get(kActionCommandMenuItemFractalShowOrbitAnalysesToggle).isSelected());
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemFractalShowIterationDistribution)) {
 			fIteratorController.setEstimatePDF(fMenuItems.get(kActionCommandMenuItemFractalShowIterationDistribution).isSelected());
@@ -2583,22 +2634,30 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapUseLinearScaling)) {
 			coloringParameters.fColorMapScaling = ColoringParameters.EColorMapScaling.kLinear;
-			fMenuItems.get(kActionCommandMenuItemColorMapRestrictHighIterationCountColors).setEnabled(coloringParameters.fColorMapScaling == ColoringParameters.EColorMapScaling.kRankOrder);
+			fMenuItems.get(kActionCommandMenuItemColorMapRestrictHighIterationCountColors).setEnabled(false);
+			fToolBarToggles.get(kActionCommandMenuItemColorMapUseRankOrderScalingToggle).setSelected(false);
+			fToolBarToggles.get(kActionCommandMenuItemColorMapRestrictHighIterationCountColorsToggle).setEnabled(false);
 			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapUseLogarithmicScaling)) {
 			coloringParameters.fColorMapScaling = ColoringParameters.EColorMapScaling.kLogarithmic;
-			fMenuItems.get(kActionCommandMenuItemColorMapRestrictHighIterationCountColors).setEnabled(coloringParameters.fColorMapScaling == ColoringParameters.EColorMapScaling.kRankOrder);
+			fMenuItems.get(kActionCommandMenuItemColorMapRestrictHighIterationCountColors).setEnabled(false);
+			fToolBarToggles.get(kActionCommandMenuItemColorMapUseRankOrderScalingToggle).setSelected(false);
+			fToolBarToggles.get(kActionCommandMenuItemColorMapRestrictHighIterationCountColorsToggle).setEnabled(false);
 			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapUseExponentialScaling)) {
 			coloringParameters.fColorMapScaling = ColoringParameters.EColorMapScaling.kExponential;
-			fMenuItems.get(kActionCommandMenuItemColorMapRestrictHighIterationCountColors).setEnabled(coloringParameters.fColorMapScaling == ColoringParameters.EColorMapScaling.kRankOrder);
+			fMenuItems.get(kActionCommandMenuItemColorMapRestrictHighIterationCountColors).setEnabled(false);
+			fToolBarToggles.get(kActionCommandMenuItemColorMapUseRankOrderScalingToggle).setSelected(false);
+			fToolBarToggles.get(kActionCommandMenuItemColorMapRestrictHighIterationCountColorsToggle).setEnabled(false);
 			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapUseSqrtScaling)) {
 			coloringParameters.fColorMapScaling = ColoringParameters.EColorMapScaling.kSqrt;
-			fMenuItems.get(kActionCommandMenuItemColorMapRestrictHighIterationCountColors).setEnabled(coloringParameters.fColorMapScaling == ColoringParameters.EColorMapScaling.kRankOrder);
+			fMenuItems.get(kActionCommandMenuItemColorMapRestrictHighIterationCountColors).setEnabled(false);
+			fToolBarToggles.get(kActionCommandMenuItemColorMapUseRankOrderScalingToggle).setSelected(false);
+			fToolBarToggles.get(kActionCommandMenuItemColorMapRestrictHighIterationCountColorsToggle).setEnabled(false);
 			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapSetScalingParameters)) {
@@ -2611,11 +2670,34 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapUseRankOrderScaling)) {
 			coloringParameters.fColorMapScaling = ColoringParameters.EColorMapScaling.kRankOrder;
-			fMenuItems.get(kActionCommandMenuItemColorMapRestrictHighIterationCountColors).setEnabled(coloringParameters.fColorMapScaling == ColoringParameters.EColorMapScaling.kRankOrder);
+			fMenuItems.get(kActionCommandMenuItemColorMapRestrictHighIterationCountColors).setEnabled(true);
+			fToolBarToggles.get(kActionCommandMenuItemColorMapUseRankOrderScalingToggle).setSelected(true);
+			fToolBarToggles.get(kActionCommandMenuItemColorMapRestrictHighIterationCountColorsToggle).setEnabled(true);
+			fFractalPanel.recolor();
+		}
+		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapUseRankOrderScalingToggle)) {
+			if (fToolBarToggles.get(kActionCommandMenuItemColorMapUseRankOrderScalingToggle).isSelected()) {
+				coloringParameters.fColorMapScaling = ColoringParameters.EColorMapScaling.kRankOrder;
+				fMenuItems.get(kActionCommandMenuItemColorMapUseRankOrderScaling).setSelected(true);
+				fMenuItems.get(kActionCommandMenuItemColorMapRestrictHighIterationCountColors).setEnabled(true);
+				fToolBarToggles.get(kActionCommandMenuItemColorMapRestrictHighIterationCountColorsToggle).setEnabled(true);
+			}
+			else {
+				coloringParameters.fColorMapScaling = ColoringParameters.EColorMapScaling.kLinear;
+				fMenuItems.get(kActionCommandMenuItemColorMapUseLinearScaling).setSelected(true);
+				fMenuItems.get(kActionCommandMenuItemColorMapRestrictHighIterationCountColors).setEnabled(false);
+				fToolBarToggles.get(kActionCommandMenuItemColorMapRestrictHighIterationCountColorsToggle).setEnabled(false);
+			}
 			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapRestrictHighIterationCountColors)) {
 			coloringParameters.fRankOrderRestrictHighIterationCountColors = fMenuItems.get(kActionCommandMenuItemColorMapRestrictHighIterationCountColors).isSelected();
+			fToolBarToggles.get(kActionCommandMenuItemColorMapRestrictHighIterationCountColorsToggle).setSelected(fMenuItems.get(kActionCommandMenuItemColorMapRestrictHighIterationCountColors).isSelected());
+			fFractalPanel.recolor();
+		}
+		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapRestrictHighIterationCountColorsToggle)) {
+			coloringParameters.fRankOrderRestrictHighIterationCountColors = fToolBarToggles.get(kActionCommandMenuItemColorMapRestrictHighIterationCountColorsToggle).isSelected();
+			fMenuItems.get(kActionCommandMenuItemColorMapRestrictHighIterationCountColors).setSelected(fToolBarToggles.get(kActionCommandMenuItemColorMapRestrictHighIterationCountColorsToggle).isSelected());
 			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapSetIterationRange)) {
@@ -3149,39 +3231,167 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			fFractalPanel.setViewport(fFractalScrollPane.getViewport());
 		contentPane.add(fFractalScrollPane,BorderLayout.CENTER);
 
-//XXX
+		// create the toolbar
 		JButton button = null;
+		JToggleButton toggleButton = null;
+		final int kSeparatorSpacing = 5;
+		fToolBarToggles = new HashMap<String,AbstractButton>();
+			fToolBar = new JToolBar(I18NL10N.translate("toolBar.QuickAccess.Title"));
+			try {
+					button = new JButton (new ImageIcon(fResources.getImage("application-resources/icons/load-parameters-icon.png")));
+					button.setToolTipText(I18NL10N.translate(kActionCommandMenuItemFileLoadFractalParameters));
+					button.setActionCommand(kActionCommandMenuItemFileLoadFractalParameters);
+					button.addActionListener(this);
+				fToolBar.add(button);
+					button = new JButton (new ImageIcon(fResources.getImage("application-resources/icons/save-parameters-icon.png")));
+					button.setToolTipText(I18NL10N.translate(kActionCommandMenuItemFileSaveFractalParameters));
+					button.setActionCommand(kActionCommandMenuItemFileSaveFractalParameters);
+					button.addActionListener(this);
+				fToolBar.add(button);
+					button = new JButton (new ImageIcon(fResources.getImage("application-resources/icons/export-to-png-icon.png")));
+					button.setToolTipText(I18NL10N.translate(kActionCommandMenuItemFileExportToPNG));
+					button.setActionCommand(kActionCommandMenuItemFileExportToPNG);
+					button.addActionListener(this);
+				fToolBar.add(button);
 
-			fToolBar = new JToolBar("toolBar");
-				button = new JButton("Reset zoom");
-				button.setActionCommand(kActionCommandMenuItemNavigationResetZoom);
-				button.addActionListener(this);
-			fToolBar.add(button);
-				button = new JButton("Inset");
-				button.setActionCommand(kActionCommandMenuItemFractalShowInset);
-				button.addActionListener(this);
-			fToolBar.add(button);
-				button = new JButton("Iterations");
-				button.setActionCommand(kActionCommandMenuItemFractalSetMaxNrOfIterations);
-				button.addActionListener(this);
-			fToolBar.add(button);
-				button = new JButton("Escape radius");
-				button.setActionCommand(kActionCommandMenuItemFractalSetEscapeRadius);
-				button.addActionListener(this);
-			fToolBar.add(button);
-				button = new JButton("Reset colouring");
-				button.setActionCommand(kActionCommandMenuItemColorMapResetToDefault);
-				button.addActionListener(this);
-			fToolBar.add(button);
-				button = new JButton("Random colouring");
-				button.setActionCommand(kActionCommandMenuItemColorMapExteriorRandom);
-				button.addActionListener(this);
-			fToolBar.add(button);
-				button = new JButton("Help");
-				button.setActionCommand(kActionCommandMenuItemHelpColoringSchemes);
-				button.addActionListener(this);
-			fToolBar.add(button);
-			fToolBar.addSeparator();
+				fToolBar.add(Box.createRigidArea(new Dimension(kSeparatorSpacing,0)));
+				fToolBar.addSeparator();
+				fToolBar.add(Box.createRigidArea(new Dimension(kSeparatorSpacing,0)));
+
+					toggleButton = new JToggleButton(new ImageIcon(fResources.getImage("application-resources/icons/toggle-zoom-information-icon.png")));
+					toggleButton.setToolTipText(I18NL10N.translate(kActionCommandMenuItemNavigationShowZoomInformation));
+					toggleButton.setSelected(true);
+					toggleButton.setActionCommand(kActionCommandMenuItemNavigationShowZoomInformationToggle);
+					toggleButton.addActionListener(this);
+					fToolBarToggles.put(kActionCommandMenuItemNavigationShowZoomInformationToggle,toggleButton);
+				fToolBar.add(toggleButton);
+					toggleButton = new JToggleButton(new ImageIcon(fResources.getImage("application-resources/icons/toggle-axes-icon.png")));
+					toggleButton.setToolTipText(I18NL10N.translate(kActionCommandMenuItemNavigationShowAxes));
+					toggleButton.setActionCommand(kActionCommandMenuItemNavigationShowAxesToggle);
+					toggleButton.addActionListener(this);
+					fToolBarToggles.put(kActionCommandMenuItemNavigationShowAxesToggle,toggleButton);
+				fToolBar.add(toggleButton);
+					toggleButton = new JToggleButton(new ImageIcon(fResources.getImage("application-resources/icons/toggle-overlay-grid-icon.png")));
+					toggleButton.setToolTipText(I18NL10N.translate(kActionCommandMenuItemNavigationShowOverlayGrid));
+					toggleButton.setActionCommand(kActionCommandMenuItemNavigationShowOverlayGridToggle);
+					toggleButton.addActionListener(this);
+					fToolBarToggles.put(kActionCommandMenuItemNavigationShowOverlayGridToggle,toggleButton);
+				fToolBar.add(toggleButton);
+					toggleButton = new JToggleButton(new ImageIcon(fResources.getImage("application-resources/icons/toggle-current-location-icon.png")));
+					toggleButton.setToolTipText(I18NL10N.translate(kActionCommandMenuItemNavigationShowCurrentLocation));
+					toggleButton.setSelected(true);
+					toggleButton.setActionCommand(kActionCommandMenuItemNavigationShowCurrentLocationToggle);
+					toggleButton.addActionListener(this);
+					fToolBarToggles.put(kActionCommandMenuItemNavigationShowCurrentLocationToggle,toggleButton);
+				fToolBar.add(toggleButton);
+					toggleButton = new JToggleButton(new ImageIcon(fResources.getImage("application-resources/icons/toggle-magnifying-glass-icon.png")));
+					toggleButton.setToolTipText(I18NL10N.translate(kActionCommandMenuItemNavigationShowMagnifyingGlass));
+					toggleButton.setActionCommand(kActionCommandMenuItemNavigationShowMagnifyingGlassToggle);
+					toggleButton.addActionListener(this);
+					fToolBarToggles.put(kActionCommandMenuItemNavigationShowMagnifyingGlassToggle,toggleButton);
+				fToolBar.add(toggleButton);
+
+				fToolBar.add(Box.createRigidArea(new Dimension(kSeparatorSpacing,0)));
+				fToolBar.addSeparator();
+				fToolBar.add(Box.createRigidArea(new Dimension(kSeparatorSpacing,0)));
+
+					button = new JButton (new ImageIcon(fResources.getImage("application-resources/icons/specify-screen-bounds-icon.png")));
+					button.setToolTipText(I18NL10N.translate(kActionCommandMenuItemNavigationSpecifyScreenBounds));
+					button.setActionCommand(kActionCommandMenuItemNavigationSpecifyScreenBounds);
+					button.addActionListener(this);
+				fToolBar.add(button);
+					button = new JButton (new ImageIcon(fResources.getImage("application-resources/icons/specify-complex-bounds-icon.png")));
+					button.setToolTipText(I18NL10N.translate(kActionCommandMenuItemNavigationSpecifyComplexBounds));
+					button.setActionCommand(kActionCommandMenuItemNavigationSpecifyComplexBounds);
+					button.addActionListener(this);
+				fToolBar.add(button);
+
+				fToolBar.add(Box.createRigidArea(new Dimension(kSeparatorSpacing,0)));
+				fToolBar.addSeparator();
+				fToolBar.add(Box.createRigidArea(new Dimension(kSeparatorSpacing,0)));
+
+					toggleButton = new JToggleButton(new ImageIcon(fResources.getImage("application-resources/icons/toggle-inset-icon.png")));
+					toggleButton.setToolTipText(I18NL10N.translate(kActionCommandMenuItemFractalShowInset));
+					toggleButton.setSelected(true);
+					toggleButton.setActionCommand(kActionCommandMenuItemFractalShowInsetToggle);
+					toggleButton.addActionListener(this);
+					fToolBarToggles.put(kActionCommandMenuItemFractalShowInsetToggle,toggleButton);
+				fToolBar.add(toggleButton);
+					toggleButton = new JToggleButton(new ImageIcon(fResources.getImage("application-resources/icons/toggle-orbits-icon.png")));
+					toggleButton.setToolTipText(I18NL10N.translate(kActionCommandMenuItemFractalShowOrbits));
+					toggleButton.setActionCommand(kActionCommandMenuItemFractalShowOrbitsToggle);
+					toggleButton.addActionListener(this);
+					fToolBarToggles.put(kActionCommandMenuItemFractalShowOrbitsToggle,toggleButton);
+				fToolBar.add(toggleButton);
+					toggleButton = new JToggleButton(new ImageIcon(fResources.getImage("application-resources/icons/toggle-orbit-analyses-icon.png")));
+					toggleButton.setToolTipText(I18NL10N.translate(kActionCommandMenuItemFractalShowOrbitAnalyses));
+					toggleButton.setActionCommand(kActionCommandMenuItemFractalShowOrbitAnalysesToggle);
+					toggleButton.addActionListener(this);
+					fToolBarToggles.put(kActionCommandMenuItemFractalShowOrbitAnalysesToggle,toggleButton);
+				fToolBar.add(toggleButton);
+
+				fToolBar.add(Box.createRigidArea(new Dimension(kSeparatorSpacing,0)));
+				fToolBar.addSeparator();
+				fToolBar.add(Box.createRigidArea(new Dimension(kSeparatorSpacing,0)));
+
+					button = new JButton (new ImageIcon(fResources.getImage("application-resources/icons/specify-number-of-iterations-icon.png")));
+					button.setToolTipText(I18NL10N.translate(kActionCommandMenuItemFractalSetMaxNrOfIterations));
+					button.setActionCommand(kActionCommandMenuItemFractalSetMaxNrOfIterations);
+					button.addActionListener(this);
+				fToolBar.add(button);
+					button = new JButton (new ImageIcon(fResources.getImage("application-resources/icons/specify-escape-radius-icon.png")));
+					button.setToolTipText(I18NL10N.translate(kActionCommandMenuItemFractalSetEscapeRadius));
+					button.setActionCommand(kActionCommandMenuItemFractalSetEscapeRadius);
+					button.addActionListener(this);
+				fToolBar.add(button);
+
+				fToolBar.add(Box.createRigidArea(new Dimension(kSeparatorSpacing,0)));
+				fToolBar.addSeparator();
+				fToolBar.add(Box.createRigidArea(new Dimension(kSeparatorSpacing,0)));
+
+					button = new JButton (new ImageIcon(fResources.getImage("application-resources/icons/use-binary-decomposition-icon.png")));
+					button.setToolTipText(I18NL10N.translate(kActionCommandMenuItemColorMapUseBinaryDecomposition));
+					button.setActionCommand(kActionCommandMenuItemColorMapUseBinaryDecomposition);
+					button.addActionListener(this);
+				fToolBar.add(button);
+					button = new JButton (new ImageIcon(fResources.getImage("application-resources/icons/reset-to-default-icon.png")));
+					button.setToolTipText(I18NL10N.translate(kActionCommandMenuItemColorMapResetToDefault));
+					button.setActionCommand(kActionCommandMenuItemColorMapResetToDefault);
+					button.addActionListener(this);
+				fToolBar.add(button);
+					toggleButton = new JToggleButton(new ImageIcon(fResources.getImage("application-resources/icons/toggle-rank-order-scaling-icon.png")));
+					toggleButton.setToolTipText(I18NL10N.translate(kActionCommandMenuItemColorMapUseRankOrderScaling));
+					toggleButton.setActionCommand(kActionCommandMenuItemColorMapUseRankOrderScalingToggle);
+					toggleButton.addActionListener(this);
+					fToolBarToggles.put(kActionCommandMenuItemColorMapUseRankOrderScalingToggle,toggleButton);
+				fToolBar.add(toggleButton);
+					toggleButton = new JToggleButton(new ImageIcon(fResources.getImage("application-resources/icons/toggle-restrict-high-iteration-counts-icon.png")));
+					toggleButton.setToolTipText(I18NL10N.translate(kActionCommandMenuItemColorMapRestrictHighIterationCountColors));
+					toggleButton.setActionCommand(kActionCommandMenuItemColorMapRestrictHighIterationCountColorsToggle);
+					toggleButton.addActionListener(this);
+					toggleButton.setSelected(true);
+					toggleButton.setEnabled(false);
+					fToolBarToggles.put(kActionCommandMenuItemColorMapRestrictHighIterationCountColorsToggle,toggleButton);
+				fToolBar.add(toggleButton);
+					button = new JButton (new ImageIcon(fResources.getImage("application-resources/icons/setup-post-processing-filters-icon.png")));
+					button.setToolTipText(I18NL10N.translate(kActionCommandMenuItemColorSetupPostProcessingFilters));
+					button.setActionCommand(kActionCommandMenuItemColorSetupPostProcessingFilters);
+					button.addActionListener(this);
+				fToolBar.add(button);
+
+				fToolBar.add(Box.createRigidArea(new Dimension(kSeparatorSpacing,0)));
+				fToolBar.addSeparator();
+				fToolBar.add(Box.createRigidArea(new Dimension(kSeparatorSpacing,0)));
+				
+					button = new JButton (new ImageIcon(fResources.getImage("application-resources/icons/help-general-information-icon.png")));
+					button.setToolTipText(I18NL10N.translate(kActionCommandMenuItemHelpGeneralInformation));
+					button.setActionCommand(kActionCommandMenuItemHelpGeneralInformation);
+					button.addActionListener(this);
+				fToolBar.add(button);
+			}
+			catch (FileDoesNotExistException exc) {
+				// ignore
+			}
 			fToolBar.setFloatable(true);
 			fToolBar.setRollover(true);
 		contentPane.add(fToolBar,BorderLayout.NORTH);
