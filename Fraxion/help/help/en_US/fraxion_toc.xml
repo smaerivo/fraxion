@@ -80,6 +80,7 @@
 			<tocitem text="Collatz" target="fractal_types_collatz" />
 			<tocitem text="Phoenix" target="fractal_types_phoenix" />
 			<tocitem text="Man 'o War" target="fractal_types_man_o_war" />
+			<tocitem text="Quadbrot" target="fractal_types_quadbrot" />
 		</tocitem>
 
 		<tocitem text="Newton / Raphson">

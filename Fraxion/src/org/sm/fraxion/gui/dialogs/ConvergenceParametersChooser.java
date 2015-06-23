@@ -24,7 +24,7 @@
 package org.sm.fraxion.gui.dialogs;
 
 import javax.swing.*;
-import org.sm.fraxion.fractals.*;
+import org.sm.fraxion.fractals.convergent.*;
 import org.sm.smtools.application.util.*;
 import org.sm.smtools.math.complex.*;
 import org.sm.smtools.swing.dialogs.*;

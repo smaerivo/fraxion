@@ -1,7 +1,7 @@
 // ---------------------------------------
 // Filename      : ColoringParameters.java
 // Author        : Sven Maerivoet
-// Last modified : 02/02/2015
+// Last modified : 23/06/2015
 // Target        : Java VM (1.8)
 // ---------------------------------------
 
@@ -24,6 +24,7 @@
 package org.sm.fraxion.fractals.util;
 
 import java.awt.*;
+import java.io.*;
 import org.sm.fraxion.gui.filters.*;
 import org.sm.smtools.exceptions.*;
 import org.sm.smtools.swing.util.*;
@@ -35,7 +36,7 @@ import org.sm.smtools.util.*;
  * <B>Note that this class cannot be subclassed!</B>
  * 
  * @author  Sven Maerivoet
- * @version 02/02/2015
+ * @version 23/06/2015
  */
 public final class ColoringParameters
 {
@@ -58,6 +59,11 @@ public final class ColoringParameters
 		kStriping,
 		kMinimumGaussianIntegersDistance,
 		kAverageGaussianIntegersDistance,
+		kExteriorDistance,
+		kOrbitTrapDisk,
+		kOrbitTrapCrossStalks,
+		kOrbitTrapSine,
+		kOrbitTrapTangens,
 		kDiscreteRoots,
 		kSmoothRoots};
 
@@ -111,26 +117,26 @@ public final class ColoringParameters
 	 ******************/
 	
 	/**
-	 * Loads the fractal colouring information from a file.
+	 * Loads the fractal colouring information from a plain-text file.
 	 *
 	 * @param  tfp                 a reference to the file parser
 	 * @throws FileParseException  in case a parse error occurs
 	 */
-	public void load(TextFileParser tfp) throws FileParseException
+	public void plainTextLoad(TextFileParser tfp) throws FileParseException
 	{
 		fInteriorGradientColorMap = new JGradientColorMap(JGradientColorMap.EColorMap.valueOf(tfp.getNextString()));
 		if (fInteriorGradientColorMap.getColorMap() == JGradientColorMap.EColorMap.kRandom) {
-			fInteriorGradientColorMap.loadRandomColorMapComponents(tfp);
+			fInteriorGradientColorMap.plainTextLoadRandomColorMapComponents(tfp);
 		}
 		else if (fInteriorGradientColorMap.getColorMap() == JGradientColorMap.EColorMap.kCustom) {
-			fInteriorGradientColorMap.loadCustomColorMapComponents(tfp);
+			fInteriorGradientColorMap.plainTextLoadCustomColorMapComponents(tfp);
 		}
 		fExteriorGradientColorMap = new JGradientColorMap(JGradientColorMap.EColorMap.valueOf(tfp.getNextString()));
 		if (fExteriorGradientColorMap.getColorMap() == JGradientColorMap.EColorMap.kRandom) {
-			fExteriorGradientColorMap.loadRandomColorMapComponents(tfp);
+			fExteriorGradientColorMap.plainTextLoadRandomColorMapComponents(tfp);
 		}
 		else if (fExteriorGradientColorMap.getColorMap() == JGradientColorMap.EColorMap.kCustom) {
-			fExteriorGradientColorMap.loadCustomColorMapComponents(tfp);
+			fExteriorGradientColorMap.plainTextLoadCustomColorMapComponents(tfp);
 		}
 		fInteriorColorMapInverted = tfp.getNextBoolean();
 		fExteriorColorMapInverted = tfp.getNextBoolean();
@@ -140,10 +146,10 @@ public final class ColoringParameters
 		fUseTigerStripes = tfp.getNextBoolean();
 		fTigerGradientColorMap = new JGradientColorMap(JGradientColorMap.EColorMap.valueOf(tfp.getNextString()));
 		if (fTigerGradientColorMap.getColorMap() == JGradientColorMap.EColorMap.kRandom) {
-			fTigerGradientColorMap.loadRandomColorMapComponents(tfp);
+			fTigerGradientColorMap.plainTextLoadRandomColorMapComponents(tfp);
 		}
 		else if (fTigerGradientColorMap.getColorMap() == JGradientColorMap.EColorMap.kCustom) {
-			fTigerGradientColorMap.loadCustomColorMapComponents(tfp);
+			fTigerGradientColorMap.plainTextLoadCustomColorMapComponents(tfp);
 		}
 		fTigerUseFixedColor = tfp.getNextBoolean();
 		fTigerStripeFixedColor = new Color(tfp.getNextInteger());
@@ -168,35 +174,96 @@ public final class ColoringParameters
 		fBrightnessFactor = tfp.getNextDouble();
 		fLockAspectRatio = tfp.getNextBoolean();
 		fUsePostProcessingFilters = tfp.getNextBoolean();
-		fPostProcessingFilterChain.load(tfp);
+		fPostProcessingFilterChain.plainTextLoad(tfp);
 	}
 
 	/**
-	 * Saves the current fractal colouring parameters to a file.
+	 * Loads the fractal colouring information from a file as a stream.
+	 *
+	 * @param  dataInputStream  a data inputstream
+	 * @throws IOException      in case a parse error occurs
+	 */
+	public void streamLoad(DataInputStream dataInputStream) throws IOException
+	{
+		fInteriorGradientColorMap = new JGradientColorMap(JGradientColorMap.EColorMap.valueOf(dataInputStream.readUTF()));
+		if (fInteriorGradientColorMap.getColorMap() == JGradientColorMap.EColorMap.kRandom) {
+			fInteriorGradientColorMap.streamLoadRandomColorMapComponents(dataInputStream);
+		}
+		else if (fInteriorGradientColorMap.getColorMap() == JGradientColorMap.EColorMap.kCustom) {
+			fInteriorGradientColorMap.streamLoadCustomColorMapComponents(dataInputStream);
+		}
+		fExteriorGradientColorMap = new JGradientColorMap(JGradientColorMap.EColorMap.valueOf(dataInputStream.readUTF()));
+		if (fExteriorGradientColorMap.getColorMap() == JGradientColorMap.EColorMap.kRandom) {
+			fExteriorGradientColorMap.streamLoadRandomColorMapComponents(dataInputStream);
+		}
+		else if (fExteriorGradientColorMap.getColorMap() == JGradientColorMap.EColorMap.kCustom) {
+			fExteriorGradientColorMap.streamLoadCustomColorMapComponents(dataInputStream);
+		}
+		fInteriorColorMapInverted = dataInputStream.readBoolean();
+		fExteriorColorMapInverted = dataInputStream.readBoolean();
+		fInteriorColorMapWrappedAround = dataInputStream.readBoolean();
+		fExteriorColorMapWrappedAround = dataInputStream.readBoolean();
+		fCalculateAdvancedColoring = dataInputStream.readBoolean();
+		fUseTigerStripes = dataInputStream.readBoolean();
+		fTigerGradientColorMap = new JGradientColorMap(JGradientColorMap.EColorMap.valueOf(dataInputStream.readUTF()));
+		if (fTigerGradientColorMap.getColorMap() == JGradientColorMap.EColorMap.kRandom) {
+			fTigerGradientColorMap.streamLoadRandomColorMapComponents(dataInputStream);
+		}
+		else if (fTigerGradientColorMap.getColorMap() == JGradientColorMap.EColorMap.kCustom) {
+			fTigerGradientColorMap.streamLoadCustomColorMapComponents(dataInputStream);
+		}
+		fTigerUseFixedColor = dataInputStream.readBoolean();
+		fTigerStripeFixedColor = new Color(dataInputStream.readInt());
+		fInteriorColor = new Color(dataInputStream.readInt());
+		fExteriorColor = new Color(dataInputStream.readInt());
+		fInteriorColoringMethod = EColoringMethod.valueOf(dataInputStream.readUTF());
+		fExteriorColoringMethod = EColoringMethod.valueOf(dataInputStream.readUTF());
+		fColorMapInteriorSectorDecompositionRange = dataInputStream.readInt();
+		fColorMapExteriorSectorDecompositionRange = dataInputStream.readInt();
+		fColorMapScaling = EColorMapScaling.valueOf(dataInputStream.readUTF());
+		fColorMapScalingFunctionMultiplier = dataInputStream.readDouble();
+		fColorMapScalingArgumentMultiplier = dataInputStream.readDouble();
+		fRankOrderRestrictHighIterationCountColors = dataInputStream.readBoolean();
+		fColorMapRepeatMode = dataInputStream.readBoolean();
+		fColorMapColorRepetition = dataInputStream.readDouble();
+		fColorMapColorOffset = dataInputStream.readDouble();
+		fColorMapUsage = EColorMapUsage.valueOf(dataInputStream.readUTF());
+		fColorMapContinuousColorRange = dataInputStream.readDouble();
+		fColorMapDiscreteColorRange = dataInputStream.readInt();
+		fLowIterationRange = dataInputStream.readInt();
+		fHighIterationRange = dataInputStream.readInt();
+		fBrightnessFactor = dataInputStream.readDouble();
+		fLockAspectRatio = dataInputStream.readBoolean();
+		fUsePostProcessingFilters = dataInputStream.readBoolean();
+		fPostProcessingFilterChain.streamLoad(dataInputStream);
+	}
+
+	/**
+	 * Saves the current fractal colouring parameters to a plain-text file.
 	 * 
 	 * @param  tfw                 a reference to the file writer
 	 * @throws FileWriteException  in case a write error occurs
 	 */
-	public void save(TextFileWriter tfw) throws FileWriteException
+	public void plainTextSave(TextFileWriter tfw) throws FileWriteException
 	{
 		JGradientColorMap.EColorMap interiorColorMap = fInteriorGradientColorMap.getColorMap();
 		tfw.writeString(interiorColorMap.toString());
 		tfw.writeLn();
 		if (interiorColorMap == JGradientColorMap.EColorMap.kRandom) {
-			fInteriorGradientColorMap.saveRandomColorMapComponents(tfw);
+			fInteriorGradientColorMap.plainTextSaveRandomColorMapComponents(tfw);
 		}
 		else if (interiorColorMap == JGradientColorMap.EColorMap.kCustom) {
-			fInteriorGradientColorMap.saveCustomColorMapComponents(tfw);
+			fInteriorGradientColorMap.plainTextSaveCustomColorMapComponents(tfw);
 		}
 
 		JGradientColorMap.EColorMap exteriorColorMap = fExteriorGradientColorMap.getColorMap();
 		tfw.writeString(exteriorColorMap.toString());
 		tfw.writeLn();
 		if (exteriorColorMap == JGradientColorMap.EColorMap.kRandom) {
-			fExteriorGradientColorMap.saveRandomColorMapComponents(tfw);
+			fExteriorGradientColorMap.plainTextSaveRandomColorMapComponents(tfw);
 		}
 		else if (exteriorColorMap == JGradientColorMap.EColorMap.kCustom) {
-			fExteriorGradientColorMap.saveCustomColorMapComponents(tfw);
+			fExteriorGradientColorMap.plainTextSaveCustomColorMapComponents(tfw);
 		}
 
 		tfw.writeBoolean(fInteriorColorMapInverted);
@@ -221,10 +288,10 @@ public final class ColoringParameters
 		tfw.writeString(tigerColorMap.toString());
 		tfw.writeLn();
 		if (tigerColorMap == JGradientColorMap.EColorMap.kRandom) {
-			fTigerGradientColorMap.saveRandomColorMapComponents(tfw);
+			fTigerGradientColorMap.plainTextSaveRandomColorMapComponents(tfw);
 		}
 		else if (tigerColorMap == JGradientColorMap.EColorMap.kCustom) {
-			fTigerGradientColorMap.saveCustomColorMapComponents(tfw);
+			fTigerGradientColorMap.plainTextSaveCustomColorMapComponents(tfw);
 		}
 
 		tfw.writeBoolean(fTigerUseFixedColor);
@@ -296,6 +363,75 @@ public final class ColoringParameters
 		tfw.writeBoolean(fUsePostProcessingFilters);
 		tfw.writeLn();
 
-		fPostProcessingFilterChain.save(tfw);
+		fPostProcessingFilterChain.plainTextSave(tfw);
+	}
+
+	/**
+	 * Saves the current fractal colouring parameters to a file as a stream.
+	 * 
+	 * @param  dataOutputStream  a data outputstream
+	 * @throws IOException       in case a write error occurs
+	 */
+	public void streamSave(DataOutputStream dataOutputStream) throws IOException
+	{
+		JGradientColorMap.EColorMap interiorColorMap = fInteriorGradientColorMap.getColorMap();
+		dataOutputStream.writeUTF(interiorColorMap.toString());
+		if (interiorColorMap == JGradientColorMap.EColorMap.kRandom) {
+			fInteriorGradientColorMap.streamSaveRandomColorMapComponents(dataOutputStream);
+		}
+		else if (interiorColorMap == JGradientColorMap.EColorMap.kCustom) {
+			fInteriorGradientColorMap.streamSaveCustomColorMapComponents(dataOutputStream);
+		}
+
+		JGradientColorMap.EColorMap exteriorColorMap = fExteriorGradientColorMap.getColorMap();
+		dataOutputStream.writeUTF(exteriorColorMap.toString());
+		if (exteriorColorMap == JGradientColorMap.EColorMap.kRandom) {
+			fExteriorGradientColorMap.streamSaveRandomColorMapComponents(dataOutputStream);
+		}
+		else if (exteriorColorMap == JGradientColorMap.EColorMap.kCustom) {
+			fExteriorGradientColorMap.streamSaveCustomColorMapComponents(dataOutputStream);
+		}
+
+		dataOutputStream.writeBoolean(fInteriorColorMapInverted);
+		dataOutputStream.writeBoolean(fExteriorColorMapInverted);
+		dataOutputStream.writeBoolean(fInteriorColorMapWrappedAround);
+		dataOutputStream.writeBoolean(fExteriorColorMapWrappedAround);
+		dataOutputStream.writeBoolean(fCalculateAdvancedColoring);
+		dataOutputStream.writeBoolean(fUseTigerStripes);
+
+		JGradientColorMap.EColorMap tigerColorMap = fTigerGradientColorMap.getColorMap();
+		dataOutputStream.writeUTF(tigerColorMap.toString());
+		if (tigerColorMap == JGradientColorMap.EColorMap.kRandom) {
+			fTigerGradientColorMap.streamSaveRandomColorMapComponents(dataOutputStream);
+		}
+		else if (tigerColorMap == JGradientColorMap.EColorMap.kCustom) {
+			fTigerGradientColorMap.streamSaveCustomColorMapComponents(dataOutputStream);
+		}
+
+		dataOutputStream.writeBoolean(fTigerUseFixedColor);
+		dataOutputStream.writeInt(fTigerStripeFixedColor.getRGB());
+		dataOutputStream.writeInt(fInteriorColor.getRGB());
+		dataOutputStream.writeInt(fExteriorColor.getRGB());
+		dataOutputStream.writeUTF(fInteriorColoringMethod.toString());
+		dataOutputStream.writeUTF(fExteriorColoringMethod.toString());
+		dataOutputStream.writeInt(fColorMapInteriorSectorDecompositionRange);
+		dataOutputStream.writeInt(fColorMapExteriorSectorDecompositionRange);
+		dataOutputStream.writeUTF(fColorMapScaling.toString());
+		dataOutputStream.writeDouble(fColorMapScalingFunctionMultiplier);
+		dataOutputStream.writeDouble(fColorMapScalingArgumentMultiplier);
+		dataOutputStream.writeBoolean(fRankOrderRestrictHighIterationCountColors);
+		dataOutputStream.writeBoolean(fColorMapRepeatMode);
+		dataOutputStream.writeDouble(fColorMapColorRepetition);
+		dataOutputStream.writeDouble(fColorMapColorOffset);
+		dataOutputStream.writeUTF(fColorMapUsage.toString());
+		dataOutputStream.writeDouble(fColorMapContinuousColorRange);
+		dataOutputStream.writeInt(fColorMapDiscreteColorRange);
+		dataOutputStream.writeInt(fLowIterationRange);
+		dataOutputStream.writeInt(fHighIterationRange);
+		dataOutputStream.writeDouble(fBrightnessFactor);
+		dataOutputStream.writeBoolean(fLockAspectRatio);
+		dataOutputStream.writeBoolean(fUsePostProcessingFilters);
+
+		fPostProcessingFilterChain.streamSave(dataOutputStream);
 	}
 }

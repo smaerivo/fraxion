@@ -26,6 +26,7 @@ package org.sm.fraxion.concurrent;
 import java.util.*;
 import javax.swing.*;
 import org.sm.fraxion.fractals.*;
+import org.sm.fraxion.fractals.divergent.*;
 import org.sm.fraxion.fractals.util.*;
 import org.sm.fraxion.gui.*;
 import org.sm.smtools.application.util.*;
@@ -128,7 +129,7 @@ public final class IteratorController
 			fEstimatePDF,
 			fResources);
 
-		int nrOfProcessors = MemoryStatistics.getNrOfProcessors();
+		int nrOfProcessors = SystemInformation.getNrOfProcessors();
 		if (nrOfProcessors > 1) {
 			setNrOfThreadsToUse(nrOfProcessors - 1);
 		}

@@ -1,7 +1,7 @@
 // -----------------------------------------
 // Filename      : IteratorTaskExecutor.java
 // Author        : Sven Maerivoet
-// Last modified : 08/02/2015
+// Last modified : 08/06/2015
 // Target        : Java VM (1.8)
 // -----------------------------------------
 
@@ -25,6 +25,7 @@ package org.sm.fraxion.concurrent;
 
 import javax.swing.*;
 import org.sm.fraxion.fractals.*;
+import org.sm.fraxion.fractals.convergent.*;
 import org.sm.fraxion.fractals.util.*;
 import org.sm.fraxion.gui.*;
 import org.sm.smtools.application.concurrent.*;
@@ -41,7 +42,7 @@ import org.sm.smtools.util.*;
  * <B>Note that this class cannot be subclassed!</B>
  *
  * @author  Sven Maerivoet
- * @version 08/02/2015
+ * @version 08/06/2015
  */
 public class IteratorTaskExecutor extends TaskExecutor
 {

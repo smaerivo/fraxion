@@ -1,7 +1,7 @@
 // --------------------------------
 // Filename      : FilterChain.java
 // Author        : Sven Maerivoet
-// Last modified : 22/12/2014
+// Last modified : 23/06/2015
 // Target        : Java VM (1.8)
 // --------------------------------
 
@@ -23,6 +23,7 @@
 
 package org.sm.fraxion.gui.filters;
 
+import java.io.*;
 import java.util.*;
 import org.sm.smtools.exceptions.*;
 import org.sm.smtools.util.*;
@@ -31,7 +32,7 @@ import org.sm.smtools.util.*;
  * The <CODE>FilterChain</CODE> class provides the container for a filter chain.
  * 
  * @author  Sven Maerivoet
- * @version 22/12/2014
+ * @version 23/06/2015
  */
 public class FilterChain implements Cloneable
 {
@@ -96,12 +97,12 @@ public class FilterChain implements Cloneable
 	}
 
 	/**
-	 * Loads the filter chain from a file.
+	 * Loads the filter chain from a plain-text file.
 	 * 
 	 * @param  tfp                 a reference to the file parser
 	 * @throws FileParseException  in case a read error occurs
 	 */
-	public void load(TextFileParser tfp) throws FileParseException
+	public void plainTextLoad(TextFileParser tfp) throws FileParseException
 	{
 		reset();
 
@@ -125,18 +126,53 @@ public class FilterChain implements Cloneable
 			else if (filterName.equalsIgnoreCase((new SharpenFilter()).getName())) {
 				filter = new SharpenFilter();
 			}
-			filter.loadParameters(tfp);
+			filter.plainTextLoadParameters(tfp);
 			addFilter(filter);
 		}
 	}
 
 	/**
-	 * Saves the filter chain to a file.
+	 * Loads the filter chain from a file as a stream.
+	 * 
+	 * @param  dataInputStream  a data inputstream
+	 * @throws IOException      in case a parse error occurs
+	 */
+	public void streamLoad(DataInputStream dataInputStream) throws IOException
+	{
+		reset();
+
+		int filterChainSize = dataInputStream.readInt();
+
+		for (int i = 0; i < filterChainSize; ++i) {
+			String filterName = dataInputStream.readUTF();
+			AFilter filter = new IdentityFilter();
+			if (filterName.equalsIgnoreCase((new BlurFilter()).getName())) {
+				filter = new BlurFilter();
+			}
+			else if (filterName.equalsIgnoreCase((new EdgeFilter()).getName())) {
+				filter = new EdgeFilter();
+			}
+			else if (filterName.equalsIgnoreCase((new InvertFilter()).getName())) {
+				filter = new InvertFilter();
+			}
+			else if (filterName.equalsIgnoreCase((new PosteriseFilter()).getName())) {
+				filter = new PosteriseFilter();
+			}
+			else if (filterName.equalsIgnoreCase((new SharpenFilter()).getName())) {
+				filter = new SharpenFilter();
+			}
+			filter.streamLoadParameters(dataInputStream);
+			addFilter(filter);
+		}
+	}
+
+	/**
+	 * Saves the filter chain to a plain-text file.
 	 * 
 	 * @param  tfw                 a reference to the file writer
 	 * @throws FileWriteException  in case a write error occurs
 	 */
-	public void save(TextFileWriter tfw) throws FileWriteException
+	public void plainTextSave(TextFileWriter tfw) throws FileWriteException
 	{
 		tfw.writeInteger(size());
 		tfw.writeLn();
@@ -144,7 +180,23 @@ public class FilterChain implements Cloneable
 		for (AFilter filter : fFilterChain) { 
 			tfw.writeString(filter.getName());
 			tfw.writeLn();
-			filter.saveParameters(tfw);
+			filter.plainTextSaveParameters(tfw);
+		}
+	}
+
+	/**
+	 * Saves the filter chain to a file as a stream.
+	 * 
+	 * @param  dataOutputStream  a data outputstream
+	 * @throws IOException       in case a write error occurs
+	 */
+	public void streamSave(DataOutputStream dataOutputStream) throws IOException
+	{
+		dataOutputStream.writeInt(size());
+
+		for (AFilter filter : fFilterChain) { 
+			dataOutputStream.writeUTF(filter.getName());
+			filter.streamSaveParameters(dataOutputStream);
 		}
 	}
 
