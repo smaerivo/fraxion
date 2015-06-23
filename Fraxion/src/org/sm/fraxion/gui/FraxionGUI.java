@@ -1,7 +1,7 @@
 // -------------------------------
 // Filename      : FraxionGUI.java
 // Author        : Sven Maerivoet
-// Last modified : 14/02/2015
+// Last modified : 23/06/2015
 // Target        : Java VM (1.8)
 // -------------------------------
 
@@ -34,6 +34,12 @@ import javax.swing.*;
 import org.apache.log4j.*;
 import org.sm.fraxion.concurrent.*;
 import org.sm.fraxion.fractals.*;
+import org.sm.fraxion.fractals.convergent.*;
+import org.sm.fraxion.fractals.divergent.*;
+import org.sm.fraxion.fractals.divergent.multi.*;
+import org.sm.fraxion.fractals.divergent.trigonometric.*;
+import org.sm.fraxion.fractals.magnet.*;
+import org.sm.fraxion.fractals.markuslyapunov.*;
 import org.sm.fraxion.fractals.util.*;
 import org.sm.fraxion.gui.dialogs.*;
 import org.sm.fraxion.gui.filters.*;
@@ -53,9 +59,9 @@ import org.sm.smtools.util.*;
  * <B>Note that this class cannot be subclassed!</B>
  *
  * @author  Sven Maerivoet
- * @version 14/02/2015
+ * @version 23/06/2015
  */
-public final class FraxionGUI extends JStandardGUIApplication implements ActionListener, MouseListener, MouseMotionListener, KeyListener
+public final class FraxionGUI extends JStandardGUIApplication implements ActionListener, MouseListener, MouseMotionListener
 {
 	// the application's icon filename
 	private static final String kApplicationIconFilename = "application-resources/images/icon.jpg";
@@ -76,7 +82,11 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 	private static final String kActionCommandMenuItemNavigationPanLeft = "menuItem.Navigation.PanLeft";
 	private static final String kActionCommandMenuItemNavigationPanRight = "menuItem.Navigation.PanRight";
 	private static final String kActionCommandMenuItemNavigationPanUp = "menuItem.Navigation.PanUp";
-	private static final String kActionCommandMenuItemNavigationPanDown = "menuItem.Navigation.PanDown";
+	private static final String kActionCommandMenuItemNavigationMenuPanDown = "menuItem.Navigation.PanDown";
+	private static final String kActionCommandMenuItemNavigationKeyPanLeft = "menuItem.Navigation.KeyPanLeft";
+	private static final String kActionCommandMenuItemNavigationKeyPanRight = "menuItem.Navigation.KeyPanRight";
+	private static final String kActionCommandMenuItemNavigationKeyPanUp = "menuItem.Navigation.KeyPanUp";
+	private static final String kActionCommandMenuItemNavigationKeyPanDown = "menuItem.Navigation.KeyPanDown";
 	private static final String kActionCommandMenuItemNavigationSetPanningSize = "menuItem.Navigation.SetPanningSize";
 	private static final String kActionCommandMenuItemNavigationInvertPanningDirections = "menuItem.Navigation.InvertPanningDirections";
 	private static final String kActionCommandMenuItemNavigationShowZoomInformation = "menuItem.Navigation.ShowZoomInformation";
@@ -159,6 +169,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 	private static final String kActionCommandMenuItemFractalFamilyCollatz = "menuItem.Fractal.Family.Collatz";
 	private static final String kActionCommandMenuItemFractalFamilyPhoenix = "menuItem.Fractal.Family.Phoenix";
 	private static final String kActionCommandMenuItemFractalFamilyManowar = "menuItem.Fractal.Family.Manowar";
+	private static final String kActionCommandMenuItemFractalFamilyQuadbrot = "menuItem.Fractal.Family.Quadbrot";
 	private static final String kActionCommandMenuItemFractalFamilyNewtonRaphsonPower = "menuItem.Fractal.Family.NewtonRaphsonPower";
 	private static final String kActionCommandMenuItemFractalFamilyNewtonRaphsonPowerPolynomial = "menuItem.Fractal.Family.NewtonRaphsonPowerPolynomial";
 	private static final String kActionCommandMenuItemFractalFamilyNewtonRaphsonFixedPolynomial1 = "menuItem.Fractal.Family.NewtonRaphsonFixedPolynomial1";
@@ -200,7 +211,6 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 	private static final String kActionCommandMenuItemFractalFamilyTrigonometricPowerMultiCosineSetPower = "menuItem.Fractal.Family.TrigonometricPowerMultiCosine.SetPower";
 	private static final String kActionCommandMenuItemFractalFamilyTrigonometricPowerMultiTangentSetPower = "menuItem.Fractal.Family.TrigonometricPowerMultiTangent.SetPower";
 	private static final String kActionCommandMenuItemFractalFamilyTrigonometricPowerMultiCotangentSetPower = "menuItem.Fractal.Family.TrigonometricPowerMultiCotangent.SetPower";
-	private static final String kActionCommandMenuItemFractalFamilyDucksSetFixedNrOfIterations = "menuItem.Fractal.Family.Ducks.SetFixedNrOfIterations";
 	private static final String kActionCommandMenuItemFractalFamilyNewtonRaphsonSetConvergenceParameters = "menuItem.Fractal.Family.NewtonRaphson.SetConvergenceParameters";
 	private static final String kActionCommandMenuItemFractalFamilyNewtonRaphsonAutomaticRootDetectionEnabled = "menuItem.Fractal.Family.NewtonRaphson.AutomaticRootDetectionEnabled";
 	private static final String kActionCommandMenuItemFractalFamilyNewtonRaphsonPowerSetPower = "menuItem.Fractal.Family.NewtonRaphsonPower.SetPower";
@@ -213,6 +223,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 	private static final String kActionCommandMenuItemFractalFamilyMarkusLyapunovSetRootSequence = "menuItem.Fractal.Family.MarkusLyapunov.SetRootSequence";
 
 	private static final String kActionCommandMenuItemFractalSetMaxNrOfIterations = "menuItem.Fractal.SetMaxNrOfIterations";
+	private static final String kActionCommandMenuItemFractalAutoSelectMaxNrOfIterations = "menuItem.Fractal.AutoSelectMaxNrOfIterations";
 	private static final String kActionCommandMenuItemFractalSetEscapeRadius = "menuItem.Fractal.SetEscapeRadius";
 	private static final String kActionCommandMenuItemFractalCopyCoordinates = "menuItem.Fractal.CopyCoordinatesToClipboard";
 	private static final String kActionCommandMenuItemFractalRefreshScreen = "menuItem.Fractal.RefreshScreen";
@@ -223,6 +234,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 	private static final String kActionCommandMenuItemColorMapExteriorDiscontinuousDarkRedYellow = "menuItem.ColorMap.Exterior.DiscontinuousDarkRedYellow";
 	private static final String kActionCommandMenuItemColorMapExteriorBlackAndWhite = "menuItem.ColorMap.Exterior.BlackAndWhite";
 	private static final String kActionCommandMenuItemColorMapExteriorGrayScale = "menuItem.ColorMap.Exterior.GrayScale";
+	private static final String kActionCommandMenuItemColorMapExteriorGrayScaleTrimmed = "menuItem.ColorMap.Exterior.GrayScaleTrimmed";
 	private static final String kActionCommandMenuItemColorMapExteriorGreenRedDiverging = "menuItem.ColorMap.Exterior.GreenRedDiverging";
 	private static final String kActionCommandMenuItemColorMapExteriorHot = "menuItem.ColorMap.Exterior.Hot";
 	private static final String kActionCommandMenuItemColorMapExteriorJet = "menuItem.ColorMap.Exterior.Jet";
@@ -257,6 +269,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 	private static final String kActionCommandMenuItemColorMapTigerDiscontinuousDarkRedYellow = "menuItem.ColorMap.Tiger.DiscontinuousDarkRedYellow";
 	private static final String kActionCommandMenuItemColorMapTigerBlackAndWhite = "menuItem.ColorMap.Tiger.BlackAndWhite";
 	private static final String kActionCommandMenuItemColorMapTigerGrayScale = "menuItem.ColorMap.Tiger.GrayScale";
+	private static final String kActionCommandMenuItemColorMapTigerGrayScaleTrimmed = "menuItem.ColorMap.Tiger.GrayScaleTrimmed";
 	private static final String kActionCommandMenuItemColorMapTigerGreenRedDiverging = "menuItem.ColorMap.Tiger.GreenRedDiverging";
 	private static final String kActionCommandMenuItemColorMapTigerHot = "menuItem.ColorMap.Tiger.Hot";
 	private static final String kActionCommandMenuItemColorMapTigerJet = "menuItem.ColorMap.Tiger.Jet";
@@ -289,6 +302,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 	private static final String kActionCommandMenuItemColorMapInteriorDiscontinuousDarkRedYellow = "menuItem.ColorMap.Interior.DiscontinuousDarkRedYellow";
 	private static final String kActionCommandMenuItemColorMapInteriorBlackAndWhite = "menuItem.ColorMap.Interior.BlackAndWhite";
 	private static final String kActionCommandMenuItemColorMapInteriorGrayScale = "menuItem.ColorMap.Interior.GrayScale";
+	private static final String kActionCommandMenuItemColorMapInteriorGrayScaleTrimmed = "menuItem.ColorMap.Interior.GrayScaleTrimmed";
 	private static final String kActionCommandMenuItemColorMapInteriorGreenRedDiverging = "menuItem.ColorMap.Interior.GreenRedDiverging";
 	private static final String kActionCommandMenuItemColorMapInteriorHot = "menuItem.ColorMap.Interior.Hot";
 	private static final String kActionCommandMenuItemColorMapInteriorJet = "menuItem.ColorMap.Interior.Jet";
@@ -334,6 +348,16 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 	private static final String kActionCommandMenuItemColorMapExteriorUseMinimumGaussianIntegersDistance = "menuItem.ColorMap.Exterior.UseMinimumGaussianIntegersDistance";
 	private static final String kActionCommandMenuItemColorMapExteriorUseAverageGaussianIntegersDistance = "menuItem.ColorMap.Exterior.UseAverageGaussianIntegersDistance";
 	private static final String kActionCommandMenuItemColorMapExteriorSetGaussianIntegersTrapFactor = "menuItem.ColorMap.Exterior.SetGaussianIntegersTrapFactor";
+	private static final String kActionCommandMenuItemColorMapExteriorUseExteriorDistance = "menuItem.ColorMap.Exterior.UseExteriorDistance";
+	private static final String kActionCommandMenuItemColorMapExteriorUseOrbitTrapDisk = "menuItem.ColorMap.Exterior.UseOrbitTrapDisk";
+	private static final String kActionCommandMenuItemColorMapExteriorSetOrbitTrapDiskCentre = "menuItem.ColorMap.Exterior.SetOrbitTrapDiskCentre";
+	private static final String kActionCommandMenuItemColorMapExteriorSetOrbitTrapDiskRadius = "menuItem.ColorMap.Exterior.SetOrbitTrapDiskRadius";
+	private static final String kActionCommandMenuItemColorMapExteriorUseOrbitTrapCrossStalks = "menuItem.ColorMap.Exterior.UseOrbitTrapCrossStalks";
+	private static final String kActionCommandMenuItemColorMapExteriorSetOrbitTrapCrossStalksCentre = "menuItem.ColorMap.Exterior.SetOrbitTrapCrossStalksCentre";
+	private static final String kActionCommandMenuItemColorMapExteriorUseOrbitTrapSine = "menuItem.ColorMap.Exterior.UseOrbitTrapSine";
+	private static final String kActionCommandMenuItemColorMapExteriorSetOrbitTrapSineParameters = "menuItem.ColorMap.Exterior.SetOrbitTrapSineParameters";
+	private static final String kActionCommandMenuItemColorMapExteriorUseOrbitTrapTangens = "menuItem.ColorMap.Exterior.UseOrbitTrapTangens";
+	private static final String kActionCommandMenuItemColorMapExteriorSetOrbitTrapTangensParameters = "menuItem.ColorMap.Exterior.SetOrbitTrapTangensParameters";
 	private static final String kActionCommandMenuItemColorMapExteriorUseDiscreteRoots = "menuItem.ColorMap.Exterior.UseDiscreteRoots";
 	private static final String kActionCommandMenuItemColorMapExteriorUseSmoothRoots = "menuItem.ColorMap.Exterior.UseSmoothRoots";
 	private static final String kActionCommandMenuItemColorMapExteriorSetBrightnessFactor = "menuItem.ColorMap.Exterior.SetBrightnessFactor";
@@ -355,6 +379,16 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 	private static final String kActionCommandMenuItemColorMapInteriorUseMinimumGaussianIntegersDistance = "menuItem.ColorMap.Interior.UseMinimumGaussianIntegersDistance";
 	private static final String kActionCommandMenuItemColorMapInteriorUseAverageGaussianIntegersDistance = "menuItem.ColorMap.Interior.UseAverageGaussianIntegersDistance";
 	private static final String kActionCommandMenuItemColorMapInteriorSetGaussianIntegersTrapFactor = "menuItem.ColorMap.Interior.SetGaussianIntegersTrapFactor";
+	private static final String kActionCommandMenuItemColorMapInteriorUseExteriorDistance = "menuItem.ColorMap.Interior.UseExteriorDistance";
+	private static final String kActionCommandMenuItemColorMapInteriorUseOrbitTrapDisk = "menuItem.ColorMap.Interior.UseOrbitTrapDisk";
+	private static final String kActionCommandMenuItemColorMapInteriorSetOrbitTrapDiskCentre = "menuItem.ColorMap.Interior.SetOrbitTrapDiskCentre";
+	private static final String kActionCommandMenuItemColorMapInteriorSetOrbitTrapDiskRadius = "menuItem.ColorMap.Interior.SetOrbitTrapDiskRadius";
+	private static final String kActionCommandMenuItemColorMapInteriorUseOrbitTrapCrossStalks = "menuItem.ColorMap.Interior.UseOrbitTrapCrossStalks";
+	private static final String kActionCommandMenuItemColorMapInteriorSetOrbitTrapCrossStalksCentre = "menuItem.ColorMap.Interior.SetOrbitTrapCrossStalksCentre";
+	private static final String kActionCommandMenuItemColorMapInteriorUseOrbitTrapSine = "menuItem.ColorMap.Interior.UseOrbitTrapSine";
+	private static final String kActionCommandMenuItemColorMapInteriorSetOrbitTrapSineParameters = "menuItem.ColorMap.Interior.SetOrbitTrapSineParameters";
+	private static final String kActionCommandMenuItemColorMapInteriorUseOrbitTrapTangens = "menuItem.ColorMap.Interior.UseOrbitTrapTangens";
+	private static final String kActionCommandMenuItemColorMapInteriorSetOrbitTrapTangensParameters = "menuItem.ColorMap.Interior.SetOrbitTrapTangensParameters";
 
 	private static final String kActionCommandMenuItemColorMapUseLinearScaling = "menuItem.ColorMap.UseLinearScaling";
 	private static final String kActionCommandMenuItemColorMapUseLogarithmicScaling = "menuItem.ColorMap.UseLogarithmicScaling";
@@ -390,6 +424,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 	private static final String kActionCommandMenuItemMultithreadingProgressIndicatorCircles = "menuItem.MultiThreading.ProgressIndicatorCircles";
 	private static final String kActionCommandMenuItemMultithreadingProgressIndicatorFixedSector = "menuItem.MultiThreading.ProgressIndicatorFixedSector";
 	private static final String kActionCommandMenuItemMultithreadingProgressIndicatorRotatingSector = "menuItem.MultiThreading.ProgressIndicatorRotatingSector";
+	private static final String kActionCommandMenuItemMultithreadingInterrupt = "menuItem.MultiThreading.Interrupt";
 
 	private static final String kActionCommandMenuItemHelpColoringSchemes = "menuItem.Help.ColoringSchemes";
 	private static final String kActionCommandMenuItemHelpFractalTypes = "menuItem.Help.FractalTypes";
@@ -456,7 +491,8 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 	 *************************/
 
 	static {
-		DevelopMode.deactivate();
+//XXX
+		DevelopMode.activate();
 
 		// hack for JDK7 and above
 		System.setProperty("java.util.Arrays.useLegacyMergeSort","true");
@@ -478,6 +514,17 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 		// post initialisation
 		fMenuItems.get(kActionCommandMenuItemNavigationInvertYAxis).setSelected(fIteratorController.getFractalIterator().getInvertYAxis());
 		adjustMenusToFractal();
+
+		// install key bindings for navigation
+		JComponent contentPane = ((JComponent) getContentPane());
+		InputMap inputMap = contentPane.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+		ActionMap actionMap = contentPane.getActionMap();
+		installKeyBindings(inputMap,actionMap);
+
+		// reassign toolbar key bindings
+		inputMap = fToolBar.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+		actionMap = fToolBar.getActionMap();
+		installKeyBindings(inputMap,actionMap);
 	}
 
 	/******************
@@ -727,6 +774,9 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 						else if (familyName.equalsIgnoreCase((new ManowarFractalIterator()).getFamilyName())) {
 							fIteratorController.setFractalIteratorFamily(new ManowarFractalIterator());
 						}
+						else if (familyName.equalsIgnoreCase((new QuadbrotFractalIterator()).getFamilyName())) {
+							fIteratorController.setFractalIteratorFamily(new QuadbrotFractalIterator());
+						}
 						else if (familyName.equalsIgnoreCase((new NewtonRaphsonPowerFractalIterator()).getFamilyName())) {
 							fIteratorController.setFractalIteratorFamily(new NewtonRaphsonPowerFractalIterator());
 						}
@@ -941,7 +991,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemNavigationPanUp)) {
 			fFractalPanel.pan(FractalPanel.EPanDirection.kUp,fNavigationPanningSize,fMenuItems.get(kActionCommandMenuItemNavigationInvertPanningDirections).isSelected());
 		}
-		else if (command.equalsIgnoreCase(kActionCommandMenuItemNavigationPanDown)) {
+		else if (command.equalsIgnoreCase(kActionCommandMenuItemNavigationMenuPanDown)) {
 			fFractalPanel.pan(FractalPanel.EPanDirection.kDown,fNavigationPanningSize,fMenuItems.get(kActionCommandMenuItemNavigationInvertPanningDirections).isSelected());
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemNavigationSetPanningSize)) {
@@ -1217,6 +1267,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 						command.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyCollatz) ||
 						command.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyPhoenix) ||
 						command.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyManowar) ||
+						command.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyQuadbrot) ||
 						command.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyNewtonRaphsonPower) ||
 						command.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyNewtonRaphsonPowerPolynomial) ||
 						command.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyNewtonRaphsonFixedPolynomial1) ||
@@ -1349,7 +1400,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 					case kActionCommandMenuItemFractalFamilyDucks:
 						fIteratorController.setFractalIteratorFamily(new DucksFractalIterator());
 						coloringParameters.fExteriorColoringMethod = ColoringParameters.EColoringMethod.kAverageDistance;
-						fMenuItems.get(kActionCommandMenuItemColorMapExteriorUseAverageDistance).setSelected(true);
+						adjustMenusToFractal();
 						break;
 					case kActionCommandMenuItemFractalFamilyBarnsleyTree:
 						fIteratorController.setFractalIteratorFamily(new BarnsleyTreeFractalIterator());
@@ -1362,6 +1413,9 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 						break;
 					case kActionCommandMenuItemFractalFamilyManowar:
 						fIteratorController.setFractalIteratorFamily(new ManowarFractalIterator());
+						break;
+					case kActionCommandMenuItemFractalFamilyQuadbrot:
+						fIteratorController.setFractalIteratorFamily(new QuadbrotFractalIterator());
 						break;
 					case kActionCommandMenuItemFractalFamilyNewtonRaphsonPower:
 						fIteratorController.setFractalIteratorFamily(new NewtonRaphsonPowerFractalIterator());
@@ -1418,16 +1472,16 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 
 				fractalIterator = fIteratorController.getFractalIterator();
 
-				adjustMenusToFractal();
-				setupMarkusLyapunovFractal();
-				fLastSelectedFractal = command;
-
 				// if necessary switch to the dual fractal
 				if ((fractalIterator instanceof GlynnFractalIterator) ||
 						(fractalIterator instanceof BarnsleyTreeFractalIterator) ||
 						(fractalIterator instanceof PhoenixFractalIterator)) {
 					fractalIterator.setFractalType(AFractalIterator.EFractalType.kDualFractal);
 				}
+
+				adjustMenusToFractal();
+				setupMarkusLyapunovFractal();
+				fLastSelectedFractal = command;
 
 				// reset zoomstack and create new top
 				fFractalPanel.getZoomStack().clear();
@@ -1668,16 +1722,6 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 				}
 			}
 		}
-		else if (command.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyDucksSetFixedNrOfIterations)) {
-			if (fractalIterator instanceof DucksFractalIterator) {
-				FixedNrOfIterationsChooser fixedNrOfIterationsChooser = new FixedNrOfIterationsChooser(this,fractalIterator.getFixedNrOfIterations());
-				if (!fixedNrOfIterationsChooser.isCancelled()) {
-					int fixedNrOfIterations = fixedNrOfIterationsChooser.getSelectedFixedNrOfIterations();
-					fractalIterator.setFixedNrOfIterations(fixedNrOfIterations);
-					fIteratorController.recalc();
-				}
-			}
-		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyNewtonRaphsonSetConvergenceParameters)) {
 			if (fractalIterator instanceof NovaFractalIterator) {
 				ConvergenceParametersChooser convergenceParametersChooser = new ConvergenceParametersChooser(this,
@@ -1800,29 +1844,18 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			MaxNrOfIterationsChooser maxNrOfIterationsChooser = new MaxNrOfIterationsChooser(this,fractalIterator.getMaxNrOfIterations());
 			if (!maxNrOfIterationsChooser.isCancelled()) {
 				int maxNrOfIterations = maxNrOfIterationsChooser.getSelectedMaxNrOfIterations();
-				int discreteColorRange = coloringParameters.fColorMapDiscreteColorRange;
-				if (discreteColorRange == fractalIterator.getMaxNrOfIterations()) {
-					discreteColorRange = maxNrOfIterations;
-				}
-				coloringParameters.fColorMapDiscreteColorRange = discreteColorRange;
-
-				// 	adjust colourmap iteration range to comply with the selected maximum number of iterations
-				int colorMapLowIterationRange = coloringParameters.fLowIterationRange;
-				int colorMapHighIterationRange = coloringParameters.fHighIterationRange;
-				if (maxNrOfIterations < fractalIterator.getMaxNrOfIterations()) {
-					if (colorMapLowIterationRange > maxNrOfIterations) {
-						colorMapLowIterationRange = 0;
-					}
-					if (colorMapHighIterationRange > maxNrOfIterations) {
-						colorMapHighIterationRange = maxNrOfIterations;
-					}
-				}
-				else {
-					colorMapHighIterationRange = maxNrOfIterations;
-				}
-
-				coloringParameters.fLowIterationRange = colorMapLowIterationRange;
-				coloringParameters.fHighIterationRange = colorMapHighIterationRange;
+				fFractalPanel.calibrateColorRange(maxNrOfIterations);
+				fractalIterator.setMaxNrOfIterations(maxNrOfIterations);
+				fIteratorController.recalc();
+			}
+		}
+		else if (command.equalsIgnoreCase(kActionCommandMenuItemFractalAutoSelectMaxNrOfIterations)) {
+			boolean autoSelectMaxNrOfIterations = fMenuItems.get(kActionCommandMenuItemFractalAutoSelectMaxNrOfIterations).isSelected();
+			fMenuItems.get(kActionCommandMenuItemFractalSetMaxNrOfIterations).setEnabled(!autoSelectMaxNrOfIterations);
+			fFractalPanel.setAutoSelectMaxNrOfIterations(autoSelectMaxNrOfIterations);
+			if (autoSelectMaxNrOfIterations) {
+				int maxNrOfIterations = fractalIterator.autoDetermineMaxNrOfIterations();
+				fFractalPanel.calibrateColorRange(maxNrOfIterations);
 				fractalIterator.setMaxNrOfIterations(maxNrOfIterations);
 				fIteratorController.recalc();
 			}
@@ -1868,6 +1901,10 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorGrayScale)) {
 			coloringParameters.fExteriorGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kGrayScale);
+			fFractalPanel.recolor();
+		}
+		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorGrayScaleTrimmed)) {
+			coloringParameters.fExteriorGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kGrayScaleTrimmed);
 			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorGreenRedDiverging)) {
@@ -2013,6 +2050,11 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapTigerGrayScale)) {
 			coloringParameters.fTigerGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kGrayScale);
+			coloringParameters.fTigerUseFixedColor = false;
+			fFractalPanel.recolor();
+		}
+		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapTigerGrayScaleTrimmed)) {
+			coloringParameters.fTigerGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kGrayScaleTrimmed);
 			coloringParameters.fTigerUseFixedColor = false;
 			fFractalPanel.recolor();
 		}
@@ -2183,6 +2225,10 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorGrayScale)) {
 			coloringParameters.fInteriorGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kGrayScale);
+			fFractalPanel.recolor();
+		}
+		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorGrayScaleTrimmed)) {
+			coloringParameters.fInteriorGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kGrayScaleTrimmed);
 			fFractalPanel.recolor();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorGreenRedDiverging)) {
@@ -2388,6 +2434,63 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 				fIteratorController.recalc();
 			}
 		}
+		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorUseExteriorDistance)) {
+			coloringParameters.fInteriorColoringMethod = ColoringParameters.EColoringMethod.kExteriorDistance;
+			fFractalPanel.recolor();
+		}
+		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorUseOrbitTrapDisk)) {
+			coloringParameters.fInteriorColoringMethod = ColoringParameters.EColoringMethod.kOrbitTrapDisk;
+			fFractalPanel.recolor();
+		}
+		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorSetOrbitTrapDiskCentre)) {
+			OrbitTrapCentreChooser orbitTrapDiskCentreChooser = new OrbitTrapCentreChooser(this,fractalIterator.getInteriorOrbitTrapDiskCentre());
+			if (!orbitTrapDiskCentreChooser.isCancelled()) {
+				fractalIterator.setInteriorOrbitTrapDiskCentre(orbitTrapDiskCentreChooser.getSelectedCentre());
+				fIteratorController.recalc();
+			}
+		}
+		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorSetOrbitTrapDiskRadius)) {
+			OrbitTrapRadiusChooser orbitTrapRadiusChooser = new OrbitTrapRadiusChooser(this,fractalIterator.getInteriorOrbitTrapDiskRadius());
+			if (!orbitTrapRadiusChooser.isCancelled()) {
+				fractalIterator.setInteriorOrbitTrapDiskRadius(orbitTrapRadiusChooser.getSelectedRadius());
+				fIteratorController.recalc();
+			}
+		}
+		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorUseOrbitTrapCrossStalks)) {
+			coloringParameters.fInteriorColoringMethod = ColoringParameters.EColoringMethod.kOrbitTrapCrossStalks;
+			fFractalPanel.recolor();
+		}
+		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorSetOrbitTrapCrossStalksCentre)) {
+			OrbitTrapCentreChooser orbitTrapCrossStalksCentreChooser = new OrbitTrapCentreChooser(this,fractalIterator.getInteriorOrbitTrapCrossStalksCentre());
+			if (!orbitTrapCrossStalksCentreChooser.isCancelled()) {
+				fractalIterator.setInteriorOrbitTrapCrossStalksCentre(orbitTrapCrossStalksCentreChooser.getSelectedCentre());
+				fIteratorController.recalc();
+			}
+		}
+		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorUseOrbitTrapSine)) {
+			coloringParameters.fInteriorColoringMethod = ColoringParameters.EColoringMethod.kOrbitTrapSine;
+			fFractalPanel.recolor();
+		}
+		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorSetOrbitTrapSineParameters)) {
+			OrbitTrapTrigonometricParametersChooser orbitTrapSineParametersChooser = new OrbitTrapTrigonometricParametersChooser(this,fractalIterator.getInteriorOrbitTrapSineMultiplicativeFactor(),fractalIterator.getInteriorOrbitTrapSineAdditiveFactor());
+			if (!orbitTrapSineParametersChooser.isCancelled()) {
+				fractalIterator.setInteriorOrbitTrapSineMultiplicativeFactor(orbitTrapSineParametersChooser.getSelectedMultiplicativeFactor());
+				fractalIterator.setInteriorOrbitTrapSineAdditiveFactor(orbitTrapSineParametersChooser.getSelectedAdditiveFactor());
+				fIteratorController.recalc();
+			}
+		}
+		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorUseOrbitTrapTangens)) {
+			coloringParameters.fInteriorColoringMethod = ColoringParameters.EColoringMethod.kOrbitTrapTangens;
+			fFractalPanel.recolor();
+		}
+		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapInteriorSetOrbitTrapTangensParameters)) {
+			OrbitTrapTrigonometricParametersChooser orbitTrapTangensParametersChooser = new OrbitTrapTrigonometricParametersChooser(this,fractalIterator.getInteriorOrbitTrapTangensMultiplicativeFactor(),fractalIterator.getInteriorOrbitTrapTangensAdditiveFactor());
+			if (!orbitTrapTangensParametersChooser.isCancelled()) {
+				fractalIterator.setInteriorOrbitTrapTangensMultiplicativeFactor(orbitTrapTangensParametersChooser.getSelectedMultiplicativeFactor());
+				fractalIterator.setInteriorOrbitTrapTangensAdditiveFactor(orbitTrapTangensParametersChooser.getSelectedAdditiveFactor());
+				fIteratorController.recalc();
+			}
+		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorUseFixedColor)) {
 			coloringParameters.fExteriorColoringMethod = ColoringParameters.EColoringMethod.kFixedColor;
 			fFractalPanel.recolor();
@@ -2461,21 +2564,10 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			boolean calculateAdvancedColoring = fMenuItems.get(kActionCommandMenuItemColorMapCalculateAdvancedColoring).isSelected();
 			coloringParameters.fCalculateAdvancedColoring = calculateAdvancedColoring;
 			fractalIterator.setCalculateAdvancedColoring(calculateAdvancedColoring);
+			adjustMenusToFractal();
 			if (calculateAdvancedColoring) {
 				fIteratorController.recalc();
 			}
-			fMenuItems.get(kActionCommandMenuItemColorMapExteriorUseCurvature).setEnabled(calculateAdvancedColoring);
-			fMenuItems.get(kActionCommandMenuItemColorMapExteriorUseStriping).setEnabled(calculateAdvancedColoring);
-			fMenuItems.get(kActionCommandMenuItemColorMapExteriorSetStripingDensity).setEnabled(calculateAdvancedColoring);
-			fMenuItems.get(kActionCommandMenuItemColorMapExteriorUseMinimumGaussianIntegersDistance).setEnabled(calculateAdvancedColoring);
-			fMenuItems.get(kActionCommandMenuItemColorMapExteriorUseAverageGaussianIntegersDistance).setEnabled(calculateAdvancedColoring);
-			fMenuItems.get(kActionCommandMenuItemColorMapExteriorSetGaussianIntegersTrapFactor).setEnabled(calculateAdvancedColoring);
-			fMenuItems.get(kActionCommandMenuItemColorMapInteriorUseCurvature).setEnabled(calculateAdvancedColoring);
-			fMenuItems.get(kActionCommandMenuItemColorMapInteriorUseStriping).setEnabled(calculateAdvancedColoring);
-			fMenuItems.get(kActionCommandMenuItemColorMapInteriorSetStripingDensity).setEnabled(calculateAdvancedColoring);
-			fMenuItems.get(kActionCommandMenuItemColorMapInteriorUseMinimumGaussianIntegersDistance).setEnabled(calculateAdvancedColoring);
-			fMenuItems.get(kActionCommandMenuItemColorMapInteriorUseAverageGaussianIntegersDistance).setEnabled(calculateAdvancedColoring);
-			fMenuItems.get(kActionCommandMenuItemColorMapInteriorSetGaussianIntegersTrapFactor).setEnabled(calculateAdvancedColoring);
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorUseCurvature)) {
 			coloringParameters.fExteriorColoringMethod = ColoringParameters.EColoringMethod.kCurvature;
@@ -2504,6 +2596,63 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			GaussianIntegersTrapFactorChooser gaussianIntegersTrapFactorChooser = new GaussianIntegersTrapFactorChooser(this,fractalIterator.getExteriorGaussianIntegersTrapFactor());
 			if (!gaussianIntegersTrapFactorChooser.isCancelled()) {
 				fractalIterator.setExteriorGaussianIntegersTrapFactor(gaussianIntegersTrapFactorChooser.getSelectedGaussianIntegersTrapFactor());
+				fIteratorController.recalc();
+			}
+		}
+		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorUseExteriorDistance)) {
+			coloringParameters.fExteriorColoringMethod = ColoringParameters.EColoringMethod.kExteriorDistance;
+			fFractalPanel.recolor();
+		}
+		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorUseOrbitTrapDisk)) {
+			coloringParameters.fExteriorColoringMethod = ColoringParameters.EColoringMethod.kOrbitTrapDisk;
+			fFractalPanel.recolor();
+		}
+		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorSetOrbitTrapDiskCentre)) {
+			OrbitTrapCentreChooser orbitTrapDiskCentreChooser = new OrbitTrapCentreChooser(this,fractalIterator.getExteriorOrbitTrapDiskCentre());
+			if (!orbitTrapDiskCentreChooser.isCancelled()) {
+				fractalIterator.setExteriorOrbitTrapDiskCentre(orbitTrapDiskCentreChooser.getSelectedCentre());
+				fIteratorController.recalc();
+			}
+		}
+		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorSetOrbitTrapDiskRadius)) {
+			OrbitTrapRadiusChooser orbitTrapRadiusChooser = new OrbitTrapRadiusChooser(this,fractalIterator.getExteriorOrbitTrapDiskRadius());
+			if (!orbitTrapRadiusChooser.isCancelled()) {
+				fractalIterator.setExteriorOrbitTrapDiskRadius(orbitTrapRadiusChooser.getSelectedRadius());
+				fIteratorController.recalc();
+			}
+		}
+		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorUseOrbitTrapCrossStalks)) {
+			coloringParameters.fExteriorColoringMethod = ColoringParameters.EColoringMethod.kOrbitTrapCrossStalks;
+			fFractalPanel.recolor();
+		}
+		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorSetOrbitTrapCrossStalksCentre)) {
+			OrbitTrapCentreChooser orbitTrapCrossStalksCentreChooser = new OrbitTrapCentreChooser(this,fractalIterator.getExteriorOrbitTrapCrossStalksCentre());
+			if (!orbitTrapCrossStalksCentreChooser.isCancelled()) {
+				fractalIterator.setExteriorOrbitTrapCrossStalksCentre(orbitTrapCrossStalksCentreChooser.getSelectedCentre());
+				fIteratorController.recalc();
+			}
+		}
+		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorUseOrbitTrapSine)) {
+			coloringParameters.fExteriorColoringMethod = ColoringParameters.EColoringMethod.kOrbitTrapSine;
+			fFractalPanel.recolor();
+		}
+		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorSetOrbitTrapSineParameters)) {
+			OrbitTrapTrigonometricParametersChooser orbitTrapSineParametersChooser = new OrbitTrapTrigonometricParametersChooser(this,fractalIterator.getExteriorOrbitTrapSineMultiplicativeFactor(),fractalIterator.getExteriorOrbitTrapSineAdditiveFactor());
+			if (!orbitTrapSineParametersChooser.isCancelled()) {
+				fractalIterator.setExteriorOrbitTrapSineMultiplicativeFactor(orbitTrapSineParametersChooser.getSelectedMultiplicativeFactor());
+				fractalIterator.setExteriorOrbitTrapSineAdditiveFactor(orbitTrapSineParametersChooser.getSelectedAdditiveFactor());
+				fIteratorController.recalc();
+			}
+		}
+		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorUseOrbitTrapTangens)) {
+			coloringParameters.fExteriorColoringMethod = ColoringParameters.EColoringMethod.kOrbitTrapTangens;
+			fFractalPanel.recolor();
+		}
+		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapExteriorSetOrbitTrapTangensParameters)) {
+			OrbitTrapTrigonometricParametersChooser orbitTrapTangensParametersChooser = new OrbitTrapTrigonometricParametersChooser(this,fractalIterator.getExteriorOrbitTrapTangensMultiplicativeFactor(),fractalIterator.getExteriorOrbitTrapTangensAdditiveFactor());
+			if (!orbitTrapTangensParametersChooser.isCancelled()) {
+				fractalIterator.setExteriorOrbitTrapTangensMultiplicativeFactor(orbitTrapTangensParametersChooser.getSelectedMultiplicativeFactor());
+				fractalIterator.setExteriorOrbitTrapTangensAdditiveFactor(orbitTrapTangensParametersChooser.getSelectedAdditiveFactor());
 				fIteratorController.recalc();
 			}
 		}
@@ -2948,100 +3097,6 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 		updateStatusBar();
 	}
 
-	// the key-listener
-	/**
-	 */
-	@Override
-	public void keyTyped(KeyEvent e)
-	{
-		// ignore
-	}
-
-	/**
-	 */
-	@Override
-	public void keyPressed(KeyEvent e)
-	{
-		// support continuous key pressing when navigating the viewport
-		if (fFractalPanel.getShowMainFractalOverview()) {
-			keyReleased(e);
-		}
-	}
-
-	/**
-	 */
-	@Override
-	public void keyReleased(KeyEvent e)
-	{
-		if (e.getKeyCode() == KeyEvent.VK_LEFT) {
-			if (fFractalPanel.getShowMainFractalOverview()) {
-				Point vp = fFractalScrollPane.getViewport().getViewPosition();
-				vp.x -= kScrollbarBlockIncrement;
-				if (vp.x < 0) {
-					vp.x = 0;
-				}
-				fFractalScrollPane.getViewport().setViewPosition(vp);
-			}
-			else {
-				actionPerformed(new ActionEvent(this,ActionEvent.ACTION_LAST+1,kActionCommandMenuItemNavigationPanLeft));
-			}
-		}
-		else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
-			if (fFractalPanel.getShowMainFractalOverview()) {
-				Point vp = fFractalScrollPane.getViewport().getViewPosition();
-				Dimension vs = fFractalScrollPane.getViewport().getViewSize();
-				Dimension es = fFractalScrollPane.getViewport().getExtentSize();
-				vp.x += kScrollbarBlockIncrement;
-				if ((vp.x + es.width) > vs.width) {
-					vp.x = vs.width - es.width + 1;
-				}
-				fFractalScrollPane.getViewport().setViewPosition(vp);
-			}
-			else {
-				actionPerformed(new ActionEvent(this,ActionEvent.ACTION_LAST+1,kActionCommandMenuItemNavigationPanRight));
-			}
-		}
-		else if (e.getKeyCode() == KeyEvent.VK_UP) {
-			if (fFractalPanel.getShowMainFractalOverview()) {
-				Point vp = fFractalScrollPane.getViewport().getViewPosition();
-				vp.y -= kScrollbarBlockIncrement;
-				if (vp.y < 0) {
-					vp.y = 0;
-				}
-				fFractalScrollPane.getViewport().setViewPosition(vp);
-			}
-			else {
-				actionPerformed(new ActionEvent(this,ActionEvent.ACTION_LAST+1,kActionCommandMenuItemNavigationPanUp));
-			}
-		}
-		else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
-			if (fFractalPanel.getShowMainFractalOverview()) {
-				Point vp = fFractalScrollPane.getViewport().getViewPosition();
-				Dimension vs = fFractalScrollPane.getViewport().getViewSize();
-				Dimension es = fFractalScrollPane.getViewport().getExtentSize();
-				vp.y += kScrollbarBlockIncrement;
-				if ((vp.y + es.height) > vs.height) {
-					vp.y = vs.height - es.height + 1;
-				}
-				fFractalScrollPane.getViewport().setViewPosition(vp);
-			}
-			else {
-				actionPerformed(new ActionEvent(this,ActionEvent.ACTION_LAST+1,kActionCommandMenuItemNavigationPanDown));
-			}
-		}
-//XXX
-/*
-		else if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-			if (fIteratorController.isBusy()) {
-				JIncompleteWarningDialog.warn(this,"GUIApplication");
-			}
-		}
-*/
-		else if (e.getKeyCode() == KeyEvent.VK_F1) {
-			showHelpTopic(EHelpTopic.kGeneralInformation);
-		}
-	}
-
 	/*********************
 	 * PROTECTED METHODS *
 	 *********************/
@@ -3084,8 +3139,6 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 		fNavigationPanningSize = 0.25;
 
 		fDoubleClickMode = EDoubleClickMode.kSwitchMainDualFractal;
-
-		addKeyListener(this);
 
 		getSplashScreen().setStatusMessageWaitTime(kSplashScreenStatusMessageWaitTime);
 
@@ -3373,6 +3426,11 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 					toggleButton.setEnabled(false);
 					fToolBarToggles.put(kActionCommandMenuItemColorMapRestrictHighIterationCountColorsToggle,toggleButton);
 				fToolBar.add(toggleButton);
+					button = new JButton (new ImageIcon(fResources.getImage("application-resources/icons/set-random-exterior-colormap-icon.png")));
+					button.setToolTipText(I18NL10N.translate(kActionCommandMenuItemColorMapExteriorRandom));
+					button.setActionCommand(kActionCommandMenuItemColorMapExteriorRandom);
+					button.addActionListener(this);
+				fToolBar.add(button);
 					button = new JButton (new ImageIcon(fResources.getImage("application-resources/icons/setup-post-processing-filters-icon.png")));
 					button.setToolTipText(I18NL10N.translate(kActionCommandMenuItemColorSetupPostProcessingFilters));
 					button.setActionCommand(kActionCommandMenuItemColorSetupPostProcessingFilters);
@@ -3394,6 +3452,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			}
 			fToolBar.setFloatable(true);
 			fToolBar.setRollover(true);
+
 		contentPane.add(fToolBar,BorderLayout.NORTH);
 	}
 
@@ -3484,8 +3543,8 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 				menuItem.setActionCommand(kActionCommandMenuItemNavigationPanUp);
 				menuItem.addActionListener(this);
 			menu.add(menuItem);
-				menuItem = constructMenuItem(kActionCommandMenuItemNavigationPanDown,false);
-				menuItem.setActionCommand(kActionCommandMenuItemNavigationPanDown);
+				menuItem = constructMenuItem(kActionCommandMenuItemNavigationMenuPanDown,false);
+				menuItem.setActionCommand(kActionCommandMenuItemNavigationMenuPanDown);
 				menuItem.addActionListener(this);
 			menu.add(menuItem);
 				menuItem = constructMenuItem(kActionCommandMenuItemNavigationSetPanningSize,false);
@@ -4122,11 +4181,6 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 						buttonGroup.add(radioButtonMenuItem);
 						fMenuItems.put(kActionCommandMenuItemFractalFamilyDucks,radioButtonMenuItem);
 					subSubMenu.add(radioButtonMenuItem);
-						menuItem = constructMenuItem(kMenuItemIndentation + kActionCommandMenuItemFractalFamilyDucksSetFixedNrOfIterations,false);
-						menuItem.setActionCommand(kActionCommandMenuItemFractalFamilyDucksSetFixedNrOfIterations);
-						menuItem.addActionListener(this);
-						fMenuItems.put(kActionCommandMenuItemFractalFamilyDucksSetFixedNrOfIterations,menuItem);
-					subSubMenu.add(menuItem);
 
 					subSubMenu.addSeparator();
 
@@ -4163,6 +4217,16 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 						radioButtonMenuItem.addActionListener(this);
 						buttonGroup.add(radioButtonMenuItem);
 						fMenuItems.put(kActionCommandMenuItemFractalFamilyManowar,radioButtonMenuItem);
+					subSubMenu.add(radioButtonMenuItem);
+
+					subSubMenu.addSeparator();
+
+						radioButtonMenuItem = constructRadioButtonMenuItem(kActionCommandMenuItemFractalFamilyQuadbrot,false);
+						radioButtonMenuItem.setSelected(false);
+						radioButtonMenuItem.setActionCommand(kActionCommandMenuItemFractalFamilyQuadbrot);
+						radioButtonMenuItem.addActionListener(this);
+						buttonGroup.add(radioButtonMenuItem);
+						fMenuItems.put(kActionCommandMenuItemFractalFamilyQuadbrot,radioButtonMenuItem);
 					subSubMenu.add(radioButtonMenuItem);
 				subMenu.add(subSubMenu);
 
@@ -4375,7 +4439,15 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 				menuItem.setActionCommand(kActionCommandMenuItemFractalSetMaxNrOfIterations);
 				menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I,ActionEvent.CTRL_MASK));
 				menuItem.addActionListener(this);
+				menuItem.setEnabled(false);
+				fMenuItems.put(kActionCommandMenuItemFractalSetMaxNrOfIterations,menuItem);
 			menu.add(menuItem);
+				checkBoxMenuItem = constructCheckBoxMenuItem(kMenuItemIndentation + kActionCommandMenuItemFractalAutoSelectMaxNrOfIterations,false);
+				checkBoxMenuItem.setSelected(true);
+				checkBoxMenuItem.setActionCommand(kActionCommandMenuItemFractalAutoSelectMaxNrOfIterations);
+				checkBoxMenuItem.addActionListener(this);
+				fMenuItems.put(kActionCommandMenuItemFractalAutoSelectMaxNrOfIterations,checkBoxMenuItem);
+			menu.add(checkBoxMenuItem);
 				menuItem = constructMenuItem(kActionCommandMenuItemFractalSetEscapeRadius,false);
 				menuItem.setActionCommand(kActionCommandMenuItemFractalSetEscapeRadius);
 				menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E,ActionEvent.CTRL_MASK));
@@ -4449,6 +4521,14 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 						radioButtonMenuItem.addActionListener(this);
 						buttonGroup.add(radioButtonMenuItem);
 						fMenuItems.put(kActionCommandMenuItemColorMapExteriorGrayScale,radioButtonMenuItem);
+					subMenu.add(radioButtonMenuItem);
+						radioButtonMenuItem = constructRadioButtonMenuItem(kActionCommandMenuItemColorMapExteriorGrayScaleTrimmed,false);
+						radioButtonMenuItem.setIcon(new ImageIcon(fResources.getImage("application-resources/images/gradient-color-map-grayscale-trimmed.png")));
+						radioButtonMenuItem.setSelected(false);
+						radioButtonMenuItem.setActionCommand(kActionCommandMenuItemColorMapExteriorGrayScaleTrimmed);
+						radioButtonMenuItem.addActionListener(this);
+						buttonGroup.add(radioButtonMenuItem);
+						fMenuItems.put(kActionCommandMenuItemColorMapExteriorGrayScaleTrimmed,radioButtonMenuItem);
 					subMenu.add(radioButtonMenuItem);
 						radioButtonMenuItem = constructRadioButtonMenuItem(kActionCommandMenuItemColorMapExteriorGreenRedDiverging,false);
 						radioButtonMenuItem.setIcon(new ImageIcon(fResources.getImage("application-resources/images/gradient-color-map-greenreddiverging.png")));
@@ -4713,6 +4793,14 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 							buttonGroup.add(radioButtonMenuItem);
 							fMenuItems.put(kActionCommandMenuItemColorMapTigerGrayScale,radioButtonMenuItem);
 						subMenu.add(radioButtonMenuItem);
+							radioButtonMenuItem = constructRadioButtonMenuItem(kActionCommandMenuItemColorMapTigerGrayScaleTrimmed,false);
+							radioButtonMenuItem.setIcon(new ImageIcon(fResources.getImage("application-resources/images/gradient-color-map-grayscale-trimmed.png")));
+							radioButtonMenuItem.setSelected(false);
+							radioButtonMenuItem.setActionCommand(kActionCommandMenuItemColorMapTigerGrayScaleTrimmed);
+							radioButtonMenuItem.addActionListener(this);
+							buttonGroup.add(radioButtonMenuItem);
+							fMenuItems.put(kActionCommandMenuItemColorMapTigerGrayScaleTrimmed,radioButtonMenuItem);
+						subMenu.add(radioButtonMenuItem);
 							radioButtonMenuItem = constructRadioButtonMenuItem(kActionCommandMenuItemColorMapTigerGreenRedDiverging,false);
 							radioButtonMenuItem.setIcon(new ImageIcon(fResources.getImage("application-resources/images/gradient-color-map-greenreddiverging.png")));
 							radioButtonMenuItem.setSelected(false);
@@ -4913,13 +5001,13 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 				menu.add(subMenu);
 
 					subMenu = new JMenu(I18NL10N.translate("menu.ColorMap.SetupExteriorColorMap"));
-						ButtonGroup bgColorMapUsage = new ButtonGroup();
+						buttonGroup = new ButtonGroup();
 						radioButtonMenuItem = constructRadioButtonMenuItem(kActionCommandMenuItemColorMapExteriorUseFixedColor,false);
 						radioButtonMenuItem.setSelected(false);
 						radioButtonMenuItem.setActionCommand(kActionCommandMenuItemColorMapExteriorUseFixedColor);
 						radioButtonMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F,ActionEvent.CTRL_MASK));
 						radioButtonMenuItem.addActionListener(this);
-						bgColorMapUsage.add(radioButtonMenuItem);
+						buttonGroup.add(radioButtonMenuItem);
 						fMenuItems.put(kActionCommandMenuItemColorMapExteriorUseFixedColor,radioButtonMenuItem);
 					subMenu.add(radioButtonMenuItem);
 						menuItem = constructMenuItem(kMenuItemIndentation + kActionCommandMenuItemColorMapExteriorSetFixedColor,false);
@@ -4935,28 +5023,28 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 						radioButtonMenuItem.setSelected(false);
 						radioButtonMenuItem.setActionCommand(kActionCommandMenuItemColorMapExteriorUseDiscreteLevelSets);
 						radioButtonMenuItem.addActionListener(this);
-						bgColorMapUsage.add(radioButtonMenuItem);
+						buttonGroup.add(radioButtonMenuItem);
 						fMenuItems.put(kActionCommandMenuItemColorMapExteriorUseDiscreteLevelSets,radioButtonMenuItem);
 					subMenu.add(radioButtonMenuItem);
 						radioButtonMenuItem = constructRadioButtonMenuItem(kActionCommandMenuItemColorMapExteriorUseNormalisedLevelSets,false);
 						radioButtonMenuItem.setSelected(true);
 						radioButtonMenuItem.setActionCommand(kActionCommandMenuItemColorMapExteriorUseNormalisedLevelSets);
 						radioButtonMenuItem.addActionListener(this);
-						bgColorMapUsage.add(radioButtonMenuItem);
+						buttonGroup.add(radioButtonMenuItem);
 						fMenuItems.put(kActionCommandMenuItemColorMapExteriorUseNormalisedLevelSets,radioButtonMenuItem);
 					subMenu.add(radioButtonMenuItem);
 						radioButtonMenuItem = constructRadioButtonMenuItem(kActionCommandMenuItemColorMapExteriorUseExponentiallySmoothedLevelSets,false);
 						radioButtonMenuItem.setSelected(false);
 						radioButtonMenuItem.setActionCommand(kActionCommandMenuItemColorMapExteriorUseExponentiallySmoothedLevelSets);
 						radioButtonMenuItem.addActionListener(this);
-						bgColorMapUsage.add(radioButtonMenuItem);
+						buttonGroup.add(radioButtonMenuItem);
 						fMenuItems.put(kActionCommandMenuItemColorMapExteriorUseExponentiallySmoothedLevelSets,radioButtonMenuItem);
 					subMenu.add(radioButtonMenuItem);
 						radioButtonMenuItem = constructRadioButtonMenuItem(kActionCommandMenuItemColorMapExteriorUseSectorDecomposition,false);
 						radioButtonMenuItem.setSelected(false);
 						radioButtonMenuItem.setActionCommand(kActionCommandMenuItemColorMapExteriorUseSectorDecomposition);
 						radioButtonMenuItem.addActionListener(this);
-						bgColorMapUsage.add(radioButtonMenuItem);
+						buttonGroup.add(radioButtonMenuItem);
 						fMenuItems.put(kActionCommandMenuItemColorMapExteriorUseSectorDecomposition,radioButtonMenuItem);
 					subMenu.add(radioButtonMenuItem);
 						menuItem = constructMenuItem(kMenuItemIndentation + kActionCommandMenuItemColorMapExteriorSetDecompositionSectorRange,false);
@@ -4968,42 +5056,42 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 						radioButtonMenuItem.setSelected(false);
 						radioButtonMenuItem.setActionCommand(kActionCommandMenuItemColorMapExteriorUseRealComponent);
 						radioButtonMenuItem.addActionListener(this);
-						bgColorMapUsage.add(radioButtonMenuItem);
+						buttonGroup.add(radioButtonMenuItem);
 						fMenuItems.put(kActionCommandMenuItemColorMapExteriorUseRealComponent,radioButtonMenuItem);
 					subMenu.add(radioButtonMenuItem);
 						radioButtonMenuItem = constructRadioButtonMenuItem(kActionCommandMenuItemColorMapExteriorUseImaginaryComponent,false);
 						radioButtonMenuItem.setSelected(false);
 						radioButtonMenuItem.setActionCommand(kActionCommandMenuItemColorMapExteriorUseImaginaryComponent);
 						radioButtonMenuItem.addActionListener(this);
-						bgColorMapUsage.add(radioButtonMenuItem);
+						buttonGroup.add(radioButtonMenuItem);
 						fMenuItems.put(kActionCommandMenuItemColorMapExteriorUseImaginaryComponent,radioButtonMenuItem);
 					subMenu.add(radioButtonMenuItem);
 						radioButtonMenuItem = constructRadioButtonMenuItem(kActionCommandMenuItemColorMapExteriorUseModulus,false);
 						radioButtonMenuItem.setSelected(false);
 						radioButtonMenuItem.setActionCommand(kActionCommandMenuItemColorMapExteriorUseModulus);
 						radioButtonMenuItem.addActionListener(this);
-						bgColorMapUsage.add(radioButtonMenuItem);
+						buttonGroup.add(radioButtonMenuItem);
 						fMenuItems.put(kActionCommandMenuItemColorMapExteriorUseModulus,radioButtonMenuItem);
 					subMenu.add(radioButtonMenuItem);
 						radioButtonMenuItem = constructRadioButtonMenuItem(kActionCommandMenuItemColorMapExteriorUseAverageDistance,false);
 						radioButtonMenuItem.setSelected(false);
 						radioButtonMenuItem.setActionCommand(kActionCommandMenuItemColorMapExteriorUseAverageDistance);
 						radioButtonMenuItem.addActionListener(this);
-						bgColorMapUsage.add(radioButtonMenuItem);
+						buttonGroup.add(radioButtonMenuItem);
 						fMenuItems.put(kActionCommandMenuItemColorMapExteriorUseAverageDistance,radioButtonMenuItem);
 					subMenu.add(radioButtonMenuItem);
 						radioButtonMenuItem = constructRadioButtonMenuItem(kActionCommandMenuItemColorMapExteriorUseAngle,false);
 						radioButtonMenuItem.setSelected(false);
 						radioButtonMenuItem.setActionCommand(kActionCommandMenuItemColorMapExteriorUseAngle);
 						radioButtonMenuItem.addActionListener(this);
-						bgColorMapUsage.add(radioButtonMenuItem);
+						buttonGroup.add(radioButtonMenuItem);
 						fMenuItems.put(kActionCommandMenuItemColorMapExteriorUseAngle,radioButtonMenuItem);
 					subMenu.add(radioButtonMenuItem);
 						radioButtonMenuItem = constructRadioButtonMenuItem(kActionCommandMenuItemColorMapExteriorUseLyapunovExponent,false);
 						radioButtonMenuItem.setSelected(false);
 						radioButtonMenuItem.setActionCommand(kActionCommandMenuItemColorMapExteriorUseLyapunovExponent);
 						radioButtonMenuItem.addActionListener(this);
-						bgColorMapUsage.add(radioButtonMenuItem);
+						buttonGroup.add(radioButtonMenuItem);
 						fMenuItems.put(kActionCommandMenuItemColorMapExteriorUseLyapunovExponent,radioButtonMenuItem);
 					subMenu.add(radioButtonMenuItem);
 
@@ -5013,14 +5101,14 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 						radioButtonMenuItem.setSelected(false);
 						radioButtonMenuItem.setActionCommand(kActionCommandMenuItemColorMapExteriorUseCurvature);
 						radioButtonMenuItem.addActionListener(this);
-						bgColorMapUsage.add(radioButtonMenuItem);
+						buttonGroup.add(radioButtonMenuItem);
 						fMenuItems.put(kActionCommandMenuItemColorMapExteriorUseCurvature,radioButtonMenuItem);
 					subMenu.add(radioButtonMenuItem);
 						radioButtonMenuItem = constructRadioButtonMenuItem(kActionCommandMenuItemColorMapExteriorUseStriping,false);
 						radioButtonMenuItem.setSelected(false);
 						radioButtonMenuItem.setActionCommand(kActionCommandMenuItemColorMapExteriorUseStriping);
 						radioButtonMenuItem.addActionListener(this);
-						bgColorMapUsage.add(radioButtonMenuItem);
+						buttonGroup.add(radioButtonMenuItem);
 						fMenuItems.put(kActionCommandMenuItemColorMapExteriorUseStriping,radioButtonMenuItem);
 					subMenu.add(radioButtonMenuItem);
 						menuItem = constructMenuItem(kMenuItemIndentation + kActionCommandMenuItemColorMapExteriorSetStripingDensity,false);
@@ -5028,18 +5116,21 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 						menuItem.addActionListener(this);
 						fMenuItems.put(kActionCommandMenuItemColorMapExteriorSetStripingDensity,menuItem);
 					subMenu.add(menuItem);
+
+					subMenu.addSeparator();
+
 						radioButtonMenuItem = constructRadioButtonMenuItem(kActionCommandMenuItemColorMapExteriorUseMinimumGaussianIntegersDistance,false);
 						radioButtonMenuItem.setSelected(false);
 						radioButtonMenuItem.setActionCommand(kActionCommandMenuItemColorMapExteriorUseMinimumGaussianIntegersDistance);
 						radioButtonMenuItem.addActionListener(this);
-						bgColorMapUsage.add(radioButtonMenuItem);
+						buttonGroup.add(radioButtonMenuItem);
 						fMenuItems.put(kActionCommandMenuItemColorMapExteriorUseMinimumGaussianIntegersDistance,radioButtonMenuItem);
 					subMenu.add(radioButtonMenuItem);
 						radioButtonMenuItem = constructRadioButtonMenuItem(kActionCommandMenuItemColorMapExteriorUseAverageGaussianIntegersDistance,false);
 						radioButtonMenuItem.setSelected(false);
 						radioButtonMenuItem.setActionCommand(kActionCommandMenuItemColorMapExteriorUseAverageGaussianIntegersDistance);
 						radioButtonMenuItem.addActionListener(this);
-						bgColorMapUsage.add(radioButtonMenuItem);
+						buttonGroup.add(radioButtonMenuItem);
 						fMenuItems.put(kActionCommandMenuItemColorMapExteriorUseAverageGaussianIntegersDistance,radioButtonMenuItem);
 					subMenu.add(radioButtonMenuItem);
 						menuItem = constructMenuItem(kMenuItemIndentation + kActionCommandMenuItemColorMapExteriorSetGaussianIntegersTrapFactor,false);
@@ -5050,12 +5141,78 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 
 					subMenu.addSeparator();
 
+						radioButtonMenuItem = constructRadioButtonMenuItem(kActionCommandMenuItemColorMapExteriorUseExteriorDistance,false);
+						radioButtonMenuItem.setSelected(false);
+						radioButtonMenuItem.setActionCommand(kActionCommandMenuItemColorMapExteriorUseExteriorDistance);
+						radioButtonMenuItem.addActionListener(this);
+						buttonGroup.add(radioButtonMenuItem);
+						fMenuItems.put(kActionCommandMenuItemColorMapExteriorUseExteriorDistance,radioButtonMenuItem);
+					subMenu.add(radioButtonMenuItem);
+
+					subMenu.addSeparator();
+
+						radioButtonMenuItem = constructRadioButtonMenuItem(kActionCommandMenuItemColorMapExteriorUseOrbitTrapDisk,false);
+						radioButtonMenuItem.setSelected(false);
+						radioButtonMenuItem.setActionCommand(kActionCommandMenuItemColorMapExteriorUseOrbitTrapDisk);
+						radioButtonMenuItem.addActionListener(this);
+						buttonGroup.add(radioButtonMenuItem);
+						fMenuItems.put(kActionCommandMenuItemColorMapExteriorUseOrbitTrapDisk,radioButtonMenuItem);
+					subMenu.add(radioButtonMenuItem);
+						menuItem = constructMenuItem(kMenuItemIndentation + kActionCommandMenuItemColorMapExteriorSetOrbitTrapDiskCentre,false);
+						menuItem.setActionCommand(kActionCommandMenuItemColorMapExteriorSetOrbitTrapDiskCentre);
+						menuItem.addActionListener(this);
+						fMenuItems.put(kActionCommandMenuItemColorMapExteriorSetOrbitTrapDiskCentre,menuItem);
+					subMenu.add(menuItem);
+						menuItem = constructMenuItem(kMenuItemIndentation + kActionCommandMenuItemColorMapExteriorSetOrbitTrapDiskRadius,false);
+						menuItem.setActionCommand(kActionCommandMenuItemColorMapExteriorSetOrbitTrapDiskRadius);
+						menuItem.addActionListener(this);
+						fMenuItems.put(kActionCommandMenuItemColorMapExteriorSetOrbitTrapDiskRadius,menuItem);
+					subMenu.add(menuItem);
+						radioButtonMenuItem = constructRadioButtonMenuItem(kActionCommandMenuItemColorMapExteriorUseOrbitTrapCrossStalks,false);
+						radioButtonMenuItem.setSelected(false);
+						radioButtonMenuItem.setActionCommand(kActionCommandMenuItemColorMapExteriorUseOrbitTrapCrossStalks);
+						radioButtonMenuItem.addActionListener(this);
+						buttonGroup.add(radioButtonMenuItem);
+						fMenuItems.put(kActionCommandMenuItemColorMapExteriorUseOrbitTrapCrossStalks,radioButtonMenuItem);
+					subMenu.add(radioButtonMenuItem);
+						menuItem = constructMenuItem(kMenuItemIndentation + kActionCommandMenuItemColorMapExteriorSetOrbitTrapCrossStalksCentre,false);
+						menuItem.setActionCommand(kActionCommandMenuItemColorMapExteriorSetOrbitTrapCrossStalksCentre);
+						menuItem.addActionListener(this);
+						fMenuItems.put(kActionCommandMenuItemColorMapExteriorSetOrbitTrapCrossStalksCentre,menuItem);
+					subMenu.add(menuItem);
+						radioButtonMenuItem = constructRadioButtonMenuItem(kActionCommandMenuItemColorMapExteriorUseOrbitTrapSine,false);
+						radioButtonMenuItem.setSelected(false);
+						radioButtonMenuItem.setActionCommand(kActionCommandMenuItemColorMapExteriorUseOrbitTrapSine);
+						radioButtonMenuItem.addActionListener(this);
+						buttonGroup.add(radioButtonMenuItem);
+						fMenuItems.put(kActionCommandMenuItemColorMapExteriorUseOrbitTrapSine,radioButtonMenuItem);
+					subMenu.add(radioButtonMenuItem);
+						menuItem = constructMenuItem(kMenuItemIndentation + kActionCommandMenuItemColorMapExteriorSetOrbitTrapSineParameters,false);
+						menuItem.setActionCommand(kActionCommandMenuItemColorMapExteriorSetOrbitTrapSineParameters);
+						menuItem.addActionListener(this);
+						fMenuItems.put(kActionCommandMenuItemColorMapExteriorSetOrbitTrapSineParameters,menuItem);
+					subMenu.add(menuItem);
+						radioButtonMenuItem = constructRadioButtonMenuItem(kActionCommandMenuItemColorMapExteriorUseOrbitTrapTangens,false);
+						radioButtonMenuItem.setSelected(false);
+						radioButtonMenuItem.setActionCommand(kActionCommandMenuItemColorMapExteriorUseOrbitTrapTangens);
+						radioButtonMenuItem.addActionListener(this);
+						buttonGroup.add(radioButtonMenuItem);
+						fMenuItems.put(kActionCommandMenuItemColorMapExteriorUseOrbitTrapTangens,radioButtonMenuItem);
+					subMenu.add(radioButtonMenuItem);
+						menuItem = constructMenuItem(kMenuItemIndentation + kActionCommandMenuItemColorMapExteriorSetOrbitTrapTangensParameters,false);
+						menuItem.setActionCommand(kActionCommandMenuItemColorMapExteriorSetOrbitTrapTangensParameters);
+						menuItem.addActionListener(this);
+						fMenuItems.put(kActionCommandMenuItemColorMapExteriorSetOrbitTrapTangensParameters,menuItem);
+					subMenu.add(menuItem);
+
+					subMenu.addSeparator();
+
 						radioButtonMenuItem = constructRadioButtonMenuItem(kActionCommandMenuItemColorMapExteriorUseDiscreteRoots,false);
 						radioButtonMenuItem.setSelected(false);
 						radioButtonMenuItem.setActionCommand(kActionCommandMenuItemColorMapExteriorUseDiscreteRoots);
 						radioButtonMenuItem.addActionListener(this);
 						radioButtonMenuItem.setEnabled(false);
-						bgColorMapUsage.add(radioButtonMenuItem);
+						buttonGroup.add(radioButtonMenuItem);
 						fMenuItems.put(kActionCommandMenuItemColorMapExteriorUseDiscreteRoots,radioButtonMenuItem);
 					subMenu.add(radioButtonMenuItem);
 						radioButtonMenuItem = constructRadioButtonMenuItem(kActionCommandMenuItemColorMapExteriorUseSmoothRoots,false);
@@ -5063,7 +5220,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 						radioButtonMenuItem.setActionCommand(kActionCommandMenuItemColorMapExteriorUseSmoothRoots);
 						radioButtonMenuItem.addActionListener(this);
 						radioButtonMenuItem.setEnabled(false);
-						bgColorMapUsage.add(radioButtonMenuItem);
+						buttonGroup.add(radioButtonMenuItem);
 						fMenuItems.put(kActionCommandMenuItemColorMapExteriorUseSmoothRoots,radioButtonMenuItem);
 					subMenu.add(radioButtonMenuItem);
 						menuItem = constructMenuItem(kMenuItemIndentation + kActionCommandMenuItemColorMapExteriorSetBrightnessFactor,false);
@@ -5125,6 +5282,14 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 									radioButtonMenuItem.addActionListener(this);
 									buttonGroup.add(radioButtonMenuItem);
 									fMenuItems.put(kActionCommandMenuItemColorMapInteriorGrayScale,radioButtonMenuItem);
+								subSubMenu.add(radioButtonMenuItem);
+									radioButtonMenuItem = constructRadioButtonMenuItem(kActionCommandMenuItemColorMapInteriorGrayScaleTrimmed,false);
+									radioButtonMenuItem.setIcon(new ImageIcon(fResources.getImage("application-resources/images/gradient-color-map-grayscale-trimmed.png")));
+									radioButtonMenuItem.setSelected(false);
+									radioButtonMenuItem.setActionCommand(kActionCommandMenuItemColorMapInteriorGrayScaleTrimmed);
+									radioButtonMenuItem.addActionListener(this);
+									buttonGroup.add(radioButtonMenuItem);
+									fMenuItems.put(kActionCommandMenuItemColorMapInteriorGrayScaleTrimmed,radioButtonMenuItem);
 								subSubMenu.add(radioButtonMenuItem);
 									radioButtonMenuItem = constructRadioButtonMenuItem(kActionCommandMenuItemColorMapInteriorGreenRedDiverging,false);
 									radioButtonMenuItem.setIcon(new ImageIcon(fResources.getImage("application-resources/images/gradient-color-map-greenreddiverging.png")));
@@ -5424,6 +5589,9 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 						menuItem.addActionListener(this);
 						fMenuItems.put(kActionCommandMenuItemColorMapInteriorSetStripingDensity,menuItem);
 					subMenu.add(menuItem);
+
+					subMenu.addSeparator();
+
 						radioButtonMenuItem = constructRadioButtonMenuItem(kActionCommandMenuItemColorMapInteriorUseMinimumGaussianIntegersDistance,false);
 						radioButtonMenuItem.setSelected(false);
 						radioButtonMenuItem.setActionCommand(kActionCommandMenuItemColorMapInteriorUseMinimumGaussianIntegersDistance);
@@ -5442,6 +5610,72 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 						menuItem.setActionCommand(kActionCommandMenuItemColorMapInteriorSetGaussianIntegersTrapFactor);
 						menuItem.addActionListener(this);
 						fMenuItems.put(kActionCommandMenuItemColorMapInteriorSetGaussianIntegersTrapFactor,menuItem);
+					subMenu.add(menuItem);
+
+					subMenu.addSeparator();
+
+						radioButtonMenuItem = constructRadioButtonMenuItem(kActionCommandMenuItemColorMapInteriorUseExteriorDistance,false);
+						radioButtonMenuItem.setSelected(false);
+						radioButtonMenuItem.setActionCommand(kActionCommandMenuItemColorMapInteriorUseExteriorDistance);
+						radioButtonMenuItem.addActionListener(this);
+						buttonGroup.add(radioButtonMenuItem);
+						fMenuItems.put(kActionCommandMenuItemColorMapInteriorUseExteriorDistance,radioButtonMenuItem);
+					subMenu.add(radioButtonMenuItem);
+
+					subMenu.addSeparator();
+
+						radioButtonMenuItem = constructRadioButtonMenuItem(kActionCommandMenuItemColorMapInteriorUseOrbitTrapDisk,false);
+						radioButtonMenuItem.setSelected(false);
+						radioButtonMenuItem.setActionCommand(kActionCommandMenuItemColorMapInteriorUseOrbitTrapDisk);
+						radioButtonMenuItem.addActionListener(this);
+						buttonGroup.add(radioButtonMenuItem);
+						fMenuItems.put(kActionCommandMenuItemColorMapInteriorUseOrbitTrapDisk,radioButtonMenuItem);
+					subMenu.add(radioButtonMenuItem);
+						menuItem = constructMenuItem(kMenuItemIndentation + kActionCommandMenuItemColorMapInteriorSetOrbitTrapDiskCentre,false);
+						menuItem.setActionCommand(kActionCommandMenuItemColorMapInteriorSetOrbitTrapDiskCentre);
+						menuItem.addActionListener(this);
+						fMenuItems.put(kActionCommandMenuItemColorMapInteriorSetOrbitTrapDiskCentre,menuItem);
+					subMenu.add(menuItem);
+						menuItem = constructMenuItem(kMenuItemIndentation + kActionCommandMenuItemColorMapInteriorSetOrbitTrapDiskRadius,false);
+						menuItem.setActionCommand(kActionCommandMenuItemColorMapInteriorSetOrbitTrapDiskRadius);
+						menuItem.addActionListener(this);
+						fMenuItems.put(kActionCommandMenuItemColorMapInteriorSetOrbitTrapDiskRadius,menuItem);
+					subMenu.add(menuItem);
+						radioButtonMenuItem = constructRadioButtonMenuItem(kActionCommandMenuItemColorMapInteriorUseOrbitTrapCrossStalks,false);
+						radioButtonMenuItem.setSelected(false);
+						radioButtonMenuItem.setActionCommand(kActionCommandMenuItemColorMapInteriorUseOrbitTrapCrossStalks);
+						radioButtonMenuItem.addActionListener(this);
+						buttonGroup.add(radioButtonMenuItem);
+						fMenuItems.put(kActionCommandMenuItemColorMapInteriorUseOrbitTrapCrossStalks,radioButtonMenuItem);
+					subMenu.add(radioButtonMenuItem);
+						menuItem = constructMenuItem(kMenuItemIndentation + kActionCommandMenuItemColorMapInteriorSetOrbitTrapCrossStalksCentre,false);
+						menuItem.setActionCommand(kActionCommandMenuItemColorMapInteriorSetOrbitTrapCrossStalksCentre);
+						menuItem.addActionListener(this);
+						fMenuItems.put(kActionCommandMenuItemColorMapInteriorSetOrbitTrapCrossStalksCentre,menuItem);
+					subMenu.add(menuItem);
+						radioButtonMenuItem = constructRadioButtonMenuItem(kActionCommandMenuItemColorMapInteriorUseOrbitTrapSine,false);
+						radioButtonMenuItem.setSelected(false);
+						radioButtonMenuItem.setActionCommand(kActionCommandMenuItemColorMapInteriorUseOrbitTrapSine);
+						radioButtonMenuItem.addActionListener(this);
+						buttonGroup.add(radioButtonMenuItem);
+						fMenuItems.put(kActionCommandMenuItemColorMapInteriorUseOrbitTrapSine,radioButtonMenuItem);
+					subMenu.add(radioButtonMenuItem);
+						menuItem = constructMenuItem(kMenuItemIndentation + kActionCommandMenuItemColorMapInteriorSetOrbitTrapSineParameters,false);
+						menuItem.setActionCommand(kActionCommandMenuItemColorMapInteriorSetOrbitTrapSineParameters);
+						menuItem.addActionListener(this);
+						fMenuItems.put(kActionCommandMenuItemColorMapInteriorSetOrbitTrapSineParameters,menuItem);
+					subMenu.add(menuItem);
+						radioButtonMenuItem = constructRadioButtonMenuItem(kActionCommandMenuItemColorMapInteriorUseOrbitTrapTangens,false);
+						radioButtonMenuItem.setSelected(false);
+						radioButtonMenuItem.setActionCommand(kActionCommandMenuItemColorMapInteriorUseOrbitTrapTangens);
+						radioButtonMenuItem.addActionListener(this);
+						buttonGroup.add(radioButtonMenuItem);
+						fMenuItems.put(kActionCommandMenuItemColorMapInteriorUseOrbitTrapTangens,radioButtonMenuItem);
+					subMenu.add(radioButtonMenuItem);
+						menuItem = constructMenuItem(kMenuItemIndentation + kActionCommandMenuItemColorMapInteriorSetOrbitTrapTangensParameters,false);
+						menuItem.setActionCommand(kActionCommandMenuItemColorMapInteriorSetOrbitTrapTangensParameters);
+						menuItem.addActionListener(this);
+						fMenuItems.put(kActionCommandMenuItemColorMapInteriorSetOrbitTrapTangensParameters,menuItem);
 					subMenu.add(menuItem);
 				menu.add(subMenu);
 
@@ -5615,7 +5849,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 				menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N,0));
 				menuItem.addActionListener(this);
 				// disable in case only single threading is possible
-				if (MemoryStatistics.getNrOfProcessors() == 1) {
+				if (SystemInformation.getNrOfProcessors() == 1) {
 					menuItem.setEnabled(false);
 				}
 			menu.add(menuItem);
@@ -5769,6 +6003,37 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 	 *******************/
 
 	/**
+	 * Installs a specified key binding.
+	 *
+	 * @param inputMap       -
+	 * @param actionMap      -
+	 */
+	private void installKeyBindings(InputMap inputMap, ActionMap actionMap)
+	{
+		installKeyBinding(inputMap,actionMap,"LEFT",kActionCommandMenuItemNavigationKeyPanLeft);
+		installKeyBinding(inputMap,actionMap,"RIGHT",kActionCommandMenuItemNavigationKeyPanRight);
+		installKeyBinding(inputMap,actionMap,"UP",kActionCommandMenuItemNavigationKeyPanUp);
+		installKeyBinding(inputMap,actionMap,"DOWN",kActionCommandMenuItemNavigationKeyPanDown);
+		installKeyBinding(inputMap,actionMap,"ESCAPE",kActionCommandMenuItemMultithreadingInterrupt);
+	}
+
+	/**
+	 * Installs a specified key binding.
+	 *
+	 * @param inputMap       -
+	 * @param actionMap      -
+	 * @param keyStrokeName  -
+	 * @param bindingAction  -
+	 */
+	private void installKeyBinding(InputMap inputMap, ActionMap actionMap, String keyStrokeName, String bindingAction)
+	{
+		NavigationAction navigationAction = new NavigationAction(bindingAction);
+		KeyStroke keyStroke = KeyStroke.getKeyStroke(keyStrokeName);
+		inputMap.put(keyStroke,keyStrokeName);
+		actionMap.put(keyStrokeName,navigationAction);
+	}
+
+	/**
 	 * Loads the registry.
 	 */
 	@SuppressWarnings("unchecked")
@@ -5825,13 +6090,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			"_x2=" + String.valueOf(fractalIterator.getP2().realComponent()) +
 			"_y2=" + String.valueOf(fractalIterator.getP2().imaginaryComponent());
 
-		if ((fractalIterator instanceof AConvergentFractalIterator) ||
-				(fractalIterator instanceof DucksFractalIterator)) {
-			defaultFilename += "_iter=" + String.valueOf(fractalIterator.getFixedNrOfIterations());
-		}
-		else {
-			defaultFilename += "_iter=" + String.valueOf(fractalIterator.getMaxNrOfIterations());
-		}
+		defaultFilename += "_iter=" + String.valueOf(fractalIterator.getMaxNrOfIterations());
 
 		if (fractalIterator.getFractalType() == AFractalIterator.EFractalType.kDualFractal) {
 			defaultFilename +=
@@ -5989,6 +6248,9 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 		else if (familyName.equalsIgnoreCase((new ManowarFractalIterator()).getFamilyName())) {
 			familyMenuItem = kActionCommandMenuItemFractalFamilyManowar;
 		}
+		else if (familyName.equalsIgnoreCase((new QuadbrotFractalIterator()).getFamilyName())) {
+			familyMenuItem = kActionCommandMenuItemFractalFamilyQuadbrot;
+		}
 		else if (familyName.equalsIgnoreCase((new NewtonRaphsonPowerFractalIterator()).getFamilyName())) {
 			familyMenuItem = kActionCommandMenuItemFractalFamilyNewtonRaphsonPower;
 		}
@@ -6049,7 +6311,6 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			fMenuItems.get(fractalFamily + ".SetPower").setEnabled(fractalFamily.equalsIgnoreCase(familyMenuItem));
 		}
 		fMenuItems.get(kActionCommandMenuItemFractalFamilyRandelbrotSetNoiseLevel).setEnabled(familyMenuItem.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyRandelbrot));
-		fMenuItems.get(kActionCommandMenuItemFractalFamilyDucksSetFixedNrOfIterations).setEnabled(familyMenuItem.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyDucks));
 		fMenuItems.get(kActionCommandMenuItemFractalFamilyMarkusLyapunovSetRootSequence).setEnabled(familyMenuItem.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyMarkusLyapunov));
 
 		boolean isAConvergentFractalIterator = fractalIterator instanceof AConvergentFractalIterator;
@@ -6071,6 +6332,16 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 		fMenuItems.get(kActionCommandMenuItemColorMapInteriorUseMinimumGaussianIntegersDistance).setEnabled(!isMarkusLyapunovFractalIterator && calculateAdvancedColoring);
 		fMenuItems.get(kActionCommandMenuItemColorMapInteriorUseAverageGaussianIntegersDistance).setEnabled(!isMarkusLyapunovFractalIterator && calculateAdvancedColoring);
 		fMenuItems.get(kActionCommandMenuItemColorMapInteriorSetGaussianIntegersTrapFactor).setEnabled(!isMarkusLyapunovFractalIterator && calculateAdvancedColoring);
+		fMenuItems.get(kActionCommandMenuItemColorMapInteriorUseExteriorDistance).setEnabled(!isMarkusLyapunovFractalIterator && calculateAdvancedColoring);
+		fMenuItems.get(kActionCommandMenuItemColorMapInteriorUseOrbitTrapDisk).setEnabled(!isMarkusLyapunovFractalIterator && calculateAdvancedColoring);
+		fMenuItems.get(kActionCommandMenuItemColorMapInteriorSetOrbitTrapDiskCentre).setEnabled(!isMarkusLyapunovFractalIterator && calculateAdvancedColoring);
+		fMenuItems.get(kActionCommandMenuItemColorMapInteriorSetOrbitTrapDiskRadius).setEnabled(!isMarkusLyapunovFractalIterator && calculateAdvancedColoring);
+		fMenuItems.get(kActionCommandMenuItemColorMapInteriorUseOrbitTrapCrossStalks).setEnabled(!isMarkusLyapunovFractalIterator && calculateAdvancedColoring);
+		fMenuItems.get(kActionCommandMenuItemColorMapInteriorSetOrbitTrapCrossStalksCentre).setEnabled(!isMarkusLyapunovFractalIterator && calculateAdvancedColoring);
+		fMenuItems.get(kActionCommandMenuItemColorMapInteriorUseOrbitTrapSine).setEnabled(!isMarkusLyapunovFractalIterator && calculateAdvancedColoring);
+		fMenuItems.get(kActionCommandMenuItemColorMapInteriorSetOrbitTrapSineParameters).setEnabled(!isMarkusLyapunovFractalIterator && calculateAdvancedColoring);
+		fMenuItems.get(kActionCommandMenuItemColorMapInteriorUseOrbitTrapTangens).setEnabled(!isMarkusLyapunovFractalIterator && calculateAdvancedColoring);
+		fMenuItems.get(kActionCommandMenuItemColorMapInteriorSetOrbitTrapTangensParameters).setEnabled(!isMarkusLyapunovFractalIterator && calculateAdvancedColoring);
 		fMenuItems.get(kActionCommandMenuItemColorMapExteriorUseDiscreteLevelSets).setEnabled(!isMarkusLyapunovFractalIterator);
 		fMenuItems.get(kActionCommandMenuItemColorMapExteriorUseNormalisedLevelSets).setEnabled(!isMarkusLyapunovFractalIterator);
 		fMenuItems.get(kActionCommandMenuItemColorMapExteriorUseExponentiallySmoothedLevelSets).setEnabled(!isMarkusLyapunovFractalIterator);
@@ -6088,10 +6359,19 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 		fMenuItems.get(kActionCommandMenuItemColorMapExteriorUseMinimumGaussianIntegersDistance).setEnabled(!isMarkusLyapunovFractalIterator && calculateAdvancedColoring);
 		fMenuItems.get(kActionCommandMenuItemColorMapExteriorUseAverageGaussianIntegersDistance).setEnabled(!isMarkusLyapunovFractalIterator && calculateAdvancedColoring);
 		fMenuItems.get(kActionCommandMenuItemColorMapExteriorSetGaussianIntegersTrapFactor).setEnabled(!isMarkusLyapunovFractalIterator && calculateAdvancedColoring);
+		fMenuItems.get(kActionCommandMenuItemColorMapExteriorUseExteriorDistance).setEnabled(!isMarkusLyapunovFractalIterator && calculateAdvancedColoring);
+		fMenuItems.get(kActionCommandMenuItemColorMapExteriorUseOrbitTrapDisk).setEnabled(!isMarkusLyapunovFractalIterator && calculateAdvancedColoring);
+		fMenuItems.get(kActionCommandMenuItemColorMapExteriorSetOrbitTrapDiskCentre).setEnabled(!isMarkusLyapunovFractalIterator && calculateAdvancedColoring);
+		fMenuItems.get(kActionCommandMenuItemColorMapExteriorSetOrbitTrapDiskRadius).setEnabled(!isMarkusLyapunovFractalIterator && calculateAdvancedColoring);
+		fMenuItems.get(kActionCommandMenuItemColorMapExteriorUseOrbitTrapCrossStalks).setEnabled(!isMarkusLyapunovFractalIterator && calculateAdvancedColoring);
+		fMenuItems.get(kActionCommandMenuItemColorMapExteriorSetOrbitTrapCrossStalksCentre).setEnabled(!isMarkusLyapunovFractalIterator && calculateAdvancedColoring);
+		fMenuItems.get(kActionCommandMenuItemColorMapExteriorUseOrbitTrapSine).setEnabled(!isMarkusLyapunovFractalIterator && calculateAdvancedColoring);
+		fMenuItems.get(kActionCommandMenuItemColorMapExteriorSetOrbitTrapSineParameters).setEnabled(!isMarkusLyapunovFractalIterator && calculateAdvancedColoring);
+		fMenuItems.get(kActionCommandMenuItemColorMapExteriorUseOrbitTrapTangens).setEnabled(!isMarkusLyapunovFractalIterator && calculateAdvancedColoring);
+		fMenuItems.get(kActionCommandMenuItemColorMapExteriorSetOrbitTrapTangensParameters).setEnabled(!isMarkusLyapunovFractalIterator && calculateAdvancedColoring);
 		fMenuItems.get(kActionCommandMenuItemColorMapExteriorUseDiscreteRoots).setEnabled(!isMarkusLyapunovFractalIterator);
 		fMenuItems.get(kActionCommandMenuItemColorMapExteriorUseSmoothRoots).setEnabled(!isMarkusLyapunovFractalIterator);
 		fMenuItems.get(kActionCommandMenuItemColorMapExteriorSetBrightnessFactor).setEnabled(!isMarkusLyapunovFractalIterator);
-
 		fMenuItems.get(kActionCommandMenuItemColorMapExteriorUseDiscreteRoots).setEnabled(isAConvergentFractalIterator && !isNovaFractalIterator);
 		fMenuItems.get(kActionCommandMenuItemColorMapExteriorUseSmoothRoots).setEnabled(isAConvergentFractalIterator && !isNovaFractalIterator);
 		fMenuItems.get(kActionCommandMenuItemColorMapExteriorSetBrightnessFactor).setEnabled(isAConvergentFractalIterator && !isNovaFractalIterator);
@@ -6110,6 +6390,17 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			fFractalPanel.setShowInset(fMenuItems.get(kActionCommandMenuItemFractalShowInset).isSelected());
 		}
 
+		// if necessary, disable auto select the maximum number of iterations for fractals that use a fixed number of iterations
+		if (fractalIterator.getUseFixedNrOfIterations()) {
+			fMenuItems.get(kActionCommandMenuItemFractalAutoSelectMaxNrOfIterations).setSelected(false);
+			fFractalPanel.setAutoSelectMaxNrOfIterations(false);
+			fMenuItems.get(kActionCommandMenuItemFractalAutoSelectMaxNrOfIterations).setEnabled(false);
+			fMenuItems.get(kActionCommandMenuItemFractalSetMaxNrOfIterations).setEnabled(true);
+		}
+		else {
+			fMenuItems.get(kActionCommandMenuItemFractalAutoSelectMaxNrOfIterations).setEnabled(true);
+		}
+
 		// setup the remaining menu items related to the colouring parameters
 		ColoringParameters coloringParameters = fIteratorController.getColoringParameters();
 
@@ -6121,6 +6412,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			case kDiscontinuousDarkRedYellow: fMenuItems.get(kActionCommandMenuItemColorMapInteriorDiscontinuousDarkRedYellow).setSelected(true); break;
 			case kBlackAndWhite: fMenuItems.get(kActionCommandMenuItemColorMapInteriorBlackAndWhite).setSelected(true); break;
 			case kGrayScale: fMenuItems.get(kActionCommandMenuItemColorMapInteriorGrayScale).setSelected(true); break;
+			case kGrayScaleTrimmed: fMenuItems.get(kActionCommandMenuItemColorMapInteriorGrayScaleTrimmed).setSelected(true); break;
 			case kGreenRedDiverging: fMenuItems.get(kActionCommandMenuItemColorMapInteriorGreenRedDiverging).setSelected(true); break;
 			case kHot: fMenuItems.get(kActionCommandMenuItemColorMapInteriorHot).setSelected(true); break;
 			case kJet: fMenuItems.get(kActionCommandMenuItemColorMapInteriorJet).setSelected(true); break;
@@ -6152,6 +6444,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			case kDiscontinuousDarkRedYellow: fMenuItems.get(kActionCommandMenuItemColorMapExteriorDiscontinuousDarkRedYellow).setSelected(true); break;
 			case kBlackAndWhite: fMenuItems.get(kActionCommandMenuItemColorMapExteriorBlackAndWhite).setSelected(true); break;
 			case kGrayScale: fMenuItems.get(kActionCommandMenuItemColorMapExteriorGrayScale).setSelected(true); break;
+			case kGrayScaleTrimmed: fMenuItems.get(kActionCommandMenuItemColorMapExteriorGrayScaleTrimmed).setSelected(true); break;
 			case kGreenRedDiverging: fMenuItems.get(kActionCommandMenuItemColorMapExteriorGreenRedDiverging).setSelected(true); break;
 			case kHot: fMenuItems.get(kActionCommandMenuItemColorMapExteriorHot).setSelected(true); break;
 			case kJet: fMenuItems.get(kActionCommandMenuItemColorMapExteriorJet).setSelected(true); break;
@@ -6189,6 +6482,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			case kDiscontinuousDarkRedYellow: fMenuItems.get(kActionCommandMenuItemColorMapTigerDiscontinuousDarkRedYellow).setSelected(true); break;
 			case kBlackAndWhite: fMenuItems.get(kActionCommandMenuItemColorMapTigerBlackAndWhite).setSelected(true); break;
 			case kGrayScale: fMenuItems.get(kActionCommandMenuItemColorMapTigerGrayScale).setSelected(true); break;
+			case kGrayScaleTrimmed: fMenuItems.get(kActionCommandMenuItemColorMapTigerGrayScaleTrimmed).setSelected(true); break;
 			case kGreenRedDiverging: fMenuItems.get(kActionCommandMenuItemColorMapTigerGreenRedDiverging).setSelected(true); break;
 			case kHot: fMenuItems.get(kActionCommandMenuItemColorMapTigerHot).setSelected(true); break;
 			case kJet: fMenuItems.get(kActionCommandMenuItemColorMapTigerJet).setSelected(true); break;
@@ -6235,6 +6529,11 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			case kStriping: fMenuItems.get(kActionCommandMenuItemColorMapInteriorUseStriping).setSelected(true); break;
 			case kMinimumGaussianIntegersDistance: fMenuItems.get(kActionCommandMenuItemColorMapInteriorUseMinimumGaussianIntegersDistance).setSelected(true); break;
 			case kAverageGaussianIntegersDistance: fMenuItems.get(kActionCommandMenuItemColorMapInteriorUseAverageGaussianIntegersDistance).setSelected(true); break;
+			case kExteriorDistance: fMenuItems.get(kActionCommandMenuItemColorMapInteriorUseExteriorDistance).setSelected(true); break;
+			case kOrbitTrapDisk: fMenuItems.get(kActionCommandMenuItemColorMapInteriorUseOrbitTrapDisk).setSelected(true); break;
+			case kOrbitTrapCrossStalks: fMenuItems.get(kActionCommandMenuItemColorMapInteriorUseOrbitTrapCrossStalks).setSelected(true); break;
+			case kOrbitTrapSine: fMenuItems.get(kActionCommandMenuItemColorMapInteriorUseOrbitTrapSine).setSelected(true); break;
+			case kOrbitTrapTangens: fMenuItems.get(kActionCommandMenuItemColorMapInteriorUseOrbitTrapTangens).setSelected(true); break;
 			case kDiscreteRoots: break; // not applicable
 			case kSmoothRoots: break; // not applicable
 		}
@@ -6256,6 +6555,11 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			case kStriping: fMenuItems.get(kActionCommandMenuItemColorMapExteriorUseStriping).setSelected(true); break;
 			case kMinimumGaussianIntegersDistance: fMenuItems.get(kActionCommandMenuItemColorMapExteriorUseMinimumGaussianIntegersDistance).setSelected(true); break;
 			case kAverageGaussianIntegersDistance: fMenuItems.get(kActionCommandMenuItemColorMapExteriorUseAverageGaussianIntegersDistance).setSelected(true); break;
+			case kExteriorDistance: fMenuItems.get(kActionCommandMenuItemColorMapExteriorUseExteriorDistance).setSelected(true); break;
+			case kOrbitTrapDisk: fMenuItems.get(kActionCommandMenuItemColorMapExteriorUseOrbitTrapDisk).setSelected(true); break;
+			case kOrbitTrapCrossStalks: fMenuItems.get(kActionCommandMenuItemColorMapExteriorUseOrbitTrapCrossStalks).setSelected(true); break;
+			case kOrbitTrapSine: fMenuItems.get(kActionCommandMenuItemColorMapExteriorUseOrbitTrapSine).setSelected(true); break;
+			case kOrbitTrapTangens: fMenuItems.get(kActionCommandMenuItemColorMapExteriorUseOrbitTrapTangens).setSelected(true); break;
 			case kDiscreteRoots: fMenuItems.get(kActionCommandMenuItemColorMapExteriorUseDiscreteRoots).setSelected(true); break;
 			case kSmoothRoots: fMenuItems.get(kActionCommandMenuItemColorMapExteriorUseSmoothRoots).setSelected(true); break;
 		}
@@ -6402,6 +6706,108 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 	/*****************
 	 * INNER CLASSES *
 	 *****************/
+
+	/**
+	 * @author  Sven Maerivoet
+	 * @version 08/06/2015
+	 */
+	private class NavigationAction extends AbstractAction implements ActionListener
+	{
+		// internal datastructures
+		private String fBindingAction;
+
+		/****************
+		 * CONSTRUCTORS *
+		 ****************/
+		
+		/**
+		 * Constructs a <CODE>NavigationAction</CODE> object.
+		 *
+		 * @param bindingAction  the coded name for the binding action
+		 */
+		public NavigationAction(String bindingAction)
+		{
+			fBindingAction = bindingAction;
+		}
+
+		/******************
+		 * PUBLIC METHODS *
+		 ******************/
+
+		// the action-listener
+		/**
+		 * @param e  -
+		 */
+		@Override
+		public void actionPerformed(ActionEvent e)
+		{
+			if (fBindingAction.equalsIgnoreCase(kActionCommandMenuItemNavigationKeyPanLeft)) {
+				if (fFractalPanel.getShowMainFractalOverview()) {
+					Point vp = fFractalScrollPane.getViewport().getViewPosition();
+					vp.x -= kScrollbarBlockIncrement;
+					if (vp.x < 0) {
+						vp.x = 0;
+					}
+					fFractalScrollPane.getViewport().setViewPosition(vp);
+				}
+				else {
+					fFractalPanel.pan(FractalPanel.EPanDirection.kLeft,fNavigationPanningSize,fMenuItems.get(kActionCommandMenuItemNavigationInvertPanningDirections).isSelected());
+				}
+			}
+			else if (fBindingAction.equalsIgnoreCase(kActionCommandMenuItemNavigationKeyPanRight)) {
+				if (fFractalPanel.getShowMainFractalOverview()) {
+					Point vp = fFractalScrollPane.getViewport().getViewPosition();
+					Dimension vs = fFractalScrollPane.getViewport().getViewSize();
+					Dimension es = fFractalScrollPane.getViewport().getExtentSize();
+					vp.x += kScrollbarBlockIncrement;
+					if ((vp.x + es.width) > vs.width) {
+						vp.x = vs.width - es.width + 1;
+					}
+					fFractalScrollPane.getViewport().setViewPosition(vp);
+				}
+				else {
+					fFractalPanel.pan(FractalPanel.EPanDirection.kRight,fNavigationPanningSize,fMenuItems.get(kActionCommandMenuItemNavigationInvertPanningDirections).isSelected());
+				}
+			}
+			else if (fBindingAction.equalsIgnoreCase(kActionCommandMenuItemNavigationKeyPanUp)) {
+				if (fFractalPanel.getShowMainFractalOverview()) {
+					Point vp = fFractalScrollPane.getViewport().getViewPosition();
+					vp.y -= kScrollbarBlockIncrement;
+					if (vp.y < 0) {
+						vp.y = 0;
+					}
+					fFractalScrollPane.getViewport().setViewPosition(vp);
+				}
+				else {
+					fFractalPanel.pan(FractalPanel.EPanDirection.kUp,fNavigationPanningSize,fMenuItems.get(kActionCommandMenuItemNavigationInvertPanningDirections).isSelected());
+				}
+			}
+			else if (fBindingAction.equalsIgnoreCase(kActionCommandMenuItemNavigationKeyPanDown)) {
+				if (fFractalPanel.getShowMainFractalOverview()) {
+					Point vp = fFractalScrollPane.getViewport().getViewPosition();
+					Dimension vs = fFractalScrollPane.getViewport().getViewSize();
+					Dimension es = fFractalScrollPane.getViewport().getExtentSize();
+					vp.y += kScrollbarBlockIncrement;
+					if ((vp.y + es.height) > vs.height) {
+						vp.y = vs.height - es.height + 1;
+					}
+					fFractalScrollPane.getViewport().setViewPosition(vp);
+				}
+				else {
+					fFractalPanel.pan(FractalPanel.EPanDirection.kDown,fNavigationPanningSize,fMenuItems.get(kActionCommandMenuItemNavigationInvertPanningDirections).isSelected());
+				}
+			}
+			else if (fBindingAction.equalsIgnoreCase(kActionCommandMenuItemHelpGeneralInformation)) {
+				showHelpTopic(EHelpTopic.kGeneralInformation);
+			}
+			else if (fBindingAction.equalsIgnoreCase(kActionCommandMenuItemMultithreadingInterrupt)) {
+				if (fIteratorController.isBusy()) {
+//XXX
+					JIncompleteWarningDialog.warn(fFractalPanel,"GUIApplication");
+				}
+			}
+		}
+	}
 
 	/**
 	 * @author  Sven Maerivoet
@@ -6568,6 +6974,9 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 				}
 				else if (familyName.equalsIgnoreCase((new ManowarFractalIterator()).getFamilyName())) {
 					fIteratorController.setFractalIteratorFamily(new ManowarFractalIterator());
+				}
+				else if (familyName.equalsIgnoreCase((new QuadbrotFractalIterator()).getFamilyName())) {
+					fIteratorController.setFractalIteratorFamily(new QuadbrotFractalIterator());
 				}
 				else if (familyName.equalsIgnoreCase((new NewtonRaphsonPowerFractalIterator()).getFamilyName())) {
 					fIteratorController.setFractalIteratorFamily(new NewtonRaphsonPowerFractalIterator());

@@ -1,7 +1,7 @@
 // ------------------------------------
 // Filename      : IterationResult.java
 // Author        : Sven Maerivoet
-// Last modified : 22/01/2015
+// Last modified : 05/06/2015
 // Target        : Java VM (1.8)
 // ------------------------------------
 
@@ -33,7 +33,7 @@ import org.sm.smtools.util.*;
  * <B>Note that this class cannot be subclassed!</B>
  * 
  * @author  Sven Maerivoet
- * @version 22/01/2015
+ * @version 05/06/2015
  */
 public final class IterationResult
 {
@@ -43,7 +43,7 @@ public final class IterationResult
 	public static final double kInfinity = Double.POSITIVE_INFINITY;
 
 	// the number of fields
-	private static final int kNrOfFields = 14;
+	private static final int kNrOfFields = 19;
 
 	/**
 	 * The memory size (in bytes) of the object's data.
@@ -66,6 +66,11 @@ public final class IterationResult
 	public double fStriping;
 	public double fMinimumGaussianIntegersDistance;
 	public double fAverageGaussianIntegersDistance;
+	public double fExteriorDistance;
+	public double fOrbitTrapDiskDistance;
+	public double fOrbitTrapCrossStalksDistance;
+	public double fOrbitTrapSineDistance;
+	public double fOrbitTrapTangensDistance;
 	public double fRootIndex;
 	public ComplexNumber[] fComplexOrbit;
 	public ScreenLocation[] fScreenOrbit;
@@ -142,7 +147,12 @@ public final class IterationResult
 			fStriping = Double.parseDouble(csv[10]);
 			fMinimumGaussianIntegersDistance = Double.parseDouble(csv[11]);
 			fAverageGaussianIntegersDistance = Double.parseDouble(csv[12]);
-			fRootIndex = Double.parseDouble(csv[13]);
+			fExteriorDistance = Double.parseDouble(csv[13]);
+			fOrbitTrapDiskDistance = Double.parseDouble(csv[14]);
+			fOrbitTrapCrossStalksDistance = Double.parseDouble(csv[15]);
+			fOrbitTrapSineDistance = Double.parseDouble(csv[16]);
+			fOrbitTrapTangensDistance = Double.parseDouble(csv[17]);
+			fRootIndex = Double.parseDouble(csv[18]);
 		}
 
 		return resultAvailable;
@@ -171,7 +181,12 @@ public final class IterationResult
 		csv[10] = String.valueOf(fStriping);
 		csv[11] = String.valueOf(fMinimumGaussianIntegersDistance);
 		csv[12] = String.valueOf(fAverageGaussianIntegersDistance);
-		csv[13] = String.valueOf(fRootIndex);
+		csv[13] = String.valueOf(fExteriorDistance);
+		csv[14] = String.valueOf(fOrbitTrapDiskDistance);
+		csv[15] = String.valueOf(fOrbitTrapCrossStalksDistance);
+		csv[16] = String.valueOf(fOrbitTrapSineDistance);
+		csv[17] = String.valueOf(fOrbitTrapTangensDistance);
+		csv[18] = String.valueOf(fRootIndex);
 
 		tfw.writeCSV(csv);
 		tfw.writeLn();

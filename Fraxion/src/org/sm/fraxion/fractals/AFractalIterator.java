@@ -1,7 +1,7 @@
 // -------------------------------------
 // Filename      : AFractalIterator.java
 // Author        : Sven Maerivoet
-// Last modified : 24/01/2015
+// Last modified : 10/06/2015
 // Target        : Java VM (1.8)
 // -------------------------------------
 
@@ -26,6 +26,7 @@ package org.sm.fraxion.fractals;
 import java.awt.*;
 import org.sm.fraxion.fractals.util.*;
 import org.sm.smtools.exceptions.*;
+import org.sm.smtools.math.*;
 import org.sm.smtools.math.complex.*;
 import org.sm.smtools.util.*;
 
@@ -38,7 +39,7 @@ import org.sm.smtools.util.*;
  * <B>Note that this is an abstract class.</B>
  * 
  * @author  Sven Maerivoet
- * @version 24/01/2015
+ * @version 10/06/2015
  */
 public abstract class AFractalIterator
 {
@@ -58,6 +59,7 @@ public abstract class AFractalIterator
 	// internal datastructures
 	protected EFractalType fFractalType;
 	protected int fMaxNrOfIterations;
+	protected boolean fUseFixedNrOfIterations;
 	protected double fEscapeRadius;
 	protected double fEscapeRadiusSqr;
 	protected ComplexNumber fDualParameter;
@@ -74,12 +76,25 @@ public abstract class AFractalIterator
 	protected double fComplexHeight;
 	protected boolean fInvertYAxis;
 	protected ComplexNumber fZ0;
-	protected int fFixedNrOfIterations;
 	protected boolean fCalculateAdvancedColoring;
 	protected double fInteriorStripingDensity;
 	protected double fExteriorStripingDensity;
 	protected double fInteriorGaussianIntegersTrapFactor;
 	protected double fExteriorGaussianIntegersTrapFactor;
+	protected ComplexNumber fInteriorOrbitTrapDiskCentre;
+	protected ComplexNumber fExteriorOrbitTrapDiskCentre;
+	protected double fInteriorOrbitTrapDiskRadius;
+	protected double fExteriorOrbitTrapDiskRadius;
+	protected ComplexNumber fInteriorOrbitTrapCrossStalksCentre;
+	protected ComplexNumber fExteriorOrbitTrapCrossStalksCentre;
+	protected double fInteriorOrbitTrapSineMultiplicativeFactor;
+	protected double fExteriorOrbitTrapSineMultiplicativeFactor;
+	protected double fInteriorOrbitTrapSineAdditiveFactor;
+	protected double fExteriorOrbitTrapSineAdditiveFactor;
+	protected double fInteriorOrbitTrapTangensMultiplicativeFactor;
+	protected double fExteriorOrbitTrapTangensMultiplicativeFactor;
+	protected double fInteriorOrbitTrapTangensAdditiveFactor;
+	protected double fExteriorOrbitTrapTangensAdditiveFactor;
 
 	/****************
 	 * CONSTRUCTORS *
@@ -92,7 +107,7 @@ public abstract class AFractalIterator
 	{
 		setFractalType(EFractalType.kMainFractal);
 		setMaxNrOfIterations(kDefaultMaxNrOfIterations);
-		setFixedNrOfIterations(getDefaultFixedNrOfIterations());
+		setUseFixedNrOfIterations(false);
 		setEscapeRadius(getDefaultEscapeRadius());
 		setDualParameter(getDefaultDualParameter());
 		setInvertYAxis(false);
@@ -103,6 +118,20 @@ public abstract class AFractalIterator
 		setExteriorStripingDensity(4.0);
 		setInteriorGaussianIntegersTrapFactor(1.0);
 		setExteriorGaussianIntegersTrapFactor(1.0);
+		setInteriorOrbitTrapDiskCentre(ComplexNumber.kZero);
+		setExteriorOrbitTrapDiskCentre(ComplexNumber.kZero);
+		setInteriorOrbitTrapDiskRadius(1.0);
+		setExteriorOrbitTrapDiskRadius(1.0);
+		setInteriorOrbitTrapCrossStalksCentre(ComplexNumber.kZero);
+		setExteriorOrbitTrapCrossStalksCentre(ComplexNumber.kZero);
+		setInteriorOrbitTrapSineMultiplicativeFactor(1.0);
+		setExteriorOrbitTrapSineMultiplicativeFactor(1.0);
+		setInteriorOrbitTrapSineAdditiveFactor(0.0);
+		setExteriorOrbitTrapSineAdditiveFactor(0.0);
+		setInteriorOrbitTrapTangensMultiplicativeFactor(1.0);
+		setExteriorOrbitTrapTangensMultiplicativeFactor(1.0);
+		setInteriorOrbitTrapTangensAdditiveFactor(0.0);
+		setExteriorOrbitTrapTangensAdditiveFactor(0.0);
 	}
 
 	/******************
@@ -137,9 +166,9 @@ public abstract class AFractalIterator
 	}
 
 	/**
-	 * Sets the maximum number of iterations to use in the escape-time algorithm.
-	 *
-	 * @param maxNrOfIterations the maximum number of iterations to use in the escape-time algorithm
+	 * Sets the maximum number of iterations to use.
+	 * 
+	 * @param maxNrOfIterations  the maximum number of iterations to use
 	 */
 	public final void setMaxNrOfIterations(int maxNrOfIterations)
 	{
@@ -157,27 +186,57 @@ public abstract class AFractalIterator
 	}
 
 	/**
-	 * Sets the fixed number of iterations that should be used
-	 * (thereby disabling checking of the escape radius).
-	 * <P>
-	 * If 0 is specified, then the fixed number is ignored.
-	 * 
-	 * @param fixedNrOfIterations  the fixed number of iterations that should be used
+	 * Auto determines the maximum number of iterations to use.
+	 *
+	 * @return the maximum number of iterations to use
 	 */
-	public final void setFixedNrOfIterations(int fixedNrOfIterations)
+	public final int autoDetermineMaxNrOfIterations()
 	{
-		fFixedNrOfIterations = fixedNrOfIterations;
+		// determine maximum number of iterations
+		double zoomLevel = Math.log10(getCurrentZoomLevel());
+		int maxNrOfIterations = 0;
+		if (zoomLevel <= 1.0) {
+			maxNrOfIterations = 100;
+		}
+		else if (zoomLevel <= 2.0) {
+			maxNrOfIterations = 300;
+		}
+		else if (zoomLevel <= 3.0) {
+			maxNrOfIterations = 750;
+		}
+		else if (zoomLevel > 3.0) {
+			// apply a fitted quadratic curve
+			maxNrOfIterations = (int) Math.round(
+																	(7.0 * MathTools.quadr(zoomLevel))
+																	- (160.0 * MathTools.cube(zoomLevel))
+																	+ (1360.0 * MathTools.sqr(zoomLevel))
+																	- (1655.0 * zoomLevel)
+																	+ 300.0);
+		}
+
+		return maxNrOfIterations;
 	}
 
 	/**
-	 * Returns the fixed number of iterations that should be used
+	 * Sets whether or not a fixed number of iterations should be used
 	 * (thereby disabling checking of the escape radius).
 	 * 
-	 * @return the fixed number of iterations that should be used
+	 * @param useFixedNrOfIterations  a <CODE>boolean</CODE> indicating whether or not a fixed number of iterations should be used
 	 */
-	public final int getFixedNrOfIterations()
+	public final void setUseFixedNrOfIterations(boolean useFixedNrOfIterations)
 	{
-		return fFixedNrOfIterations;
+		fUseFixedNrOfIterations = useFixedNrOfIterations;
+	}
+
+	/**
+	 * Returns whether or not a fixed number of iterations should be used
+	 * (thereby disabling checking of the escape radius).
+	 * 
+	 * @return a <CODE>boolean</CODE> indicating whether or not a fixed number of iterations should be used
+	 */
+	public final boolean getUseFixedNrOfIterations()
+	{
+		return fUseFixedNrOfIterations;
 	}
 
 	/**
@@ -461,6 +520,288 @@ public abstract class AFractalIterator
 	}
 
 	/**
+	 * Returns the interior orbit trap disk centre.
+	 * 
+	 *
+	 * @return the interior orbit trap disk centre
+	 */
+	public final ComplexNumber getInteriorOrbitTrapDiskCentre()
+	{
+		return fInteriorOrbitTrapDiskCentre;
+	}
+
+	/**
+	 * Sets the interior orbit trap disk centre.
+	 *
+	 * @param interiorOrbitTrapDiskCentre  the interior orbit trap disk centre
+	 */
+	public final void setInteriorOrbitTrapDiskCentre(ComplexNumber interiorOrbitTrapDiskCentre)
+	{
+		fInteriorOrbitTrapDiskCentre = interiorOrbitTrapDiskCentre;
+	}
+
+	/**
+	 * Returns the exterior orbit trap disk centre.
+	 *
+	 * @return the exterior orbit trap disk centre
+	 */
+	public final ComplexNumber getExteriorOrbitTrapDiskCentre()
+	{
+		return fExteriorOrbitTrapDiskCentre;
+	}
+
+	/**
+	 * Sets the exterior orbit trap disk centre.
+	 *
+	 * @param  exteriorOrbitTrapDiskCentre  the exterior orbit trap disk centre
+	 */
+	public final void setExteriorOrbitTrapDiskCentre(ComplexNumber exteriorOrbitTrapDiskCentre)
+	{
+		fExteriorOrbitTrapDiskCentre = exteriorOrbitTrapDiskCentre;
+	}
+
+	/**
+	 * Sets the interior orbit trap disk radius.
+	 *
+	 * @param interiorOrbitTrapDiskRadius  the interior orbit trap disk radius
+	 */
+	public final void setInteriorOrbitTrapDiskRadius(double interiorOrbitTrapDiskRadius)
+	{
+		fInteriorOrbitTrapDiskRadius = interiorOrbitTrapDiskRadius;
+	}
+
+	/**
+	 * Returns the interior orbit trap disk radius.
+	 *
+	 * @return the interior orbit trap disk radius
+	 */
+	public final double getInteriorOrbitTrapDiskRadius()
+	{
+		return fInteriorOrbitTrapDiskRadius;
+	}
+
+	/**
+	 * Sets the exterior orbit trap disk radius.
+	 *
+	 * @param exteriorOrbitTrapDiskRadius  the exterior orbit trap disk radius
+	 */
+	public final void setExteriorOrbitTrapDiskRadius(double exteriorOrbitTrapDiskRadius)
+	{
+		fExteriorOrbitTrapDiskRadius = exteriorOrbitTrapDiskRadius;
+	}
+
+	/**
+	 * Returns the exterior orbit trap disk radius.
+	 *
+	 * @return the exterior orbit trap disk radius
+	 */
+	public final double getExteriorOrbitTrapDiskRadius()
+	{
+		return fExteriorOrbitTrapDiskRadius;
+	}
+
+	/**
+	 * Returns the interior orbit trap cross/stalks centre.
+	 * 
+	 *
+	 * @return the interior orbit trap cross/stalks centre
+	 */
+	public final ComplexNumber getInteriorOrbitTrapCrossStalksCentre()
+	{
+		return fInteriorOrbitTrapCrossStalksCentre;
+	}
+
+	/**
+	 * Sets the interior orbit trap cross/stalks centre.
+	 *
+	 * @param interiorOrbitTrapCrossStalksCentre  the interior orbit trap cross/stalks centre
+	 */
+	public final void setInteriorOrbitTrapCrossStalksCentre(ComplexNumber interiorOrbitTrapCrossStalksCentre)
+	{
+		fInteriorOrbitTrapCrossStalksCentre = interiorOrbitTrapCrossStalksCentre;
+	}
+
+	/**
+	 * Returns the exterior orbit trap cross/stalks centre.
+	 *
+	 * @return the exterior orbit trap cross/stalks centre
+	 */
+	public final ComplexNumber getExteriorOrbitTrapCrossStalksCentre()
+	{
+		return fExteriorOrbitTrapCrossStalksCentre;
+	}
+
+	/**
+	 * Sets the exterior orbit trap cross/stalks centre.
+	 *
+	 * @param exteriorOrbitTrapCrossStalksCentre  the exterior orbit trap cross/stalks centre
+	 */
+	public final void setExteriorOrbitTrapCrossStalksCentre(ComplexNumber exteriorOrbitTrapCrossStalksCentre)
+	{
+		fExteriorOrbitTrapCrossStalksCentre = exteriorOrbitTrapCrossStalksCentre;
+	}
+
+	/**
+	 * Sets the interior orbit trap sine multiplicative factor.
+	 *
+	 * @param interiorOrbitTrapSineMultiplicativeFactor  the interior orbit trap sine multiplicative factor
+	 */
+	public final void setInteriorOrbitTrapSineMultiplicativeFactor(double interiorOrbitTrapSineMultiplicativeFactor)
+	{
+		fInteriorOrbitTrapSineMultiplicativeFactor = interiorOrbitTrapSineMultiplicativeFactor;
+	}
+
+	/**
+	 * Returns the interior orbit trap sine multiplicative factor.
+	 *
+	 * @return the interior orbit trap sine multiplicative factor
+	 */
+	public final double getInteriorOrbitTrapSineMultiplicativeFactor()
+	{
+		return fInteriorOrbitTrapSineMultiplicativeFactor;
+	}
+
+	/**
+	 * Sets the exterior orbit trap sine multiplicative factor.
+	 *
+	 * @param exteriorOrbitTrapSineMultiplicativeFactor  the exterior orbit trap sine multiplicative factor
+	 */
+	public final void setExteriorOrbitTrapSineMultiplicativeFactor(double exteriorOrbitTrapSineMultiplicativeFactor)
+	{
+		fExteriorOrbitTrapSineMultiplicativeFactor = exteriorOrbitTrapSineMultiplicativeFactor;
+	}
+
+	/**
+	 * Returns the exterior orbit trap sine multiplicative factor.
+	 *
+	 * @return the exterior orbit trap sine multiplicative factor
+	 */
+	public final double getExteriorOrbitTrapSineMultiplicativeFactor()
+	{
+		return fExteriorOrbitTrapSineMultiplicativeFactor;
+	}
+
+	/**
+	 * Sets the interior orbit trap sine additive factor.
+	 *
+	 * @param interiorOrbitTrapSineAdditiveFactor  the interior orbit trap sine additive factor
+	 */
+	public final void setInteriorOrbitTrapSineAdditiveFactor(double interiorOrbitTrapSineAdditiveFactor)
+	{
+		fInteriorOrbitTrapSineAdditiveFactor = interiorOrbitTrapSineAdditiveFactor;
+	}
+
+	/**
+	 * Returns the interior orbit trap sine additive factor.
+	 *
+	 * @return the interior orbit trap sine additive factor
+	 */
+	public final double getInteriorOrbitTrapSineAdditiveFactor()
+	{
+		return fInteriorOrbitTrapSineAdditiveFactor;
+	}
+
+	/**
+	 * Sets the exterior orbit trap sine additive factor.
+	 *
+	 * @param exteriorOrbitTrapSineAdditiveFactor  the exterior orbit trap sine additive factor
+	 */
+	public final void setExteriorOrbitTrapSineAdditiveFactor(double exteriorOrbitTrapSineAdditiveFactor)
+	{
+		fExteriorOrbitTrapSineAdditiveFactor = exteriorOrbitTrapSineAdditiveFactor;
+	}
+
+	/**
+	 * Returns the exterior orbit trap sine additive factor.
+	 *
+	 * @return the exterior orbit trap sine additive factor
+	 */
+	public final double getExteriorOrbitTrapSineAdditiveFactor()
+	{
+		return fExteriorOrbitTrapSineAdditiveFactor;
+	}
+
+	/**
+	 * Sets the interior orbit trap tangens factor.
+	 *
+	 * @param interiorOrbitTrapTangensMultiplicativeFactor  the interior orbit trap tangens multiplicative factor
+	 */
+	public final void setInteriorOrbitTrapTangensMultiplicativeFactor(double interiorOrbitTrapTangensMultiplicativeFactor)
+	{
+		fInteriorOrbitTrapTangensMultiplicativeFactor = interiorOrbitTrapTangensMultiplicativeFactor;
+	}
+
+	/**
+	 * Returns the interior orbit trap tangens multiplicative factor.
+	 *
+	 * @return the interior orbit trap tangens multiplicative factor
+	 */
+	public final double getInteriorOrbitTrapTangensMultiplicativeFactor()
+	{
+		return fInteriorOrbitTrapTangensMultiplicativeFactor;
+	}
+
+	/**
+	 * Sets the exterior orbit trap tangens multiplicative factor.
+	 *
+	 * @param exteriorOrbitTrapTangensMultiplicativeFactor  the exterior orbit trap tangens multiplicative factor
+	 */
+	public final void setExteriorOrbitTrapTangensMultiplicativeFactor(double exteriorOrbitTrapTangensMultiplicativeFactor)
+	{
+		fExteriorOrbitTrapTangensMultiplicativeFactor = exteriorOrbitTrapTangensMultiplicativeFactor;
+	}
+
+	/**
+	 * Returns the exterior orbit trap tangens multiplicative factor.
+	 *
+	 * @return the exterior orbit trap tangens multiplicative factor
+	 */
+	public final double getExteriorOrbitTrapTangensMultiplicativeFactor()
+	{
+		return fExteriorOrbitTrapTangensMultiplicativeFactor;
+	}
+
+	/**
+	 * Sets the interior orbit trap tangens additive factor.
+	 *
+	 * @param interiorOrbitTrapTangensAdditiveFactor  the interior orbit trap tangens additive factor
+	 */
+	public final void setInteriorOrbitTrapTangensAdditiveFactor(double interiorOrbitTrapTangensAdditiveFactor)
+	{
+		fInteriorOrbitTrapTangensAdditiveFactor = interiorOrbitTrapTangensAdditiveFactor;
+	}
+
+	/**
+	 * Returns the interior orbit trap tangens additive factor.
+	 *
+	 * @return the interior orbit trap tangens additive factor
+	 */
+	public final double getInteriorOrbitTrapTangensAdditiveFactor()
+	{
+		return fInteriorOrbitTrapTangensAdditiveFactor;
+	}
+
+	/**
+	 * Sets the exterior orbit trap tangens additive factor.
+	 *
+	 * @param exteriorOrbitTrapTangensAdditiveFactor  the exterior orbit trap tangens additive factor
+	 */
+	public final void setExteriorOrbitTrapTangensAdditiveFactor(double exteriorOrbitTrapTangensAdditiveFactor)
+	{
+		fExteriorOrbitTrapTangensAdditiveFactor = exteriorOrbitTrapTangensAdditiveFactor;
+	}
+
+	/**
+	 * Returns the exterior orbit trap tangens additive factor.
+	 *
+	 * @return the exterior orbit trap tangens additive factor
+	 */
+	public final double getExteriorOrbitTrapTangensAdditiveFactor()
+	{
+		return fExteriorOrbitTrapTangensAdditiveFactor;
+	}
+
+	/**
 	 * Helper method for converting a complex number to a screen location.
 	 *
 	 * @param c  the complex number
@@ -519,6 +860,23 @@ public abstract class AFractalIterator
 	}
 
 	/**
+	 * Returns the current zoom level.
+	 * 
+	 * @return the current zoom level
+	 */
+	public final long getCurrentZoomLevel()
+	{
+		double defaultDeltaX = Math.abs(getDefaultP2().realComponent() - getDefaultP1().realComponent());
+		double currentDeltaX = Math.abs(getP2().realComponent() - getP1().realComponent());
+		double defaultDeltaY = Math.abs(getDefaultP2().imaginaryComponent() - getDefaultP1().imaginaryComponent());
+		double currentDeltaY = Math.abs(getP2().imaginaryComponent() - getP1().imaginaryComponent());
+		double zoomLevelX = Math.round(defaultDeltaX / currentDeltaX);
+		double zoomLevelY = Math.round(defaultDeltaY / currentDeltaY);
+
+		return (long) Math.max(zoomLevelX,zoomLevelY);
+	}
+
+	/**
 	 * Loads the current fractal parameters from a file.
 	 * 
 	 * @param  tfp                 a reference to the file parser
@@ -528,7 +886,7 @@ public abstract class AFractalIterator
 	{
 		setFractalType(EFractalType.valueOf(tfp.getNextString()));
 		setMaxNrOfIterations(tfp.getNextInteger());
-		setFixedNrOfIterations(tfp.getNextInteger());
+		setUseFixedNrOfIterations(tfp.getNextBoolean());
 		setEscapeRadius(tfp.getNextDouble());
 		setDualParameter(new ComplexNumber(tfp.getNextDouble(),tfp.getNextDouble()));
 		setInvertYAxis(tfp.getNextBoolean());
@@ -559,7 +917,7 @@ public abstract class AFractalIterator
 		tfw.writeInteger(fMaxNrOfIterations);
 		tfw.writeLn();
 
-		tfw.writeInteger(fFixedNrOfIterations);
+		tfw.writeBoolean(fUseFixedNrOfIterations);
 		tfw.writeLn();
 
 		tfw.writeDouble(fEscapeRadius);
@@ -712,16 +1070,6 @@ public abstract class AFractalIterator
 	 * @return the default escape radius
 	 */
 	protected abstract double getDefaultEscapeRadius();
-
-	/**
-	 * Returns the default of 0 fixed iterations to be used (so it is by default disabled).
-	 * 
-	 * @return the default of 0 fixed iterations to be used
-	 */
-	protected int getDefaultFixedNrOfIterations()
-	{
-		return 0;
-	}
 
 	/**
 	 * Evaluates the fractal function for a specified complex point.

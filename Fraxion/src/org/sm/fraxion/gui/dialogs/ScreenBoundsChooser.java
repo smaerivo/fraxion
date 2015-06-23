@@ -274,7 +274,7 @@ public final class ScreenBoundsChooser extends JDefaultDialog implements ActionL
 	 */
 	public boolean isProjectedMemoryUsageAvailable()
 	{
-		return ((MemoryStatistics.getTotalMemory() - calcProjectedMemoryUsage()) > 0L);
+		return ((SystemInformation.getTotalMemory() - calcProjectedMemoryUsage()) > 0L);
 	}
 
 	// the action-listener

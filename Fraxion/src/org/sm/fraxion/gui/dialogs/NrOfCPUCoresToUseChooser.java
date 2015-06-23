@@ -101,8 +101,8 @@ public final class NrOfCPUCoresToUseChooser extends JDefaultDialog implements Ch
 	protected void initialiseClass(Object[] parameters)
 	{
 		fNrOfCPUCoresToUse = (int) parameters[0];
-		if (fNrOfCPUCoresToUse > MemoryStatistics.getNrOfProcessors()) {
-			fNrOfCPUCoresToUse = MemoryStatistics.getNrOfProcessors();
+		if (fNrOfCPUCoresToUse > SystemInformation.getNrOfProcessors()) {
+			fNrOfCPUCoresToUse = SystemInformation.getNrOfProcessors();
 		}
 	}
 
@@ -126,7 +126,7 @@ public final class NrOfCPUCoresToUseChooser extends JDefaultDialog implements Ch
 			fNrOfCPUCoresToUseSlider = new JSlider(JSlider.HORIZONTAL);
 			fNrOfCPUCoresToUseSlider.setInverted(false);
 			fNrOfCPUCoresToUseSlider.setMinimum(1);
-			fNrOfCPUCoresToUseSlider.setMaximum(MemoryStatistics.getNrOfProcessors());
+			fNrOfCPUCoresToUseSlider.setMaximum(SystemInformation.getNrOfProcessors());
 			fNrOfCPUCoresToUseSlider.setMinorTickSpacing(2);
 			fNrOfCPUCoresToUseSlider.setMajorTickSpacing(1);
 			fNrOfCPUCoresToUseSlider.setPaintTicks(true);

@@ -1,5 +1,11 @@
 org.sm.fraxion.concurrent
 org.sm.fraxion.fractals
+org.sm.fraxion.fractals.convergent
+org.sm.fraxion.fractals.divergent
+org.sm.fraxion.fractals.divergent.multi
+org.sm.fraxion.fractals.divergent.trigonometric
+org.sm.fraxion.fractals.magnet
+org.sm.fraxion.fractals.markuslyapunov
 org.sm.fraxion.fractals.util
 org.sm.fraxion.gui
 org.sm.fraxion.gui.dialogs
