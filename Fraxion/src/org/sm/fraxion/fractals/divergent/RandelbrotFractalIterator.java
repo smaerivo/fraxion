@@ -1,7 +1,7 @@
 // ----------------------------------------------
 // Filename      : RandelbrotFractalIterator.java
 // Author        : Sven Maerivoet
-// Last modified : 16/12/2014
+// Last modified : 23/06/2015
 // Target        : Java VM (1.8)
 // ----------------------------------------------
 
@@ -23,6 +23,7 @@
 
 package org.sm.fraxion.fractals.divergent;
 
+import java.io.*;
 import org.sm.smtools.exceptions.*;
 import org.sm.smtools.math.complex.*;
 import org.sm.smtools.util.*;
@@ -31,7 +32,7 @@ import org.sm.smtools.util.*;
  * The <CODE>RandelbrotFractalIterator</CODE> class provides an implementation of the Randelbrot fractals.
  * 
  * @author  Sven Maerivoet
- * @version 16/12/2014
+ * @version 23/06/2015
  */
 public class RandelbrotFractalIterator extends MandelbrotJuliaFractalIterator
 {
@@ -127,27 +128,50 @@ public class RandelbrotFractalIterator extends MandelbrotJuliaFractalIterator
 	}
 
 	/**
-	 * Loads custom fractal parameters from a file.
+	 * Loads custom fractal parameters from a plain-text file.
 	 * 
 	 * @param  tfp                 a reference to the file parser
 	 * @throws FileParseException  in case a read error occurs
 	 */
 	@Override
-	protected void loadCustomParameters(TextFileParser tfp) throws FileParseException
+	protected void plainTextLoadCustomParameters(TextFileParser tfp) throws FileParseException
 	{
 		setNoiseLevel(tfp.getNextDouble());
 	}
 
 	/**
-	 * Saves custom fractal parameters to a file.
+	 * Loads custom fractal parameters from a file as a stream.
+	 * 
+	 * @param  dataInputStream  a data inputstream
+	 * @throws IOException      in case a parse error occurs
+	 */
+	@Override
+	protected void streamLoadCustomParameters(DataInputStream dataInputStream) throws IOException
+	{
+		setNoiseLevel(dataInputStream.readDouble());
+	}
+
+	/**
+	 * Saves custom fractal parameters to a plain-text file.
 	 * 
 	 * @param  tfw                 a reference to the file writer
 	 * @throws FileWriteException  in case a write error occurs
 	 */
 	@Override
-	protected void saveCustomParameters(TextFileWriter tfw) throws FileWriteException
+	protected void plainTextSaveCustomParameters(TextFileWriter tfw) throws FileWriteException
 	{
 		tfw.writeDouble(fNoiseLevel);
 		tfw.writeLn();
+	}
+
+	/**
+	 * Saves custom fractal parameters to a file as a stream.
+	 * 
+	 * @param  dataOutputStream  a data outputstream
+	 * @throws IOException       in case a write error occurs
+	 */
+	protected void streamSaveCustomParameters(DataOutputStream dataOutputStream) throws IOException
+	{
+		dataOutputStream.writeDouble(fNoiseLevel);
 	}
 }

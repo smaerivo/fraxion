@@ -1,7 +1,7 @@
 // -------------------------------
 // Filename      : BlurFilter.java
 // Author        : Sven Maerivoet
-// Last modified : 21/12/2014
+// Last modified : 23/06/2015
 // Target        : Java VM (1.8)
 // -------------------------------
 
@@ -24,6 +24,7 @@
 package org.sm.fraxion.gui.filters;
 
 import java.awt.image.*;
+import java.io.*;
 import org.sm.smtools.exceptions.*;
 import org.sm.smtools.util.*;
 
@@ -33,7 +34,7 @@ import org.sm.smtools.util.*;
  * <B>Note that this class can not be subclased!</B>
  * 
  * @author  Sven Maerivoet
- * @version 21/12/2014
+ * @version 23/06/2015
  */
 public final class BlurFilter extends AFilter
 {
@@ -111,26 +112,52 @@ public final class BlurFilter extends AFilter
 	}
 
 	/**
-	 * Loads the filter's parameters from a file.
+	 * Loads the filter's parameters from a plain-text file.
 	 * 
 	 * @param  tfp                 a reference to the file parser
 	 * @throws FileParseException  in case a read error occurs
 	 */
-	public void loadParameters(TextFileParser tfp) throws FileParseException
+	@Override
+	public void plainTextLoadParameters(TextFileParser tfp) throws FileParseException
 	{
 		setKernelSize(tfp.getNextInteger());
 	}
 
 	/**
-	 * Saves the filter's parameters to a file.
+	 * Loads the filter's parameters from a file.
+	 * 
+	 * @param  dataInputStream  a data inputstream
+	 * @throws IOException      in case a parse error occurs
+	 */
+	@Override
+	public void streamLoadParameters(DataInputStream dataInputStream) throws IOException
+	{
+		setKernelSize(dataInputStream.readInt());
+	}
+
+	/**
+	 * Saves the filter's parameters to a plain-text file.
 	 * 
 	 * @param  tfw                 a reference to the file writer
 	 * @throws FileWriteException  in case a write error occurs
 	 */
-	public void saveParameters(TextFileWriter tfw) throws FileWriteException
+	@Override
+	public void plainTextSaveParameters(TextFileWriter tfw) throws FileWriteException
 	{
 		tfw.writeInteger(fKernelSize);
 		tfw.writeLn();
+	}
+
+	/**
+	 * Saves the filter's parameters to a file as a stream.
+	 * 
+	 * @param  dataOutputStream  a data outputstream
+	 * @throws IOException       in case a write error occurs
+	 */
+	@Override
+	public void streamSaveParameters(DataOutputStream dataOutputStream) throws IOException
+	{
+		dataOutputStream.writeInt(fKernelSize);
 	}
 
 	/**

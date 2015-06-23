@@ -1733,15 +1733,6 @@ public final class FractalPanel extends JPanel
 
 			fRenderBufferGraphics.drawImage(rescaledMainFractalImage,vpX1 + kRescaledMainFractalXOffset,vpY2 - kRescaledMainFractalYOffset - rescaledMainFractalHeight,null);
 
-System.out.println("! => " +
-		rescaledMainFractalImage.getWidth(this) + " x " +
-		rescaledMainFractalImage.getHeight(this) + " / " +
-		"vpX1 = " + vpX1 + " " +
-		"vpY2 = " + vpY2 + " " +
-		"kRescaledMainFractalXOffset = " + kRescaledMainFractalXOffset + " " +
-		"kRescaledMainFractalYOffset = " + kRescaledMainFractalYOffset + " " +
-		"rescaledMainFractalHeight = " + rescaledMainFractalHeight);
-			
 			// draw a rectangle indicating the currently visible area
 			int rescaledVPX1 = (int) Math.round((double) vpX1 * ((double) rescaledMainFractalWidth / (double) screenWidth));
 			int rescaledVPY1 = (int) Math.round((double) vpY1 * ((double) rescaledMainFractalHeight / (double) screenHeight));

@@ -1,7 +1,7 @@
 // -------------------------------------
 // Filename      : AFractalIterator.java
 // Author        : Sven Maerivoet
-// Last modified : 10/06/2015
+// Last modified : 23/06/2015
 // Target        : Java VM (1.8)
 // -------------------------------------
 
@@ -24,6 +24,7 @@
 package org.sm.fraxion.fractals;
 
 import java.awt.*;
+import java.io.*;
 import org.sm.fraxion.fractals.util.*;
 import org.sm.smtools.exceptions.*;
 import org.sm.smtools.math.*;
@@ -39,7 +40,7 @@ import org.sm.smtools.util.*;
  * <B>Note that this is an abstract class.</B>
  * 
  * @author  Sven Maerivoet
- * @version 10/06/2015
+ * @version 23/06/2015
  */
 public abstract class AFractalIterator
 {
@@ -877,12 +878,12 @@ public abstract class AFractalIterator
 	}
 
 	/**
-	 * Loads the current fractal parameters from a file.
+	 * Loads the current fractal parameters from a plain-text file.
 	 * 
 	 * @param  tfp                 a reference to the file parser
 	 * @throws FileParseException  in case a parse error occurs
 	 */
-	public final void loadParameters(TextFileParser tfp) throws FileParseException
+	public final void plainTextLoadParameters(TextFileParser tfp) throws FileParseException
 	{
 		setFractalType(EFractalType.valueOf(tfp.getNextString()));
 		setMaxNrOfIterations(tfp.getNextInteger());
@@ -897,16 +898,40 @@ public abstract class AFractalIterator
 		setExteriorStripingDensity(tfp.getNextDouble());
 		setInteriorGaussianIntegersTrapFactor(tfp.getNextDouble());
 		setExteriorGaussianIntegersTrapFactor(tfp.getNextDouble());
-		loadCustomParameters(tfp);
+		plainTextLoadCustomParameters(tfp);
 	}
 
 	/**
-	 * Saves the current fractal parameters to a file.
+	 * Loads the current fractal parameters from a file as a stream.
+	 * 
+	 * @param  dataInputStream  a data inputstream
+	 * @throws IOException      in case a parse error occurs
+	 */
+	public final void streamLoadParameters(DataInputStream dataInputStream) throws IOException
+	{
+		setFractalType(EFractalType.valueOf(dataInputStream.readUTF()));
+		setMaxNrOfIterations(dataInputStream.readInt());
+		setUseFixedNrOfIterations(dataInputStream.readBoolean());
+		setEscapeRadius(dataInputStream.readDouble());
+		setDualParameter(new ComplexNumber(dataInputStream.readDouble(),dataInputStream.readDouble()));
+		setInvertYAxis(dataInputStream.readBoolean());
+		setScreenBounds(dataInputStream.readInt(),dataInputStream.readInt());
+		setComplexBounds(new ComplexNumber(dataInputStream.readDouble(),dataInputStream.readDouble()),new ComplexNumber(dataInputStream.readDouble(),dataInputStream.readDouble()));
+		setMainFractalOrbitStartingPoint(new ComplexNumber(dataInputStream.readDouble(),dataInputStream.readDouble()));
+		setInteriorStripingDensity(dataInputStream.readDouble());
+		setExteriorStripingDensity(dataInputStream.readDouble());
+		setInteriorGaussianIntegersTrapFactor(dataInputStream.readDouble());
+		setExteriorGaussianIntegersTrapFactor(dataInputStream.readDouble());
+		streamLoadCustomParameters(dataInputStream);
+	}
+
+	/**
+	 * Saves the current fractal parameters to a plain-text file.
 	 * 
 	 * @param  tfw                 a reference to the file writer
 	 * @throws FileWriteException  in case a write error occurs
 	 */
-	public final void saveParameters(TextFileWriter tfw) throws FileWriteException
+	public final void plainTextSaveParameters(TextFileWriter tfw) throws FileWriteException
 	{
 		tfw.writeString(getFamilyName());
 		tfw.writeLn();
@@ -968,7 +993,39 @@ public abstract class AFractalIterator
 		tfw.writeDouble(fExteriorGaussianIntegersTrapFactor);
 		tfw.writeLn();
 
-		saveCustomParameters(tfw);
+		plainTextSaveCustomParameters(tfw);
+	}
+
+	/**
+	 * Saves the current fractal parameters to a file using a stream.
+	 * 
+	 * @param  dataOutputStream  a data outputstream
+	 * @throws IOException       in case a write error occurs
+	 */
+	public final void streamSaveParameters(DataOutputStream dataOutputStream) throws IOException
+	{
+		dataOutputStream.writeUTF(getFamilyName());
+		dataOutputStream.writeUTF(fFractalType.toString());
+		dataOutputStream.writeInt(fMaxNrOfIterations);
+		dataOutputStream.writeBoolean(fUseFixedNrOfIterations);
+		dataOutputStream.writeDouble(fEscapeRadius);
+		dataOutputStream.writeDouble(fDualParameter.realComponent());
+		dataOutputStream.writeDouble(fDualParameter.imaginaryComponent());
+		dataOutputStream.writeBoolean(fInvertYAxis);
+		dataOutputStream.writeInt(fScreenWidth);
+		dataOutputStream.writeInt(fScreenHeight);
+		dataOutputStream.writeDouble(fP1X);
+		dataOutputStream.writeDouble(fP1Y);
+		dataOutputStream.writeDouble(fP2X);
+		dataOutputStream.writeDouble(fP2Y);
+		dataOutputStream.writeDouble(fZ0.realComponent());
+		dataOutputStream.writeDouble(fZ0.imaginaryComponent());
+		dataOutputStream.writeDouble(fInteriorStripingDensity);
+		dataOutputStream.writeDouble(fExteriorStripingDensity);
+		dataOutputStream.writeDouble(fInteriorGaussianIntegersTrapFactor);
+		dataOutputStream.writeDouble(fExteriorGaussianIntegersTrapFactor);
+
+		streamSaveCustomParameters(dataOutputStream);
 	}
 
 	/**
@@ -1091,22 +1148,42 @@ public abstract class AFractalIterator
 	protected abstract IterationResult iterate(ComplexNumber z, ComplexNumber c, boolean saveOrbit);
 
 	/**
-	 * Loads custom fractal parameters from a file.
+	 * Loads custom fractal parameters from a plain-text file.
 	 * 
 	 * @param  tfp                 a reference to the file parser
 	 * @throws FileParseException  in case a read error occurs
 	 */
-	protected void loadCustomParameters(TextFileParser tfp) throws FileParseException
+	protected void plainTextLoadCustomParameters(TextFileParser tfp) throws FileParseException
 	{
 	}
 
 	/**
-	 * Saves custom fractal parameters to a file.
+	 * Loads custom fractal parameters from a file as a stream.
+	 * 
+	 * @param  dataInputStream  a data inputstream
+	 * @throws IOException      in case a parse error occurs
+	 */
+	protected void streamLoadCustomParameters(DataInputStream dataInputStream) throws IOException
+	{
+	}
+
+	/**
+	 * Saves custom fractal parameters to a plain-text file.
 	 * 
 	 * @param  tfw                 a reference to the file writer
 	 * @throws FileWriteException  in case a write error occurs
 	 */
-	protected void saveCustomParameters(TextFileWriter tfw) throws FileWriteException
+	protected void plainTextSaveCustomParameters(TextFileWriter tfw) throws FileWriteException
+	{
+	}
+
+	/**
+	 * Saves custom fractal parameters to a file as a stream.
+	 * 
+	 * @param  dataOutputStream  a data outputstream
+	 * @throws IOException       in case a write error occurs
+	 */
+	protected void streamSaveCustomParameters(DataOutputStream dataOutputStream) throws IOException
 	{
 	}
 }

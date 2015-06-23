@@ -1,7 +1,7 @@
 // -------------------------------------------
 // Filename      : AMagnetFractalIterator.java
 // Author        : Sven Maerivoet
-// Last modified : 07/06/2015
+// Last modified : 23/06/2015
 // Target        : Java VM (1.8)
 // -------------------------------------------
 
@@ -23,6 +23,7 @@
 
 package org.sm.fraxion.fractals.magnet;
 
+import java.io.*;
 import org.sm.fraxion.fractals.*;
 import org.sm.fraxion.fractals.util.*;
 import org.sm.smtools.exceptions.*;
@@ -36,7 +37,7 @@ import org.sm.smtools.util.*;
  * <B>Note that this is an abstract class.</B>
  * 
  * @author  Sven Maerivoet
- * @version 07/06/2015
+ * @version 23/06/2015
  */
 public abstract class AMagnetFractalIterator extends AFractalIterator
 {
@@ -353,27 +354,50 @@ public abstract class AMagnetFractalIterator extends AFractalIterator
 	}
 
 	/**
-	 * Loads custom fractal parameters from a file.
+	 * Loads custom fractal parameters from a plain-text file.
 	 * 
 	 * @param  tfp                 a reference to the file parser
 	 * @throws FileParseException  in case a read error occurs
 	 */
 	@Override
-	protected void loadCustomParameters(TextFileParser tfp) throws FileParseException
+	protected void plainTextLoadCustomParameters(TextFileParser tfp) throws FileParseException
 	{
 		setRootTolerance(tfp.getNextDouble());
 	}
 
 	/**
-	 * Saves custom fractal parameters to a file.
+	 * Loads custom fractal parameters from a file as a stream.
+	 * 
+	 * @param  dataInputStream  a data inputstream
+	 * @throws IOException      in case a parse error occurs
+	 */
+	@Override
+	protected void streamLoadCustomParameters(DataInputStream dataInputStream) throws IOException
+	{
+		setRootTolerance(dataInputStream.readDouble());
+	}
+
+	/**
+	 * Saves custom fractal parameters to a plain-text file.
 	 * 
 	 * @param  tfw                 a reference to the file writer
 	 * @throws FileWriteException  in case a write error occurs
 	 */
 	@Override
-	protected void saveCustomParameters(TextFileWriter tfw) throws FileWriteException
+	protected void plainTextSaveCustomParameters(TextFileWriter tfw) throws FileWriteException
 	{
 		tfw.writeDouble(fRootTolerance);
 		tfw.writeLn();
+	}
+
+	/**
+	 * Saves custom fractal parameters to a file as a stream.
+	 * 
+	 * @param  dataOutputStream  a data outputstream
+	 * @throws IOException       in case a write error occurs
+	 */
+	protected void streamSaveCustomParameters(DataOutputStream dataOutputStream) throws IOException
+	{
+		dataOutputStream.writeDouble(fRootTolerance);
 	}
 }

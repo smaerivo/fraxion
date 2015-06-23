@@ -1,7 +1,7 @@
 // --------------------------------------------------
 // Filename      : MarkusLyapunovFractalIterator.java
 // Author        : Sven Maerivoet
-// Last modified : 04/02/2015
+// Last modified : 23/06/2015
 // Target        : Java VM (1.8)
 // --------------------------------------------------
 
@@ -23,6 +23,7 @@
 
 package org.sm.fraxion.fractals.markuslyapunov;
 
+import java.io.*;
 import java.util.*;
 import org.sm.fraxion.fractals.*;
 import org.sm.fraxion.fractals.util.*;
@@ -34,7 +35,7 @@ import org.sm.smtools.util.*;
  * The <CODE>MarkusLyapunovFractalIterator</CODE> class provides a base class for Markus-Lyapunov fractals.
  * 
  * @author  Sven Maerivoet
- * @version 04/02/2015
+ * @version 23/06/2015
  */
 public class MarkusLyapunovFractalIterator extends AFractalIterator
 {
@@ -257,27 +258,50 @@ public class MarkusLyapunovFractalIterator extends AFractalIterator
 	}
 
 	/**
-	 * Loads custom fractal parameters from a file.
+	 * Loads custom fractal parameters from a plain-text file.
 	 * 
 	 * @param  tfp                 a reference to the file parser
 	 * @throws FileParseException  in case a read error occurs
 	 */
 	@Override
-	protected void loadCustomParameters(TextFileParser tfp) throws FileParseException
+	protected void plainTextLoadCustomParameters(TextFileParser tfp) throws FileParseException
 	{
 		setRootSequence(tfp.getNextString());
 	}
 
 	/**
-	 * Saves custom fractal parameters to a file.
+	 * Loads custom fractal parameters from a file as a stream.
+	 * 
+	 * @param  dataInputStream  a data inputstream
+	 * @throws IOException      in case a parse error occurs
+	 */
+	@Override
+	protected void streamLoadCustomParameters(DataInputStream dataInputStream) throws IOException
+	{
+		setRootSequence(dataInputStream.readUTF());
+	}
+
+	/**
+	 * Saves custom fractal parameters to a plain-text file.
 	 * 
 	 * @param  tfw                 a reference to the file writer
 	 * @throws FileWriteException  in case a write error occurs
 	 */
 	@Override
-	protected void saveCustomParameters(TextFileWriter tfw) throws FileWriteException
+	protected void plainTextSaveCustomParameters(TextFileWriter tfw) throws FileWriteException
 	{
 		tfw.writeString(fRootSequence);
 		tfw.writeLn();
+	}
+
+	/**
+	 * Saves custom fractal parameters to a file as a stream.
+	 * 
+	 * @param  dataOutputStream  a data outputstream
+	 * @throws IOException       in case a write error occurs
+	 */
+	protected void streamSaveCustomParameters(DataOutputStream dataOutputStream) throws IOException
+	{
+		dataOutputStream.writeUTF(fRootSequence);
 	}
 }

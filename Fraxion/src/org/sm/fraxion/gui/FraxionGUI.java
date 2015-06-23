@@ -29,6 +29,7 @@ import java.awt.event.*;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import java.util.zip.*;
 import javax.help.*;
 import javax.swing.*;
 import org.apache.log4j.*;
@@ -492,7 +493,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 
 	static {
 //XXX
-		DevelopMode.activate();
+		DevelopMode.deactivate();
 
 		// hack for JDK7 and above
 		System.setProperty("java.util.Arrays.useLegacyMergeSort","true");
@@ -601,7 +602,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			if (proceed) {
 				JFileChooser fileChooser = new JFileChooser(fLastOpenedFolder);
 				fileChooser.setDialogTitle(I18NL10N.translate("text.File.Fractal.Load"));
-				fileChooser.setFileFilter(new JFileFilter("CSV",I18NL10N.translate("text.File.CSVDescription")));
+				fileChooser.setFileFilter(new JFileFilter("FZIP",I18NL10N.translate("text.File.FraxionZIPDescription")));
 				if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
 					String filename = fileChooser.getSelectedFile().getPath();
 					fLastOpenedFolder = filename.substring(0,filename.lastIndexOf(File.separator));
@@ -614,15 +615,15 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemFileSaveFractal)) {
 			JFileChooser fileChooser = new JFileChooser(fLastOpenedFolder);
 			fileChooser.setDialogTitle(I18NL10N.translate("text.File.Fractal.Save"));
-			fileChooser.setFileFilter(new JFileFilter("CSV",I18NL10N.translate("text.File.CSVDescription")));
-			fileChooser.setSelectedFile(new File(createDefaultFilename("csv",false)));
+			fileChooser.setFileFilter(new JFileFilter("FZIP",I18NL10N.translate("text.File.FraxionZIPDescription")));
+			fileChooser.setSelectedFile(new File(createDefaultFilename("fzip",false)));
 
 			if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
 				String filename = fileChooser.getSelectedFile().getPath();
 				fLastOpenedFolder = filename.substring(0,filename.lastIndexOf(File.separator));
 
-				if (!filename.endsWith(".csv")) {
-					filename += ".csv";
+				if (!filename.endsWith(".fzip")) {
+					filename += ".fzip";
 				}
 
 				File file = new File(filename);
@@ -842,10 +843,10 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 						}
 
 						// load fractal parameters
-						fractalIterator.loadParameters(tfp);
+						fractalIterator.plainTextLoadParameters(tfp);
 
 						// load fractal colouring parameters
-						coloringParameters.load(tfp);
+						coloringParameters.plainTextLoad(tfp);
 						fractalIterator.setCalculateAdvancedColoring(coloringParameters.fCalculateAdvancedColoring);
 
 						// adjust the zoom stack
@@ -895,10 +896,10 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 						TextFileWriter tfw = new TextFileWriter(filename);
 
 						// save fractal parameters
-						fractalIterator.saveParameters(tfw);
+						fractalIterator.plainTextSaveParameters(tfw);
 
 						// save fractal colouring parameters
-						coloringParameters.save(tfw);
+						coloringParameters.plainTextSave(tfw);
 
 						JMessageDialog.show(this,I18NL10N.translate("text.File.FractalParameters.Saved"));
 					}
@@ -6811,7 +6812,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 
 	/**
 	 * @author  Sven Maerivoet
-	 * @version 14/01/2015
+	 * @version 23/06/2015
 	 */
 	private final class FractalLoaderTask extends SwingWorker<Void,Integer>
 	{
@@ -6851,11 +6852,17 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 		public Void doInBackground()
 		{
 			try {
-				TextFileParser tfp = new TextFileParser(fFilename);
+				FileInputStream fileInputStream = new FileInputStream(fFilename);
+				BufferedInputStream bufferedInputStream = new BufferedInputStream(fileInputStream);
+				ZipInputStream zipInputStream = new ZipInputStream(bufferedInputStream);
+				DataInputStream dataInputStream = new DataInputStream(zipInputStream);
+
+				// prepare to read the compressed outputstream
+				zipInputStream.getNextEntry();
 
 				// load fractal family name
 				fIteratorController.setBusy(true);
-				String familyName = tfp.getNextString();
+				String familyName = dataInputStream.readUTF();
 
 				// create fractal
 				if (familyName.equalsIgnoreCase((new FastMandelbrotJuliaFractalIterator()).getFamilyName())) {
@@ -7030,6 +7037,12 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 					fIteratorController.setFractalIteratorFamily(new MarkusLyapunovZirconZityFractalIterator());
 				}
 				else {
+					// cleanup
+					dataInputStream.close();
+					zipInputStream.close();
+					bufferedInputStream.close();
+					fileInputStream.close();
+
 					throw (new UnsupportedFractalException(fFilename,familyName));
 				}
 
@@ -7043,10 +7056,10 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 				}
 
 				// load fractal parameters
-				fractalIterator.loadParameters(tfp);
+				fractalIterator.streamLoadParameters(dataInputStream);
 
 				// load fractal colouring parameters
-				fIteratorController.getColoringParameters().load(tfp);
+				fIteratorController.getColoringParameters().streamLoad(dataInputStream);
 				fractalIterator.setCalculateAdvancedColoring(fIteratorController.getColoringParameters().fCalculateAdvancedColoring);
 
 				// load iteration buffer
@@ -7060,12 +7073,15 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 
 				for (int index = 0; index < fractalResultBuffer.fBuffer.length; ++index) {
 					fractalResultBuffer.fBuffer[index] = new IterationResult();
-					boolean resultAvailable = fractalResultBuffer.fBuffer[index].load(tfp);
-					if (!resultAvailable) {
-						fractalResultBuffer.fBuffer[index] = null;
-					}
+					fractalResultBuffer.fBuffer[index].streamLoad(dataInputStream);
 					publish(1);
 				} // for index
+
+				// cleanup
+				dataInputStream.close();
+				zipInputStream.close();
+				bufferedInputStream.close();
+				fileInputStream.close();
 
 				// install loaded fractal
 				fIteratorController.setFractalResultBuffer(fractalResultBuffer);
@@ -7081,8 +7097,9 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 				fFractalPanel.revalidate();
 				fFractalPanel.recolor();
 			}
-			catch (FileDoesNotExistException | FileParseException | UnsupportedFractalException exc) {
+			catch (IOException | UnsupportedFractalException exc) {
 				fException = exc;
+				System.out.println("X => " + exc);
 			}
 
 			return null;
@@ -7134,7 +7151,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 
 	/**
 	 * @author  Sven Maerivoet
-	 * @version 06/12/2014
+	 * @version 23/06/2015
 	 */
 	private final class FractalSaverTask extends SwingWorker<Void,Integer>
 	{
@@ -7174,13 +7191,22 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 		public Void doInBackground()
 		{
 			try {
-				TextFileWriter tfw = new TextFileWriter(fFilename);
+				FileOutputStream fileOutputStream = new FileOutputStream(fFilename);
+				BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(fileOutputStream);
+				ZipOutputStream zipOutputStream = new ZipOutputStream(bufferedOutputStream);
+				DataOutputStream dataOutputStream = new DataOutputStream(zipOutputStream);
+
+				// prepare to write the outputstream at the highest compression level
+				zipOutputStream.setLevel(9);
+				zipOutputStream.setMethod(ZipOutputStream.DEFLATED);
+				ZipEntry zipEntry = new ZipEntry("fractal-data.bin");
+				zipOutputStream.putNextEntry(zipEntry);
 
 				// save fractal parameters
-				fIteratorController.getFractalIterator().saveParameters(tfw);
+				fIteratorController.getFractalIterator().streamSaveParameters(dataOutputStream);
 
 				// save fractal colouring parameters
-				fIteratorController.getColoringParameters().save(tfw);
+				fIteratorController.getColoringParameters().streamSave(dataOutputStream);
 
 				// save iteration buffer
 				fProgressUpdateGlassPane.setVisualisationType(JProgressUpdateGlassPane.EVisualisationType.kBar);
@@ -7191,16 +7217,21 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 				fProgressUpdateGlassPane.setTotalNrOfProgressUpdates(width * height);
 				for (int index = 0; index < fractalResultBuffer.fBuffer.length; ++index) {
 					if (fractalResultBuffer.fBuffer[index] == null) {
-						tfw.writeString("null");
-						tfw.writeLn();
+						(new IterationResult()).streamSave(dataOutputStream);
 					}
 					else{
-						fractalResultBuffer.fBuffer[index].save(tfw);
+						fractalResultBuffer.fBuffer[index].streamSave(dataOutputStream);
 					}
 					publish(1);
 				} // for index
+
+				// cleanup
+				dataOutputStream.close();
+				zipOutputStream.close();
+				bufferedOutputStream.close();
+				fileOutputStream.close();
 			}
-			catch (FileCantBeCreatedException | FileWriteException exc) {
+			catch (Exception exc) {
 				fException = exc;
 			}
 
@@ -7219,7 +7250,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 				if (fException == null) {
 					JMessageDialog.show(fOwner,I18NL10N.translate("text.File.Fractal.Saved"));
 				}
-				else if ((fException instanceof FileCantBeCreatedException) || (fException instanceof FileWriteException)) {
+				else if ((fException instanceof FileCantBeCreatedException) || (fException instanceof FileWriteException) || (fException instanceof IOException)) {
 					JWarningDialog.warn(fOwner,I18NL10N.translate("error.File.Fractal.ErrorSavingFractal"));
 				}
 			}
