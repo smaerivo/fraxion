@@ -1,7 +1,7 @@
 // -------------------------------
 // Filename      : FraxionGUI.java
 // Author        : Sven Maerivoet
-// Last modified : 23/06/2015
+// Last modified : 07/04/2016
 // Target        : Java VM (1.8)
 // -------------------------------
 
@@ -60,7 +60,7 @@ import org.sm.smtools.util.*;
  * <B>Note that this class cannot be subclassed!</B>
  *
  * @author  Sven Maerivoet
- * @version 23/06/2015
+ * @version 07/04/2016
  */
 public final class FraxionGUI extends JStandardGUIApplication implements ActionListener, MouseListener, MouseMotionListener
 {
@@ -69,6 +69,9 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 
 	// the amount of time to explicitly wait during the splash screen show
 	private static final int kSplashScreenStatusMessageWaitTime = 250;
+
+	// the extension of the ZIP file to save and load fractals
+	private static final String kZIPFileExtension = "zip";
 
 	// the action commands for the menus
 	private static final String kActionCommandMenuItemFileExportToPNG = "menuItem.File.ExportToPNG";
@@ -492,7 +495,6 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 	 *************************/
 
 	static {
-//XXX
 		DevelopMode.deactivate();
 
 		// hack for JDK7 and above
@@ -602,7 +604,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			if (proceed) {
 				JFileChooser fileChooser = new JFileChooser(fLastOpenedFolder);
 				fileChooser.setDialogTitle(I18NL10N.translate("text.File.Fractal.Load"));
-				fileChooser.setFileFilter(new JFileFilter("FZIP",I18NL10N.translate("text.File.FraxionZIPDescription")));
+				fileChooser.setFileFilter(new JFileFilter(kZIPFileExtension.toUpperCase(),I18NL10N.translate("text.File.FraxionZIPDescription")));
 				if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
 					String filename = fileChooser.getSelectedFile().getPath();
 					fLastOpenedFolder = filename.substring(0,filename.lastIndexOf(File.separator));
@@ -615,15 +617,15 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemFileSaveFractal)) {
 			JFileChooser fileChooser = new JFileChooser(fLastOpenedFolder);
 			fileChooser.setDialogTitle(I18NL10N.translate("text.File.Fractal.Save"));
-			fileChooser.setFileFilter(new JFileFilter("FZIP",I18NL10N.translate("text.File.FraxionZIPDescription")));
-			fileChooser.setSelectedFile(new File(createDefaultFilename("fzip",false)));
+			fileChooser.setFileFilter(new JFileFilter(kZIPFileExtension.toUpperCase(),I18NL10N.translate("text.File.FraxionZIPDescription")));
+			fileChooser.setSelectedFile(new File(createDefaultFilename(kZIPFileExtension,false)));
 
 			if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
 				String filename = fileChooser.getSelectedFile().getPath();
 				fLastOpenedFolder = filename.substring(0,filename.lastIndexOf(File.separator));
 
-				if (!filename.endsWith(".fzip")) {
-					filename += ".fzip";
+				if (!filename.endsWith("." + kZIPFileExtension)) {
+					filename += "." + kZIPFileExtension;
 				}
 
 				File file = new File(filename);
