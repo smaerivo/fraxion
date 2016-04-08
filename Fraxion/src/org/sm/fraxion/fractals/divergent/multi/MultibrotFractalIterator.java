@@ -39,6 +39,17 @@ public class MultibrotFractalIterator extends APowerFractalIterator
 	 ******************/
 
 	/**
+	 * Returns the default escape radius of 2.
+	 * 
+	 * @return the default escape radius of 2
+	 */
+	@Override
+	public double getDefaultEscapeRadius()
+	{
+		return 2.0;
+	}
+
+	/**
 	 * Returns the family name of this fractal.
 	 *
 	 * @return the family name of this fractal

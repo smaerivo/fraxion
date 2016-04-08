@@ -1,12 +1,12 @@
 // -------------------------------
 // Filename      : FraxionGUI.java
 // Author        : Sven Maerivoet
-// Last modified : 07/04/2016
+// Last modified : 09/04/2016
 // Target        : Java VM (1.8)
 // -------------------------------
 
 /**
- * Copyright 2003-2015 Sven Maerivoet
+ * Copyright 2003-2016 Sven Maerivoet
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,7 +60,7 @@ import org.sm.smtools.util.*;
  * <B>Note that this class cannot be subclassed!</B>
  *
  * @author  Sven Maerivoet
- * @version 07/04/2016
+ * @version 09/04/2016
  */
 public final class FraxionGUI extends JStandardGUIApplication implements ActionListener, MouseListener, MouseMotionListener
 {
@@ -174,6 +174,12 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 	private static final String kActionCommandMenuItemFractalFamilyPhoenix = "menuItem.Fractal.Family.Phoenix";
 	private static final String kActionCommandMenuItemFractalFamilyManowar = "menuItem.Fractal.Family.Manowar";
 	private static final String kActionCommandMenuItemFractalFamilyQuadbrot = "menuItem.Fractal.Family.Quadbrot";
+	private static final String kActionCommandMenuItemFractalFamilyTetration = "menuItem.Fractal.Family.Tetration";
+	private static final String kActionCommandMenuItemFractalFamilyTetrationDual = "menuItem.Fractal.Family.TetrationDual";
+	private static final String kActionCommandMenuItemFractalFamilyIOfMedusa = "menuItem.Fractal.Family.IOfMedusa";
+	private static final String kActionCommandMenuItemFractalFamilyIOfTheStorm = "menuItem.Fractal.Family.IOfTheStorm";
+	private static final String kActionCommandMenuItemFractalFamilyAtTheCShore = "menuItem.Fractal.Family.AtTheCShore";
+
 	private static final String kActionCommandMenuItemFractalFamilyNewtonRaphsonPower = "menuItem.Fractal.Family.NewtonRaphsonPower";
 	private static final String kActionCommandMenuItemFractalFamilyNewtonRaphsonPowerPolynomial = "menuItem.Fractal.Family.NewtonRaphsonPowerPolynomial";
 	private static final String kActionCommandMenuItemFractalFamilyNewtonRaphsonFixedPolynomial1 = "menuItem.Fractal.Family.NewtonRaphsonFixedPolynomial1";
@@ -780,6 +786,21 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 						else if (familyName.equalsIgnoreCase((new QuadbrotFractalIterator()).getFamilyName())) {
 							fIteratorController.setFractalIteratorFamily(new QuadbrotFractalIterator());
 						}
+						else if (familyName.equalsIgnoreCase((new TetrationFractalIterator()).getFamilyName())) {
+							fIteratorController.setFractalIteratorFamily(new TetrationFractalIterator());
+						}
+						else if (familyName.equalsIgnoreCase((new TetrationDualFractalIterator()).getFamilyName())) {
+							fIteratorController.setFractalIteratorFamily(new TetrationDualFractalIterator());
+						}
+						else if (familyName.equalsIgnoreCase((new IOfMedusaFractalIterator()).getFamilyName())) {
+							fIteratorController.setFractalIteratorFamily(new IOfMedusaFractalIterator());
+						}
+						else if (familyName.equalsIgnoreCase((new IOfTheStormFractalIterator()).getFamilyName())) {
+							fIteratorController.setFractalIteratorFamily(new IOfTheStormFractalIterator());
+						}
+						else if (familyName.equalsIgnoreCase((new AtTheCShoreFractalIterator()).getFamilyName())) {
+							fIteratorController.setFractalIteratorFamily(new AtTheCShoreFractalIterator());
+						}
 						else if (familyName.equalsIgnoreCase((new NewtonRaphsonPowerFractalIterator()).getFamilyName())) {
 							fIteratorController.setFractalIteratorFamily(new NewtonRaphsonPowerFractalIterator());
 						}
@@ -840,7 +861,11 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 						// if necessary switch to the dual fractal
 						if ((fractalIterator instanceof GlynnFractalIterator) ||
 								(fractalIterator instanceof BarnsleyTreeFractalIterator) ||
-								(fractalIterator instanceof PhoenixFractalIterator)) {
+								(fractalIterator instanceof PhoenixFractalIterator) ||
+								(fractalIterator instanceof TetrationDualFractalIterator) ||
+								(fractalIterator instanceof IOfMedusaFractalIterator) ||
+								(fractalIterator instanceof IOfTheStormFractalIterator) ||
+								(fractalIterator instanceof AtTheCShoreFractalIterator)) {
 							fractalIterator.setFractalType(AFractalIterator.EFractalType.kDualFractal);
 						}
 
@@ -1271,6 +1296,11 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 						command.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyPhoenix) ||
 						command.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyManowar) ||
 						command.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyQuadbrot) ||
+						command.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyTetration) ||
+						command.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyTetrationDual) ||
+						command.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyIOfMedusa) ||
+						command.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyIOfTheStorm) ||
+						command.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyAtTheCShore) ||
 						command.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyNewtonRaphsonPower) ||
 						command.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyNewtonRaphsonPowerPolynomial) ||
 						command.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyNewtonRaphsonFixedPolynomial1) ||
@@ -1420,6 +1450,21 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 					case kActionCommandMenuItemFractalFamilyQuadbrot:
 						fIteratorController.setFractalIteratorFamily(new QuadbrotFractalIterator());
 						break;
+					case kActionCommandMenuItemFractalFamilyTetration:
+						fIteratorController.setFractalIteratorFamily(new TetrationFractalIterator());
+						break;
+					case kActionCommandMenuItemFractalFamilyTetrationDual:
+						fIteratorController.setFractalIteratorFamily(new TetrationDualFractalIterator());
+						break;
+					case kActionCommandMenuItemFractalFamilyIOfMedusa:
+						fIteratorController.setFractalIteratorFamily(new IOfMedusaFractalIterator());
+						break;
+					case kActionCommandMenuItemFractalFamilyIOfTheStorm:
+						fIteratorController.setFractalIteratorFamily(new IOfTheStormFractalIterator());
+						break;
+					case kActionCommandMenuItemFractalFamilyAtTheCShore:
+						fIteratorController.setFractalIteratorFamily(new AtTheCShoreFractalIterator());
+						break;
 					case kActionCommandMenuItemFractalFamilyNewtonRaphsonPower:
 						fIteratorController.setFractalIteratorFamily(new NewtonRaphsonPowerFractalIterator());
 						break;
@@ -1478,8 +1523,20 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 				// if necessary switch to the dual fractal
 				if ((fractalIterator instanceof GlynnFractalIterator) ||
 						(fractalIterator instanceof BarnsleyTreeFractalIterator) ||
-						(fractalIterator instanceof PhoenixFractalIterator)) {
+						(fractalIterator instanceof PhoenixFractalIterator) ||
+						(fractalIterator instanceof TetrationDualFractalIterator) ||
+						(fractalIterator instanceof IOfMedusaFractalIterator) ||
+						(fractalIterator instanceof IOfTheStormFractalIterator) ||
+						(fractalIterator instanceof AtTheCShoreFractalIterator)) {
 					fractalIterator.setFractalType(AFractalIterator.EFractalType.kDualFractal);
+				}
+
+				// if necessary activate advanced colouring
+				if ((fractalIterator instanceof TetrationDualFractalIterator) ||
+						(fractalIterator instanceof IOfMedusaFractalIterator) ||
+						(fractalIterator instanceof IOfTheStormFractalIterator) ||
+						(fractalIterator instanceof AtTheCShoreFractalIterator)) {
+					fractalIterator.setCalculateAdvancedColoring(true);
 				}
 
 				adjustMenusToFractal();
@@ -4231,6 +4288,47 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 						buttonGroup.add(radioButtonMenuItem);
 						fMenuItems.put(kActionCommandMenuItemFractalFamilyQuadbrot,radioButtonMenuItem);
 					subSubMenu.add(radioButtonMenuItem);
+
+					subSubMenu.addSeparator();
+
+						radioButtonMenuItem = constructRadioButtonMenuItem(kActionCommandMenuItemFractalFamilyTetration,false);
+						radioButtonMenuItem.setSelected(false);
+						radioButtonMenuItem.setActionCommand(kActionCommandMenuItemFractalFamilyTetration);
+						radioButtonMenuItem.addActionListener(this);
+						buttonGroup.add(radioButtonMenuItem);
+						fMenuItems.put(kActionCommandMenuItemFractalFamilyTetration,radioButtonMenuItem);
+					subSubMenu.add(radioButtonMenuItem);
+						radioButtonMenuItem = constructRadioButtonMenuItem(kActionCommandMenuItemFractalFamilyTetrationDual,false);
+						radioButtonMenuItem.setSelected(false);
+						radioButtonMenuItem.setActionCommand(kActionCommandMenuItemFractalFamilyTetrationDual);
+						radioButtonMenuItem.addActionListener(this);
+						buttonGroup.add(radioButtonMenuItem);
+						fMenuItems.put(kActionCommandMenuItemFractalFamilyTetrationDual,radioButtonMenuItem);
+					subSubMenu.add(radioButtonMenuItem);
+
+				subSubMenu.addSeparator();
+
+						radioButtonMenuItem = constructRadioButtonMenuItem(kActionCommandMenuItemFractalFamilyIOfMedusa,false);
+						radioButtonMenuItem.setSelected(false);
+						radioButtonMenuItem.setActionCommand(kActionCommandMenuItemFractalFamilyIOfMedusa);
+						radioButtonMenuItem.addActionListener(this);
+						buttonGroup.add(radioButtonMenuItem);
+						fMenuItems.put(kActionCommandMenuItemFractalFamilyIOfMedusa,radioButtonMenuItem);
+					subSubMenu.add(radioButtonMenuItem);
+						radioButtonMenuItem = constructRadioButtonMenuItem(kActionCommandMenuItemFractalFamilyIOfTheStorm,false);
+						radioButtonMenuItem.setSelected(false);
+						radioButtonMenuItem.setActionCommand(kActionCommandMenuItemFractalFamilyIOfTheStorm);
+						radioButtonMenuItem.addActionListener(this);
+						buttonGroup.add(radioButtonMenuItem);
+						fMenuItems.put(kActionCommandMenuItemFractalFamilyIOfTheStorm,radioButtonMenuItem);
+					subSubMenu.add(radioButtonMenuItem);
+						radioButtonMenuItem = constructRadioButtonMenuItem(kActionCommandMenuItemFractalFamilyAtTheCShore,false);
+						radioButtonMenuItem.setSelected(false);
+						radioButtonMenuItem.setActionCommand(kActionCommandMenuItemFractalFamilyAtTheCShore);
+						radioButtonMenuItem.addActionListener(this);
+						buttonGroup.add(radioButtonMenuItem);
+						fMenuItems.put(kActionCommandMenuItemFractalFamilyAtTheCShore,radioButtonMenuItem);
+					subSubMenu.add(radioButtonMenuItem);
 				subMenu.add(subSubMenu);
 
 					subSubMenu = new JMenu(I18NL10N.translate("menuItem.Fractal.Family.NewtonRaphson"));
@@ -4442,11 +4540,11 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 				menuItem.setActionCommand(kActionCommandMenuItemFractalSetMaxNrOfIterations);
 				menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I,ActionEvent.CTRL_MASK));
 				menuItem.addActionListener(this);
-				menuItem.setEnabled(false);
+				menuItem.setEnabled(true);
 				fMenuItems.put(kActionCommandMenuItemFractalSetMaxNrOfIterations,menuItem);
 			menu.add(menuItem);
 				checkBoxMenuItem = constructCheckBoxMenuItem(kMenuItemIndentation + kActionCommandMenuItemFractalAutoSelectMaxNrOfIterations,false);
-				checkBoxMenuItem.setSelected(true);
+				checkBoxMenuItem.setSelected(false);
 				checkBoxMenuItem.setActionCommand(kActionCommandMenuItemFractalAutoSelectMaxNrOfIterations);
 				checkBoxMenuItem.addActionListener(this);
 				fMenuItems.put(kActionCommandMenuItemFractalAutoSelectMaxNrOfIterations,checkBoxMenuItem);
@@ -6254,6 +6352,21 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 		else if (familyName.equalsIgnoreCase((new QuadbrotFractalIterator()).getFamilyName())) {
 			familyMenuItem = kActionCommandMenuItemFractalFamilyQuadbrot;
 		}
+		else if (familyName.equalsIgnoreCase((new TetrationFractalIterator()).getFamilyName())) {
+			familyMenuItem = kActionCommandMenuItemFractalFamilyTetration;
+		}
+		else if (familyName.equalsIgnoreCase((new TetrationDualFractalIterator()).getFamilyName())) {
+			familyMenuItem = kActionCommandMenuItemFractalFamilyTetrationDual;
+		}
+		else if (familyName.equalsIgnoreCase((new IOfMedusaFractalIterator()).getFamilyName())) {
+			familyMenuItem = kActionCommandMenuItemFractalFamilyIOfMedusa;
+		}
+		else if (familyName.equalsIgnoreCase((new IOfTheStormFractalIterator()).getFamilyName())) {
+			familyMenuItem = kActionCommandMenuItemFractalFamilyIOfTheStorm;
+		}
+		else if (familyName.equalsIgnoreCase((new AtTheCShoreFractalIterator()).getFamilyName())) {
+			familyMenuItem = kActionCommandMenuItemFractalFamilyAtTheCShore;
+		}
 		else if (familyName.equalsIgnoreCase((new NewtonRaphsonPowerFractalIterator()).getFamilyName())) {
 			familyMenuItem = kActionCommandMenuItemFractalFamilyNewtonRaphsonPower;
 		}
@@ -6987,6 +7100,21 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 				else if (familyName.equalsIgnoreCase((new QuadbrotFractalIterator()).getFamilyName())) {
 					fIteratorController.setFractalIteratorFamily(new QuadbrotFractalIterator());
 				}
+				else if (familyName.equalsIgnoreCase((new TetrationFractalIterator()).getFamilyName())) {
+					fIteratorController.setFractalIteratorFamily(new TetrationFractalIterator());
+				}
+				else if (familyName.equalsIgnoreCase((new TetrationDualFractalIterator()).getFamilyName())) {
+					fIteratorController.setFractalIteratorFamily(new TetrationDualFractalIterator());
+				}
+				else if (familyName.equalsIgnoreCase((new IOfMedusaFractalIterator()).getFamilyName())) {
+					fIteratorController.setFractalIteratorFamily(new IOfMedusaFractalIterator());
+				}
+				else if (familyName.equalsIgnoreCase((new IOfTheStormFractalIterator()).getFamilyName())) {
+					fIteratorController.setFractalIteratorFamily(new IOfTheStormFractalIterator());
+				}
+				else if (familyName.equalsIgnoreCase((new AtTheCShoreFractalIterator()).getFamilyName())) {
+					fIteratorController.setFractalIteratorFamily(new AtTheCShoreFractalIterator());
+				}
 				else if (familyName.equalsIgnoreCase((new NewtonRaphsonPowerFractalIterator()).getFamilyName())) {
 					fIteratorController.setFractalIteratorFamily(new NewtonRaphsonPowerFractalIterator());
 				}
@@ -7053,7 +7181,11 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 				// if necessary switch to the dual fractal
 				if ((fractalIterator instanceof GlynnFractalIterator) ||
 						(fractalIterator instanceof BarnsleyTreeFractalIterator) ||
-						(fractalIterator instanceof PhoenixFractalIterator)) {
+						(fractalIterator instanceof PhoenixFractalIterator) ||
+						(fractalIterator instanceof TetrationDualFractalIterator) ||
+						(fractalIterator instanceof IOfMedusaFractalIterator) ||
+						(fractalIterator instanceof IOfTheStormFractalIterator) ||
+						(fractalIterator instanceof AtTheCShoreFractalIterator)) {
 					fractalIterator.setFractalType(AFractalIterator.EFractalType.kDualFractal);
 				}
 
