@@ -57,6 +57,11 @@
 	<mapID target="fractal_types_phoenix" url="content/fractal_types/special/fractal_types_phoenix.html"></mapID>
 	<mapID target="fractal_types_man_o_war" url="content/fractal_types/special/fractal_types_man_o_war.html"></mapID>
 	<mapID target="fractal_types_quadbrot" url="content/fractal_types/special/fractal_types_quadbrot.html"></mapID>
+	<mapID target="fractal_types_tetration" url="content/fractal_types/special/fractal_types_tetration.html"></mapID>
+	<mapID target="fractal_types_tetration_dual" url="content/fractal_types/special/fractal_types_tetration_dual.html"></mapID>
+	<mapID target="fractal_types_i_of_medusa" url="content/fractal_types/special/fractal_types_i_of_medusa.html"></mapID>
+	<mapID target="fractal_types_i_of_the_storm" url="content/fractal_types/special/fractal_types_i_of_the_storm.html"></mapID>
+	<mapID target="fractal_types_at_the_c_shore" url="content/fractal_types/special/fractal_types_at_the_c_shore.html"></mapID>
 
 	<mapID target="fractal_types_newton_raphson_power" url="content/fractal_types/newton_raphson/fractal_types_newton_raphson_power.html"></mapID>
 	<mapID target="fractal_types_newton_raphson_power_polynomial" url="content/fractal_types/newton_raphson/fractal_types_newton_raphson_power_polynomial.html"></mapID>

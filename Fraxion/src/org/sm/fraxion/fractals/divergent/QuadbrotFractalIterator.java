@@ -53,7 +53,7 @@ public class QuadbrotFractalIterator extends MandelbrotJuliaFractalIterator
 	 *********************/
 
 	/**
-	 * Evaluates the Multibrot function for a specified complex point.
+	 * Evaluates the Quadbrot function for a specified complex point.
 	 *
 	 * @param z  the complex variable <I>z</I>
 	 * @param c  the complex parameter <I>c</I>

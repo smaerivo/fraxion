@@ -81,6 +81,11 @@
 			<tocitem text="Phoenix" target="fractal_types_phoenix" />
 			<tocitem text="Man 'o War" target="fractal_types_man_o_war" />
 			<tocitem text="Quadbrot" target="fractal_types_quadbrot" />
+			<tocitem text="Tetratie" target="fractal_types_tetration" />
+			<tocitem text="Tetratie (enkel duale)" target="fractal_types_tetration_dual" />
+			<tocitem text="i van Medusa" target="fractal_types_i_of_medusa" />
+			<tocitem text="i van de Storm" target="fractal_types_i_of_the_storm" />
+			<tocitem text="Nabij de C-Kust" target="fractal_types_at_the_c_shore" />
 		</tocitem>
 
 		<tocitem text="Newton / Raphson">

@@ -1,12 +1,12 @@
 // ------------------------------
 // Filename      : AboutBox.java
 // Author        : Sven Maerivoet
-// Last modified : 23/06/2015
+// Last modified : 07/04/2016
 // Target        : Java VM (1.8)
 // ------------------------------
 
 /**
- * Copyright 2003-2015 Sven Maerivoet
+ * Copyright 2003-2016 Sven Maerivoet
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ import org.sm.smtools.swing.dialogs.*;
 public final class AboutBox extends JAboutBox
 {
 	// the application's version number
-	private static final String kVersionNumber = "1.3";
+	private static final String kVersionNumber = "1.3.1";
 
 	/****************
 	 * CONSTRUCTORS *

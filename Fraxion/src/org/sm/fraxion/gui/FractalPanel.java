@@ -1,12 +1,12 @@
 // ---------------------------------
 // Filename      : FractalPanel.java
 // Author        : Sven Maerivoet
-// Last modified : 23/06/2015
+// Last modified : 08/04/2016
 // Target        : Java VM (1.8)
 // ---------------------------------
 
 /**
- * Copyright 2003-2015 Sven Maerivoet
+ * Copyright 2003-2016 Sven Maerivoet
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,7 +59,7 @@ import org.sm.smtools.util.*;
  * <B>Note that this class cannot be subclassed!</B>
  * 
  * @author  Sven Maerivoet
- * @version 23/06/2015
+ * @version 08/04/2016
  */
 public final class FractalPanel extends JPanel
 {
@@ -1040,7 +1040,7 @@ public final class FractalPanel extends JPanel
 		fCentredZooming = true;
 		fZoomStack = new ZoomStack();
 
-		setAutoSelectMaxNrOfIterations(true);
+		setAutoSelectMaxNrOfIterations(false);
 	}
 
 	/**
