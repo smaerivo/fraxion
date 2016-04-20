@@ -1,12 +1,12 @@
 // -----------------------------------------------
 // Filename      : AConvergentFractalIterator.java
 // Author        : Sven Maerivoet
-// Last modified : 23/06/2015
+// Last modified : 20/04/2016
 // Target        : Java VM (1.8)
 // -----------------------------------------------
 
 /**
- * Copyright 2003-2015 Sven Maerivoet
+ * Copyright 2003-2016 Sven Maerivoet
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ import org.sm.smtools.util.*;
  * <B>Note that this is an abstract class.</B>
  * 
  * @author  Sven Maerivoet
- * @version 23/06/2015
+ * @version 20/04/2016
  */
 public abstract class AConvergentFractalIterator extends AFractalIterator
 {
@@ -55,7 +55,7 @@ public abstract class AConvergentFractalIterator extends AFractalIterator
 	private static final int kDefaultMaxNrOfFixedIterations = 50;
 
 	// fixed exponential smoothing crispness
-	private final double kFixedExponentialSmoothingCrispness = 10.0;
+	private static final double kFixedExponentialSmoothingCrispness = 10.0;
 
 	/**
 	 * The power of the fractal iterator.

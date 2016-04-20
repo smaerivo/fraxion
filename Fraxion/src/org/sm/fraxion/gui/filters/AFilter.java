@@ -1,12 +1,12 @@
 // ------------------------------
 // Filename      : AFilter.java
 // Author        : Sven Maerivoet
-// Last modified : 23/06/2015
+// Last modified : 20/04/2016
 // Target        : Java VM (1.8)
 // ------------------------------
 
 /**
- * Copyright 2003-2015 Sven Maerivoet
+ * Copyright 2003-2016 Sven Maerivoet
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ import org.sm.smtools.util.*;
  * The <CODE>AFilter</CODE> class provides the functionality specification for filtering a fractal's image buffer.
  * 
  * @author  Sven Maerivoet
- * @version 23/06/2015
+ * @version 20/04/2016
  */
 public abstract class AFilter implements Cloneable
 {
@@ -103,6 +103,6 @@ public abstract class AFilter implements Cloneable
 	@Override
 	public AFilter clone()
 	{
-		return null;
+		throw (new AssertionError());
 	}
 }
