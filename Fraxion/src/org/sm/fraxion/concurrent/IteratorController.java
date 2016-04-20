@@ -1,12 +1,12 @@
 // ---------------------------------------
 // Filename      : IteratorController.java
-// Last modified : 08/02/2015
+// Last modified : 20/04/2016
 // Author        : Sven Maerivoet
 // Target        : Java VM (1.8)
 // ---------------------------------------
 
 /**
- * Copyright 2003-2015 Sven Maerivoet
+ * Copyright 2003-2016 Sven Maerivoet
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ import org.sm.smtools.math.*;
  * <B>Note that this class cannot be subclassed!</B>
  *
  * @author  Sven Maerivoet
- * @version 08/02/2015
+ * @version 20/04/2016
  */
 public final class IteratorController
 {
@@ -219,7 +219,8 @@ public final class IteratorController
 			return;
 		}
 
-		if ((fIteratorTaskExecutor == null) || ((fIteratorTaskExecutor != null) && (!fIteratorTaskExecutor.isBusy()))) {
+//		if ((fIteratorTaskExecutor == null) || ((fIteratorTaskExecutor != null) && (!fIteratorTaskExecutor.isBusy()))) {
+		if ((fIteratorTaskExecutor == null) || (!fIteratorTaskExecutor.isBusy())) {
 			int canvasWidth = fFractalIterator.getScreenWidth();
 			int canvasHeight = fFractalIterator.getScreenHeight();
 

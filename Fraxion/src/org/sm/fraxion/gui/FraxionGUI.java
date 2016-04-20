@@ -501,7 +501,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 	 *************************/
 
 	static {
-		DevelopMode.deactivate();
+		DevelopMode.activate();
 
 		// hack for JDK7 and above
 		System.setProperty("java.util.Arrays.useLegacyMergeSort","true");
@@ -525,15 +525,20 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 		adjustMenusToFractal();
 
 		// install key bindings for navigation
-		JComponent contentPane = ((JComponent) getContentPane());
-		InputMap inputMap = contentPane.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
-		ActionMap actionMap = contentPane.getActionMap();
-		installKeyBindings(inputMap,actionMap);
+		try {
+			JComponent contentPane = ((JComponent) getContentPane());
+			InputMap inputMap = contentPane.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+			ActionMap actionMap = contentPane.getActionMap();
+			installKeyBindings(inputMap,actionMap);
 
-		// reassign toolbar key bindings
-		inputMap = fToolBar.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
-		actionMap = fToolBar.getActionMap();
-		installKeyBindings(inputMap,actionMap);
+			// reassign toolbar key bindings
+			inputMap = fToolBar.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+			actionMap = fToolBar.getActionMap();
+			installKeyBindings(inputMap,actionMap);
+		}
+		catch (ClassCastException exc) {
+			// ignore
+		}
 	}
 
 	/******************
@@ -1516,6 +1521,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 					case kActionCommandMenuItemFractalFamilyMarkusLyapunovZirconZity:
 						fIteratorController.setFractalIteratorFamily(new MarkusLyapunovZirconZityFractalIterator());
 						break;
+					default: break;
 				}
 
 				fractalIterator = fIteratorController.getFractalIterator();
@@ -3251,7 +3257,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			fHelpMapIDs.put(EHelpTopic.kKeyboardShortcuts,javax.help.Map.ID.create("keyboard_shortcuts",fHelpSet));
 			fHelpMapIDs.put(EHelpTopic.kFractalTypes,javax.help.Map.ID.create("fractal_types_mandelbrot_julia",fHelpSet));
 		}
-		catch (Exception exc) {
+		catch (HelpSetException exc) {
 			kLogger.error(I18NL10N.translate("error.HelpInformationNotFound"));
 		}
 	}
@@ -6550,6 +6556,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			case kDeepSpace: fMenuItems.get(kActionCommandMenuItemColorMapInteriorDeepSpace).setSelected(true); break;
 			case kRandom: fMenuItems.get(kActionCommandMenuItemColorMapInteriorRandom).setSelected(true); break;
 			case kCustom: fMenuItems.get(kActionCommandMenuItemColorMapInteriorCustom).setSelected(true); break;
+			default: break;
 		}
 
 		JGradientColorMap.EColorMap exteriorColorMap = coloringParameters.fExteriorGradientColorMap.getColorMap();
@@ -6582,6 +6589,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			case kDeepSpace: fMenuItems.get(kActionCommandMenuItemColorMapExteriorDeepSpace).setSelected(true); break;
 			case kRandom: fMenuItems.get(kActionCommandMenuItemColorMapExteriorRandom).setSelected(true); break;
 			case kCustom: fMenuItems.get(kActionCommandMenuItemColorMapExteriorCustom).setSelected(true); break;
+			default: break;
 		}
 
 		fMenuItems.get(kActionCommandMenuItemColorMapInteriorInvertColorMap).setSelected(coloringParameters.fInteriorColorMapInverted);
@@ -6620,6 +6628,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			case kDeepSpace: fMenuItems.get(kActionCommandMenuItemColorMapTigerDeepSpace).setSelected(true); break;
 			case kRandom: fMenuItems.get(kActionCommandMenuItemColorMapTigerRandom).setSelected(true); break;
 			case kCustom: fMenuItems.get(kActionCommandMenuItemColorMapTigerCustom).setSelected(true); break;
+			default: break;
 		}
 
 		fMenuItems.get(kActionCommandMenuItemColorMapTigerUseFixedColor).setSelected(coloringParameters.fTigerUseFixedColor);
@@ -6652,6 +6661,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			case kOrbitTrapTangens: fMenuItems.get(kActionCommandMenuItemColorMapInteriorUseOrbitTrapTangens).setSelected(true); break;
 			case kDiscreteRoots: break; // not applicable
 			case kSmoothRoots: break; // not applicable
+			default: break;
 		}
 
 		ColoringParameters.EColoringMethod exteriorColoringMethod = coloringParameters.fExteriorColoringMethod;
@@ -6678,6 +6688,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			case kOrbitTrapTangens: fMenuItems.get(kActionCommandMenuItemColorMapExteriorUseOrbitTrapTangens).setSelected(true); break;
 			case kDiscreteRoots: fMenuItems.get(kActionCommandMenuItemColorMapExteriorUseDiscreteRoots).setSelected(true); break;
 			case kSmoothRoots: fMenuItems.get(kActionCommandMenuItemColorMapExteriorUseSmoothRoots).setSelected(true); break;
+			default: break;
 		}
 		
 		ColoringParameters.EColorMapScaling colorMapScaling = coloringParameters.fColorMapScaling;
@@ -6687,6 +6698,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			case kExponential: fMenuItems.get(kActionCommandMenuItemColorMapUseExponentialScaling).setSelected(true); break;
 			case kSqrt: fMenuItems.get(kActionCommandMenuItemColorMapUseSqrtScaling).setSelected(true); break;
 			case kRankOrder: fMenuItems.get(kActionCommandMenuItemColorMapUseRankOrderScaling).setSelected(true); break;
+			default: break;
 		}
 
 		fMenuItems.get(kActionCommandMenuItemColorMapRestrictHighIterationCountColors).setSelected(coloringParameters.fRankOrderRestrictHighIterationCountColors);
@@ -6814,7 +6826,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			fHelpBroker.setCurrentID(fHelpMapIDs.get(helpTopic));
 			fHelpBroker.setDisplayed(true);
 		}
-		catch (Exception exc) {
+		catch (InvalidHelpSetContextException exc) {
 			kLogger.error(I18NL10N.translate("error.HelpInformationNotFound"));
 		}
 	}
@@ -6825,9 +6837,9 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 
 	/**
 	 * @author  Sven Maerivoet
-	 * @version 08/06/2015
+	 * @version 20/04/2016
 	 */
-	private class NavigationAction extends AbstractAction implements ActionListener
+	private class NavigationAction extends AbstractAction
 	{
 		// internal datastructures
 		private String fBindingAction;
@@ -7365,7 +7377,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 				bufferedOutputStream.close();
 				fileOutputStream.close();
 			}
-			catch (Exception exc) {
+			catch (IOException exc) {
 				fException = exc;
 			}
 

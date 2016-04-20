@@ -1,7 +1,7 @@
 // ---------------------------------
 // Filename      : FractalPanel.java
 // Author        : Sven Maerivoet
-// Last modified : 08/04/2016
+// Last modified : 20/04/2016
 // Target        : Java VM (1.8)
 // ---------------------------------
 
@@ -59,7 +59,7 @@ import org.sm.smtools.util.*;
  * <B>Note that this class cannot be subclassed!</B>
  * 
  * @author  Sven Maerivoet
- * @version 08/04/2016
+ * @version 20/04/2016
  */
 public final class FractalPanel extends JPanel
 {
@@ -79,6 +79,7 @@ public final class FractalPanel extends JPanel
 	private static final double kOrbitsScreenScale = 0.9;
 	private static final int kOrbitAnalysesPanelOffset = 20;
 	private static final int kOrbitDiametre = 15;
+	private static final int kHalfOrbitDiametre = (int) Math.round(kOrbitDiametre / 2.0);
 	private static final float kOrbitPathWidth = 5.0f;
 	private static final int kMaxNrOfIterationsToShowForDualFractal = 1000;
 	private static final int kNrOfOrbitPointsToExcludeInPanelAnalysis = 2;
@@ -896,30 +897,35 @@ public final class FractalPanel extends JPanel
 		}
 
 		// use 2D graphics functionality
-		Graphics2D fRenderBufferGraphics = (Graphics2D) g;
-		fRenderBufferGraphics.setRenderingHint(RenderingHints.KEY_RENDERING,RenderingHints.VALUE_RENDER_QUALITY);
+		try {
+			Graphics2D fRenderBufferGraphics = (Graphics2D) g;
+			fRenderBufferGraphics.setRenderingHint(RenderingHints.KEY_RENDERING,RenderingHints.VALUE_RENDER_QUALITY);
 
-		// create the render buffer
-		fRenderBuffer = new BufferedImage(width,height,BufferedImage.TYPE_INT_RGB);
+			// create the render buffer
+			fRenderBuffer = new BufferedImage(width,height,BufferedImage.TYPE_INT_RGB);
 
-		// stretch the current image as the panel is probably being resized
-		if ((fRevalidating) && (fRenderBuffer != null)) {
-			((Graphics2D) (fRenderBuffer.getGraphics())).drawImage(fFractalImageBuffer,0,0,width,height,null);
+			// stretch the current image as the panel is probably being resized
+			if (fRevalidating) {
+				((Graphics2D) (fRenderBuffer.getGraphics())).drawImage(fFractalImageBuffer,0,0,width,height,null);
+			}
+			else {
+				// copy the current fractal image to the render buffer
+				fRenderBuffer.setData(fFractalImageBuffer.getData());
+			}
+
+			// supplement the render buffer with onscreen miscellaneous information
+			renderSupplementalInformation();
+
+			// copy the render buffer to the screen
+			fRenderBufferGraphics.setRenderingHint(RenderingHints.KEY_RENDERING,RenderingHints.VALUE_RENDER_QUALITY);
+			fRenderBufferGraphics.drawImage(fRenderBuffer,0,0,null);
+
+			fRenderBufferGraphics.dispose();
+			g.dispose();
 		}
-		else {
-			// copy the current fractal image to the render buffer
-			fRenderBuffer.setData(fFractalImageBuffer.getData());
+		catch (ClassCastException exc) {
+			// ignore
 		}
-
-		// supplement the render buffer with onscreen miscellaneous information
-		renderSupplementalInformation();
-
-		// copy the render buffer to the screen
-		fRenderBufferGraphics.setRenderingHint(RenderingHints.KEY_RENDERING,RenderingHints.VALUE_RENDER_QUALITY);
-		fRenderBufferGraphics.drawImage(fRenderBuffer,0,0,null);
-
-		fRenderBufferGraphics.dispose();
-		g.dispose();
 	}
 
 	/**
@@ -1318,7 +1324,8 @@ public final class FractalPanel extends JPanel
 	private BufferedImage colorFractal(IterationBuffer fractalResultBuffer, FractalIterationRangeInformation fractalIterationRangeInformation)
 	{
 		// prevent problems when in colour-cycling mode
-		if ((fractalResultBuffer == null) || ((fractalResultBuffer != null) && (fractalResultBuffer.fBuffer == null))) {
+//		if ((fractalResultBuffer == null) || ((fractalResultBuffer != null) && (fractalResultBuffer.fBuffer == null))) {
+		if ((fractalResultBuffer == null) || (fractalResultBuffer.fBuffer == null)) {
 			return null;
 		}
 
@@ -2119,8 +2126,8 @@ public final class FractalPanel extends JPanel
 							for (int iteration = 0; iteration < nrOfIterations; ++iteration) {
 								double zX = iterationResult.fComplexOrbit[iteration].realComponent();
 								double zY = iterationResult.fComplexOrbit[iteration].imaginaryComponent();
-								int sX = iterationResult.fScreenOrbit[iteration].fX - (int) Math.round(kOrbitDiametre / 2.0);
-								int sY = iterationResult.fScreenOrbit[iteration].fY - (int) Math.round(kOrbitDiametre / 2.0);
+								int sX = iterationResult.fScreenOrbit[iteration].fX - kHalfOrbitDiametre;
+								int sY = iterationResult.fScreenOrbit[iteration].fY - kHalfOrbitDiametre;
 
 								if (fScaleOrbitsToScreen) {
 									if (zOrbitWidth != 0.0) {

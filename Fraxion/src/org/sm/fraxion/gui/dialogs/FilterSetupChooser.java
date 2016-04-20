@@ -149,6 +149,7 @@ public final class FilterSetupChooser extends JDefaultDialog implements ActionLi
 					case kInvertFilterIndex: fFilterChain[filterIndex] = new InvertFilter(); break;
 					case kPosteriseFilterIndex: fFilterChain[filterIndex] = new PosteriseFilter(); break;
 					case kSharpenFilterIndex: fFilterChain[filterIndex] = new SharpenFilter(); break;
+					default: break;
 				}
 				fFilterLines[filterIndex].setFilter(fFilterChain[filterIndex]);
 				autoProof();
@@ -156,21 +157,26 @@ public final class FilterSetupChooser extends JDefaultDialog implements ActionLi
 		}
 		else if (command.startsWith(JFilterLine.kModifyActionCommand)) {
 			int filterIndex = Integer.parseInt(command.substring(command.indexOf(":") + 1));
-			if (fFilterChain[filterIndex] instanceof BlurFilter) {
-				BlurFilter blurFilter = (BlurFilter) fFilterChain[filterIndex];
-				BlurKernelSizeChooser blurKernelSizeChooser = new BlurKernelSizeChooser((JFrame) getOwner(),blurFilter.getKernelSize());
-				if (!blurKernelSizeChooser.isCancelled()) {
-					blurFilter.setKernelSize(blurKernelSizeChooser.getSelectedKernelSize());
+			try {
+				if (fFilterChain[filterIndex] instanceof BlurFilter) {
+					BlurFilter blurFilter = (BlurFilter) fFilterChain[filterIndex];
+					BlurKernelSizeChooser blurKernelSizeChooser = new BlurKernelSizeChooser((JFrame) getOwner(),blurFilter.getKernelSize());
+					if (!blurKernelSizeChooser.isCancelled()) {
+						blurFilter.setKernelSize(blurKernelSizeChooser.getSelectedKernelSize());
+					}
+					autoProof();
 				}
-				autoProof();
+				else if (fFilterChain[filterIndex] instanceof EdgeFilter) {
+					EdgeFilter edgeFilter = (EdgeFilter) fFilterChain[filterIndex];
+					EdgeDetectionStrengthChooser edgeDetectionStrengthChooser = new EdgeDetectionStrengthChooser((JFrame) getOwner(),edgeFilter.getStrength());
+					if (!edgeDetectionStrengthChooser.isCancelled()) {
+						edgeFilter.setStrength(edgeDetectionStrengthChooser.getSelectedStrength());
+					}
+					autoProof();
+				}
 			}
-			else if (fFilterChain[filterIndex] instanceof EdgeFilter) {
-				EdgeFilter edgeFilter = (EdgeFilter) fFilterChain[filterIndex];
-				EdgeDetectionStrengthChooser edgeDetectionStrengthChooser = new EdgeDetectionStrengthChooser((JFrame) getOwner(),edgeFilter.getStrength());
-				if (!edgeDetectionStrengthChooser.isCancelled()) {
-					edgeFilter.setStrength(edgeDetectionStrengthChooser.getSelectedStrength());
-				}
-				autoProof();
+			catch (ClassCastException exc) {
+				// ignore
 			}
 		}
 		else if (command.startsWith(JFilterLine.kMoveUpActionCommand)) {
