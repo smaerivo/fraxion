@@ -1,12 +1,12 @@
 // ---------------------------------------
 // Filename      : FilterSetupChooser.java
 // Author        : Sven Maerivoet
-// Last modified : 03/02/2015
+// Last modified : 24/04/2016
 // Target        : Java VM (1.8)
 // ---------------------------------------
 
 /**
- * Copyright 2003-2015 Sven Maerivoet
+ * Copyright 2003-2016 Sven Maerivoet
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ import org.sm.smtools.swing.util.*;
  * <B>Note that this class cannot be subclassed!</B>
  *
  * @author  Sven Maerivoet
- * @version 03/02/2015
+ * @version 24/04/2016
  */
 public final class FilterSetupChooser extends JDefaultDialog implements ActionListener
 {
@@ -354,7 +354,7 @@ public final class FilterSetupChooser extends JDefaultDialog implements ActionLi
 
 	/**
 	 * @author  Sven Maerivoet
-	 * @version 21/12/2014
+	 * @version 24/04/2016
 	 */
 	private final class JFilterLine
 	{
@@ -369,7 +369,7 @@ public final class FilterSetupChooser extends JDefaultDialog implements ActionLi
 		// public datastructures
 		public int fFilterIndex;
 		public JButton fRemoveButton;
-		public JComboBox fFilterTypeComboBox;
+		public JComboBox<String> fFilterTypeComboBox;
 		public JButton fModifyButton;
 		public JButton fMoveUpButton;
 		public JButton fMoveDownButton;
