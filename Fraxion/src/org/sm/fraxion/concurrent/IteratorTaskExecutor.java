@@ -1,7 +1,7 @@
 // -----------------------------------------
 // Filename      : IteratorTaskExecutor.java
 // Author        : Sven Maerivoet
-// Last modified : 08/06/2015
+// Last modified : 17/05/2016
 // Target        : Java VM (1.8)
 // -----------------------------------------
 
@@ -42,10 +42,13 @@ import org.sm.smtools.util.*;
  * <B>Note that this class cannot be subclassed!</B>
  *
  * @author  Sven Maerivoet
- * @version 08/06/2015
+ * @version 17/05/2016
  */
 public class IteratorTaskExecutor extends TaskExecutor
 {
+	// the sound to play when a calculation is finished
+	private static final String kCalculationFinishedSound = "application-resources/sounds/calculation-finished.mp3";
+
 	// interface specific constants
 	private static final int kNrOfKDEPDFBins = 100;
 	private static final int kMaxNrOfRoots = 1024;
@@ -272,8 +275,10 @@ public class IteratorTaskExecutor extends TaskExecutor
 		// play a "calculation-finished" sound
 		if (MP3Player.systemSoundsEnabled()) {
 			try {
-				MP3Player mp3Player = new MP3Player(fResources.getInputStream("application-resources/sounds/calculation-finished.mp3"));
-				mp3Player.play(MP3Player.EPlaying.kUnblocked);
+				MP3Player mp3Player = new MP3Player(fResources.getInputStream(kCalculationFinishedSound));
+				if (!DevelopMode.isActivated()) {
+					mp3Player.play(MP3Player.EPlaying.kUnblocked);
+				}
 			}
 			catch (FileDoesNotExistException exc) {
 				// ignore

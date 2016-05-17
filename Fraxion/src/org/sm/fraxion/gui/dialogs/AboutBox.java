@@ -1,7 +1,7 @@
 // ------------------------------
 // Filename      : AboutBox.java
 // Author        : Sven Maerivoet
-// Last modified : 24/04/2016
+// Last modified : 17/05/2016
 // Target        : Java VM (1.8)
 // ------------------------------
 
@@ -37,12 +37,12 @@ import org.sm.smtools.swing.dialogs.*;
  * <B>Note that this class cannot be subclassed!</B>
  * 
  * @author  Sven Maerivoet
- * @version 24/04/2016
+ * @version 17/05/2016
  */
 public final class AboutBox extends JAboutBox
 {
 	// the application's version number
-	private static final String kVersionNumber = "1.3.2";
+	private static final String kVersionNumber = "1.3.3";
 
 	/****************
 	 * CONSTRUCTORS *

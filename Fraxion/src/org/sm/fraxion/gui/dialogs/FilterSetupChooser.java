@@ -1,7 +1,7 @@
 // ---------------------------------------
 // Filename      : FilterSetupChooser.java
 // Author        : Sven Maerivoet
-// Last modified : 24/04/2016
+// Last modified : 13/05/2016
 // Target        : Java VM (1.8)
 // ---------------------------------------
 
@@ -38,7 +38,7 @@ import org.sm.smtools.swing.util.*;
  * <B>Note that this class cannot be subclassed!</B>
  *
  * @author  Sven Maerivoet
- * @version 24/04/2016
+ * @version 13/05/2016
  */
 public final class FilterSetupChooser extends JDefaultDialog implements ActionListener
 {
@@ -345,7 +345,7 @@ public final class FilterSetupChooser extends JDefaultDialog implements ActionLi
 		else {
 			fIteratorController.getColoringParameters().fUsePostProcessingFilters = false;
 		}
-		fFractalPanel.applyPostProcessingFilters();
+		fFractalPanel.finaliseFractalImage();
 	}
 
 	/*****************

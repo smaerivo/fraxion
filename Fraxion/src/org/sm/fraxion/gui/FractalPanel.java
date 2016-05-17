@@ -1,7 +1,7 @@
 // ---------------------------------
 // Filename      : FractalPanel.java
 // Author        : Sven Maerivoet
-// Last modified : 20/04/2016
+// Last modified : 17/05/2016
 // Target        : Java VM (1.8)
 // ---------------------------------
 
@@ -59,7 +59,7 @@ import org.sm.smtools.util.*;
  * <B>Note that this class cannot be subclassed!</B>
  * 
  * @author  Sven Maerivoet
- * @version 20/04/2016
+ * @version 17/05/2016
  */
 public final class FractalPanel extends JPanel
 {
@@ -89,6 +89,8 @@ public final class FractalPanel extends JPanel
 	private static final float kMaxStrokeWidth = 5.0f;
 	private static final int kMainFractalOverviewDefaultLongestSide = 250;
 	private static final int kMaxNrOfGridSpacesPerDimension = 8; // must be even
+	private static final int kThumbnailStoredWidth = 500;
+	private static final int kThumbnailStoredHeight = 500;
 
 	// internal datastructures
 	private JViewport fViewport;
@@ -130,6 +132,8 @@ public final class FractalPanel extends JPanel
 	private ScreenLocation fSelectionExtent;
 	private ZoomStack fZoomStack;
 	private boolean fAutoSelectMaxNrOfIterations;
+	private boolean fZoomThumbnailSelectionMode;
+	private int fSelectedZoomLevel;
 
 	/****************
 	 * CONSTRUCTORS *
@@ -484,6 +488,26 @@ public final class FractalPanel extends JPanel
 	}
 
 	/**
+	 * Sets whether or not zoom thumbnails should be shown and can be selected.
+	 *
+	 * @param zoomThumbnailSelectionMode  a <CODE>boolean</CODE> that indicates whether or not zoom thumbnails should be shown and can be selected
+	 */
+	public void setZoomThumbnailSelectionMode(boolean zoomThumbnailSelectionMode)
+	{
+		fZoomThumbnailSelectionMode = zoomThumbnailSelectionMode;
+	}
+	
+	/**
+	 * Returns whether or not zoom thumbnails should be shown and can be selected.
+	 *
+	 * @return a <CODE>boolean</CODE> that indicates whether or not zoom thumbnails should be shown and can be selected
+	 */
+	public boolean getZoomThumbnailSelectionMode()
+	{
+		return fZoomThumbnailSelectionMode;
+	}
+
+	/**
 	 * Sets the selection anchor point.
 	 *
 	 * @param selectionAnchor  the selection anchor point to set
@@ -678,6 +702,16 @@ public final class FractalPanel extends JPanel
 	}
 
 	/**
+	 * Returns the last selected zoom level.
+	 *
+	 * @return the last selected zoom level
+	 */
+	public int getSelectedZoomLevel()
+	{
+		return fSelectedZoomLevel;
+	}
+
+	/**
 	 * Sets the current zoom boundaries to those at the top of the zoom stack
 	 * and adjusts their aspect ratio if necessary.
 	 * 
@@ -848,7 +882,7 @@ public final class FractalPanel extends JPanel
 	{
 		fRevalidating = false;
 		prepareFractalColoringInformation(fIteratorController.getFractalResultBuffer(),fMainFractalIterationRangeInformation);
-		applyPostProcessingFilters();
+		finaliseFractalImage();
 	}
 
 	/**
@@ -856,9 +890,12 @@ public final class FractalPanel extends JPanel
 	 * taking into account the current settings of the colour map, drawing, and post-processing techniques.
 	 * It then calls <CODE>repaint()</CODE>.
 	 */
-	public void applyPostProcessingFilters()
+	public void finaliseFractalImage()
 	{
 		fFractalImageBuffer = colorFractal(fIteratorController.getFractalResultBuffer(),fMainFractalIterationRangeInformation);
+
+		// get a fast rescaled version of the main fractal
+		fZoomStack.addThumbnail(fFractalImageBuffer.getScaledInstance(kThumbnailStoredWidth,kThumbnailStoredHeight,Image.SCALE_SMOOTH));
 
 		// fail-safe
 		if (fFractalImageBuffer == null) {
@@ -1000,6 +1037,7 @@ public final class FractalPanel extends JPanel
 		fMaxNrOfIterationsInOrbitAnalyses = 100;
 		fShowZoomInformation = true;
 		fShowCurrentLocation = true;
+		fZoomThumbnailSelectionMode = false;
 
 		ColoringParameters coloringParameters = fIteratorController.getColoringParameters();
 		coloringParameters.fInteriorGradientColorMap = new JGradientColorMap();
@@ -1045,6 +1083,7 @@ public final class FractalPanel extends JPanel
 		fSelecting = false;
 		fCentredZooming = true;
 		fZoomStack = new ZoomStack();
+		fSelectedZoomLevel = 0;
 
 		setAutoSelectMaxNrOfIterations(false);
 	}
@@ -1715,7 +1754,7 @@ public final class FractalPanel extends JPanel
 		fRenderBufferGraphics.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,RenderingHints.VALUE_TEXT_ANTIALIAS_GASP);
 
 		// capture the current main fractal's image
-		if (fShowMainFractalOverview) {
+		if (fShowMainFractalOverview && !fZoomThumbnailSelectionMode) {
 			try {
 				// determine the longest side of the screen bounds
 				double ratio = (double) screenWidth / (double) screenHeight;
@@ -1814,7 +1853,7 @@ public final class FractalPanel extends JPanel
 			fRenderBufferGraphics.drawLine(mX1 - (kHalfCornerSize / 2),(mY1 + mY2) / 2,mX2 + (kHalfCornerSize / 2),(mY1 + mY2) / 2);
 		} // if (fSelecting && (fSelectionAnchor != null) && (fSelectionExtent != null))
 
-		if (fShowInset) {
+		if (fShowInset && !fZoomThumbnailSelectionMode) {
 			boolean showInsetFractal = true;
 
 			if (fractalType == AFractalIterator.EFractalType.kMainFractal) {
@@ -1957,7 +1996,7 @@ public final class FractalPanel extends JPanel
 		} // if (fShowInset)
 
 
-		if (fShowAxes) {
+		if (fShowAxes && !fZoomThumbnailSelectionMode) {
 			// draw X and Y axes in the complex plane for the main fractal
 			ScreenLocation origin = fractalIterator.convertComplexNumberToScreenLocation(new ComplexNumber());
 			fRenderBufferGraphics.setColor(Color.WHITE);
@@ -1987,7 +2026,7 @@ public final class FractalPanel extends JPanel
 			}
 		} // if (fShowAxes)
 
-		if (fShowOverlayGrid) {
+		if (fShowOverlayGrid && !fZoomThumbnailSelectionMode) {
 			// GUI specific
 			final int kCenterDotRadius = 7;
 			final int kTextInsetSize = 10;
@@ -2063,10 +2102,8 @@ public final class FractalPanel extends JPanel
 			fRenderBufferGraphics.drawRect(locationX,locationY,locationWidth,locationHeight);
 			fRenderBufferGraphics.drawString(visibleExtent,locationX + kTextInsetSize,locationY + textHeight);
 		} // if (fShowOverlayGrid)
-//*/
 
-///*
-		if (fShowOrbits || fShowOrbitAnalyses) {
+		if (!fZoomThumbnailSelectionMode && (fShowOrbits || fShowOrbitAnalyses)) {
 			try {
 				Point m = getMousePosition();
 				if (m != null) {
@@ -2390,7 +2427,7 @@ public final class FractalPanel extends JPanel
 			}
 		} // if (fShowOrbits || fShowOrbitAnalyses)
 
-		if (fShowMagnifyingGlass) {
+		if (fShowMagnifyingGlass && !fZoomThumbnailSelectionMode) {
 			// drawing the magnifying glass here, so that the selection rectangle is also shown correctly
 			try {
 				Point m = getMousePosition();
@@ -2421,7 +2458,7 @@ public final class FractalPanel extends JPanel
 			}
 		} // if (fShowMagnifyingGlass)
 
-		if (fShowZoomInformation) {
+		if (fShowZoomInformation && !fZoomThumbnailSelectionMode) {
 			String fractalDesc = I18NL10N.translate("text.Fractal.Fractal",fractalIterator.getFamilyName());
 			String lowerLeftDesc = I18NL10N.translate("text.Fractal.LowerLeft") + ": " + fractalIterator.getP1();
 			String upperRightDesc = I18NL10N.translate("text.Fractal.UpperRight") + ": " + fractalIterator.getP2();
@@ -2558,7 +2595,7 @@ public final class FractalPanel extends JPanel
 			fRenderBufferGraphics.drawString(z0Str,x,y);
 		}
 
-		if (fShowCurrentLocation) {
+		if (fShowCurrentLocation && !fZoomThumbnailSelectionMode) {
 			try {
 				Point m = getMousePosition();
 				if (m != null) {
@@ -2636,6 +2673,114 @@ public final class FractalPanel extends JPanel
 				// ignore
 			}
 		} // if (fShowCurrentLocation)
+
+		if (fZoomThumbnailSelectionMode) {
+			// create a dark background panel
+			Color color = Color.BLACK;
+			color = new Color(color.getRed(),color.getGreen(),color.getBlue(),192);
+			fRenderBufferGraphics.setColor(color);
+			fRenderBufferGraphics.fillRect(vpX1,vpY1,vpWidth,vpHeight);
+
+			// evenly divide the thumbnails over a square-like field
+			final int kThumbnailSpacing = 20;
+			final int kNrOfZoomLevels = fZoomStack.getNrOfZoomLevels();
+			int kNrOfColumns = (int) Math.floor(Math.sqrt((double) kNrOfZoomLevels));
+			int kNrOfRows = (int) Math.ceil((double) kNrOfZoomLevels / (double) kNrOfColumns);
+			if (kNrOfColumns < 1) {
+				kNrOfColumns = 1;
+			}
+			if (kNrOfRows < 1) {
+				kNrOfRows = 1;
+			}
+
+			final int kThumbnailWidth = (vpWidth - (2 * kThumbnailSpacing) - ((kNrOfColumns - 1) * kThumbnailSpacing)) / kNrOfColumns;
+			final int kThumbnailHeight = (vpHeight - (2 * kThumbnailSpacing) - ((kNrOfRows - 1) * kThumbnailSpacing)) / kNrOfRows;
+
+			int columnIndex = 1;
+			int offsetX = kThumbnailSpacing;
+			int offsetY = kThumbnailSpacing;
+			fSelectedZoomLevel = 0;
+			for (int zoomLevel = 1; zoomLevel <= kNrOfZoomLevels; ++zoomLevel) {
+
+				BufferedImage thumbnail = new BufferedImage(kThumbnailWidth,kThumbnailHeight,BufferedImage.TYPE_INT_RGB);
+				Graphics2D g2d = thumbnail.createGraphics();
+
+				FontMetrics fontMetrics = g2d.getFontMetrics();
+				int textHeight = fontMetrics.getHeight();
+				int textDescent = fontMetrics.getMaxDescent();
+				final int kTextOffset = 10;
+
+				Image zoomThumbnail = fZoomStack.getThumbnail(zoomLevel);
+				if (zoomThumbnail != null) {
+					// show rescaled thumbnail
+					Image scaledZoomThumbnail = zoomThumbnail.getScaledInstance(kThumbnailWidth,kThumbnailHeight,Image.SCALE_FAST);
+					g2d.drawImage(scaledZoomThumbnail,0,0,null);
+				}
+				else {
+					String thumbnailWarningMsg = I18NL10N.translate("error.ZoomStack.ThumbnailNotAvailable");
+					int textWidth = (int) fontMetrics.stringWidth(thumbnailWarningMsg);
+					int xPos = (kThumbnailWidth - textWidth) / 2;
+					int yPos = (kThumbnailHeight - textHeight) / 2;
+
+					g2d.setColor(Color.RED);
+					g2d.drawLine(1,1,kThumbnailWidth - 1,kThumbnailHeight - 1);
+					g2d.drawLine(1,kThumbnailHeight - 1,kThumbnailWidth - 1,1);
+					g2d.fillRect(
+						xPos - kTextOffset,
+						yPos - kTextOffset,
+						textWidth + (2 * kTextOffset),
+						textHeight + (2 * kTextOffset) + textDescent);
+
+					g2d.setColor(Color.BLACK);
+					g2d.drawRect(
+						xPos - kTextOffset,
+						yPos - kTextOffset,
+						textWidth + (2 * kTextOffset),
+						textHeight + (2 * kTextOffset) + textDescent);
+					g2d.drawString(thumbnailWarningMsg,xPos,yPos + kTextOffset + (textHeight / 2) - textDescent);
+				}
+
+				// show zoom level
+				String zoomLevelDesc = I18NL10N.translate("text.Fractal.ZoomLevel") + " (" + String.valueOf(zoomLevel) + ")";
+				//int
+				int textWidth = (int) fontMetrics.stringWidth(zoomLevelDesc);
+
+				g2d.setColor(Color.WHITE);
+				g2d.fillRect(kTextOffset,kTextOffset,textWidth + kTextOffset + kTextOffset,kTextOffset + textHeight + textDescent);
+
+				g2d.setColor(Color.BLACK);
+				g2d.drawRect(kTextOffset,kTextOffset,textWidth + kTextOffset + kTextOffset,kTextOffset + textHeight + textDescent);
+				g2d.drawString(zoomLevelDesc,kTextOffset + kTextOffset,kTextOffset + textHeight + textDescent);
+				g2d.dispose();
+
+				// highlight image if mouse cursor is above it
+				try {
+					Point m = getMousePosition();
+					if (m != null) {
+						int mX = (int) m.getX() - vpX1;
+						int mY = (int) m.getY() - vpY1;
+
+						if ((mX >= offsetX) && (mY >= offsetY) && (mX <= (offsetX + kThumbnailWidth)) && (mY <= (offsetY + kThumbnailHeight))) {
+							AFilter edgeFilter = new InvertFilter();
+							thumbnail = edgeFilter.filter(thumbnail);
+							fSelectedZoomLevel = zoomLevel;
+						}
+					}
+				}
+				catch (HeadlessException exc) {
+					// ignore
+				}
+
+				fRenderBufferGraphics.drawImage(thumbnail,vpX1 + offsetX,vpY1 + offsetY,null);
+				offsetX += (kThumbnailWidth + kThumbnailSpacing);
+				++columnIndex;
+				if (columnIndex > kNrOfColumns) {
+					columnIndex = 1;
+					offsetX = kThumbnailSpacing;
+					offsetY += (kThumbnailHeight + kThumbnailSpacing);
+				}
+			} // for (int zoomLevel = 1; zoomLevel <= kNrOfThumbnails; ++zoomLevel)
+		} // if (fZoomThumbnailSelectionMode)
 
 		// draw a black rectangle around the fractal screen
 		fRenderBufferGraphics.setColor(Color.BLACK);

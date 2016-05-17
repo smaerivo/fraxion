@@ -1,7 +1,7 @@
 // -------------------------------
 // Filename      : FraxionGUI.java
 // Author        : Sven Maerivoet
-// Last modified : 09/04/2016
+// Last modified : 17/05/2016
 // Target        : Java VM (1.8)
 // -------------------------------
 
@@ -60,7 +60,7 @@ import org.sm.smtools.util.*;
  * <B>Note that this class cannot be subclassed!</B>
  *
  * @author  Sven Maerivoet
- * @version 09/04/2016
+ * @version 17/05/2016
  */
 public final class FraxionGUI extends JStandardGUIApplication implements ActionListener, MouseListener, MouseMotionListener
 {
@@ -98,7 +98,8 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 	private static final String kActionCommandMenuItemNavigationLockAspectRatio = "menuItem.Navigation.LockAspectRatio";
 	private static final String kActionCommandMenuItemNavigationCentredZooming = "menuItem.Navigation.CentredZooming";
 	private static final String kActionCommandMenuItemNavigationResetZoom = "menuItem.Navigation.ResetZoom";
-	private static final String kActionCommandMenuItemNavigationZoomToLevel = "menuItem.Navigation.ZoomToLevel";
+	private static final String kActionCommandMenuItemNavigationZoomToLevelCoordinates = "menuItem.Navigation.ZoomToLevelCoordinates";
+	private static final String kActionCommandMenuItemNavigationZoomToLevelGraphical = "menuItem.Navigation.ZoomToLevelGraphical";
 	private static final String kActionCommandMenuItemNavigationShowAxes = "menuItem.Navigation.ShowAxes";
 	private static final String kActionCommandMenuItemNavigationShowAxesToggle = kActionCommandMenuItemNavigationShowAxes + ".Toggle";
 	private static final String kActionCommandMenuItemNavigationShowOverlayGrid = "menuItem.Navigation.ShowOverlayGrid";
@@ -501,6 +502,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 	 *************************/
 
 	static {
+//XXX DevelopMode
 		DevelopMode.deactivate();
 
 		// hack for JDK7 and above
@@ -566,6 +568,11 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 
 		// explicitly ignore input when we are in the middle of a calculation
 		if (fIteratorController.isBusy()) {
+			return;
+		}
+
+		// explicitly ignore input when we are in zoom thumbnail selection mode
+		if (fFractalPanel.getZoomThumbnailSelectionMode()) {
 			return;
 		}
 
@@ -1010,7 +1017,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemFileSaveZoomAnimationSequence)) {
-//XXX
+//XXX Save zoom animation sequence [action]
 			JIncompleteWarningDialog.warn(this,"GUIApplication::actionPerformed()");
 			// resetZoom();
 			// push new coords(); => zoomToStack()
@@ -1054,11 +1061,17 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemNavigationResetZoom)) {
 			fFractalPanel.resetZoom();
 		}
-		else if (command.equalsIgnoreCase(kActionCommandMenuItemNavigationZoomToLevel)) {
+		else if (command.equalsIgnoreCase(kActionCommandMenuItemNavigationZoomToLevelCoordinates)) {
 			ZoomLevelChooser zoomLevelChooser = new ZoomLevelChooser(this,fFractalPanel.getZoomStack());
 			if (!zoomLevelChooser.isCancelled()) {
 				fFractalPanel.zoomToLevel(zoomLevelChooser.getSelectedZoomLevel());
 			}
+		}
+		else if (command.equalsIgnoreCase(kActionCommandMenuItemNavigationZoomToLevelGraphical)) {
+			// toggle showing and selecting the zoom thumbnails on a single right click
+			fFractalPanel.setZoomThumbnailSelectionMode(true);
+			hideMenusAndToolBar();
+			fFractalPanel.repaint();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemNavigationShowAxes)) {
 			fFractalPanel.setShowAxes(fMenuItems.get(kActionCommandMenuItemNavigationShowAxes).isSelected());
@@ -1166,8 +1179,10 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 
 				if (proceed) {
 					// reset zoomstack and create new top
-					fFractalPanel.getZoomStack().clear();
-					fFractalPanel.getZoomStack().push(fractalIterator.getDefaultP1(),fractalIterator.getDefaultP2());
+					ZoomStack zoomStack = fFractalPanel.getZoomStack();
+					zoomStack.clear();
+					zoomStack.push(fractalIterator.getDefaultP1(),fractalIterator.getDefaultP2());
+					zoomStack.addThumbnail(null);
 					fFractalPanel.zoomIn(complexBoundsChooser.getSelectedP1(),complexBoundsChooser.getSelectedP2());
 				}
 			}
@@ -2789,7 +2804,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			coloringParameters.fPostProcessingFilterChain.addFilter(new EdgeFilter());
 			coloringParameters.fUsePostProcessingFilters = true;
 			adjustMenusToFractal();
-			fFractalPanel.applyPostProcessingFilters();
+			fFractalPanel.finaliseFractalImage();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapUseDarkSofteningFilter)) {
 			// reset post-processing filter chain to a dark softening filter cascade
@@ -2800,7 +2815,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			coloringParameters.fPostProcessingFilterChain.addFilter(new PosteriseFilter());
 			coloringParameters.fUsePostProcessingFilters = true;
 			adjustMenusToFractal();
-			fFractalPanel.applyPostProcessingFilters();
+			fFractalPanel.finaliseFractalImage();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapResetToDefault)) {
 			// setup exterior colouring
@@ -2940,7 +2955,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			ColorMapOffsetChooser colorMapOffsetChooser = new ColorMapOffsetChooser(this,coloringParameters.fColorMapColorOffset);
 			if (!colorMapOffsetChooser.isCancelled()) {
 				coloringParameters.fColorMapColorOffset = colorMapOffsetChooser.getSelectedColorOffset();
-				fFractalPanel.applyPostProcessingFilters();
+				fFractalPanel.finaliseFractalImage();
 			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapCycleColors)) {
@@ -2993,7 +3008,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorMapUsePostProcessingFilters)) {
 			coloringParameters.fUsePostProcessingFilters = fMenuItems.get(kActionCommandMenuItemColorMapUsePostProcessingFilters).isSelected();
-			fFractalPanel.applyPostProcessingFilters();
+			fFractalPanel.finaliseFractalImage();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemColorSetupPostProcessingFilters)) {
 			FilterSetupChooser filterSetupChooser = new FilterSetupChooser(this,fFractalPanel,fIteratorController);
@@ -3002,7 +3017,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 				coloringParameters.fUsePostProcessingFilters = true;
 				adjustMenusToFractal();
 			}
-			fFractalPanel.applyPostProcessingFilters();
+			fFractalPanel.finaliseFractalImage();
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemMultithreadingRecalculate)) {
 			fIteratorController.recalc();
@@ -3059,25 +3074,60 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 	@Override
 	public void mouseClicked(MouseEvent e)
 	{
-		if ((e.getButton() == MouseEvent.BUTTON1) && (e.getClickCount() == 2)) {
-			if (fDoubleClickMode == EDoubleClickMode.kSwitchMainDualFractal) {
-				// switch main and inset fractal types on a double click
-				switchMainDualFractal();
-			}
-			else if (fDoubleClickMode == 	EDoubleClickMode.kChangeOrbitStartingPoint) {
-				Point mousePosition = fFractalPanel.getMousePosition();
-				if (mousePosition != null) {
-					double mouseX = mousePosition.getX();
-					double mouseY = mousePosition.getY();
-					ComplexNumber z0 = fIteratorController.getFractalIterator().convertScreenLocationToComplexNumber(new ScreenLocation((int) mouseX,(int) mouseY));
-					fIteratorController.getFractalIterator().setMainFractalOrbitStartingPoint(z0);
-					fIteratorController.recalc();
+		int clickCount = e.getClickCount();
+		int modifiers = e.getModifiersEx();
+		boolean shiftKeyPressed = ((modifiers & InputEvent.SHIFT_DOWN_MASK) == InputEvent.SHIFT_DOWN_MASK);
+		boolean consumed =  e.isConsumed();
+		e.consume();
+
+		if (fFractalPanel.getZoomThumbnailSelectionMode()) {
+			if ((e.getButton() == MouseEvent.BUTTON1) && (clickCount == 1) && (!consumed)) {
+				// select zoom level image to zoom to
+				int selectedZoomLevel = fFractalPanel.getSelectedZoomLevel();
+				if (selectedZoomLevel > 0) {
+					fFractalPanel.zoomToLevel(selectedZoomLevel);
+					fFractalPanel.setZoomThumbnailSelectionMode(false);
+					showMenusAndToolBar();
+					fFractalPanel.repaint();
 				}
 			}
+			else if ((e.getButton() == MouseEvent.BUTTON3) && (clickCount == 1) && (!consumed)) {
+				// toggle showing and selecting the zoom thumbnails on a single right click
+				fFractalPanel.setZoomThumbnailSelectionMode(false);
+				showMenusAndToolBar();
+				fFractalPanel.repaint();
+			}
 		}
-		else if ((e.getButton() == MouseEvent.BUTTON3) && (e.getClickCount() == 2)) {
-			// zoom out on a single right click
-			fFractalPanel.zoomOut();
+		else {
+			if ((e.getButton() == MouseEvent.BUTTON1) && (clickCount == 2) && (!consumed)) {
+				if (fDoubleClickMode == EDoubleClickMode.kSwitchMainDualFractal) {
+					// switch main and inset fractal types on a double click
+					switchMainDualFractal();
+				}
+				else if (fDoubleClickMode == 	EDoubleClickMode.kChangeOrbitStartingPoint) {
+					Point mousePosition = fFractalPanel.getMousePosition();
+					if (mousePosition != null) {
+						double mouseX = mousePosition.getX();
+						double mouseY = mousePosition.getY();
+						ComplexNumber z0 = fIteratorController.getFractalIterator().convertScreenLocationToComplexNumber(new ScreenLocation((int) mouseX,(int) mouseY));
+						fIteratorController.getFractalIterator().setMainFractalOrbitStartingPoint(z0);
+						fIteratorController.recalc();
+					}
+				}
+			}
+			else if ((e.getButton() == MouseEvent.BUTTON3) && (clickCount == 2) && (!consumed)) {
+				// zoom out on a double right click
+				fFractalPanel.zoomOut();
+				fFractalPanel.setZoomThumbnailSelectionMode(false);
+				showMenusAndToolBar();
+				fFractalPanel.repaint();
+			}
+			else if ((e.getButton() == MouseEvent.BUTTON3) && (clickCount == 1) && (!consumed) && shiftKeyPressed) {
+				// toggle showing and selecting the zoom thumbnails on a single right click
+				fFractalPanel.setZoomThumbnailSelectionMode(true);
+				hideMenusAndToolBar();
+				fFractalPanel.repaint();
+			}
 		}
 	}
 
@@ -3104,22 +3154,24 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 	@Override
 	public void mousePressed(MouseEvent e)
 	{
-		changeLocationMouseCursor();
-		if (e.getButton() == MouseEvent.BUTTON1) {
-			// initiate selection rectangle
-			setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
-			Point mousePosition = fFractalPanel.getMousePosition();
-			if (mousePosition != null) {
-				double mouseX = mousePosition.getX();
-				double mouseY = mousePosition.getY();
-				fFractalPanel.setSelectionAnchor(new ScreenLocation((int) mouseX,(int) mouseY));
+		if (!fFractalPanel.getZoomThumbnailSelectionMode()) {
+			changeLocationMouseCursor();
+			if (e.getButton() == MouseEvent.BUTTON1) {
+				// initiate selection rectangle
+				setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
+				Point mousePosition = fFractalPanel.getMousePosition();
+				if (mousePosition != null) {
+					double mouseX = mousePosition.getX();
+					double mouseY = mousePosition.getY();
+					fFractalPanel.setSelectionAnchor(new ScreenLocation((int) mouseX,(int) mouseY));
+				}
 			}
-		}
 
-		// disable selecting if the right mouse button was clicked
-		if (e.getButton() == MouseEvent.BUTTON3) {
-			fFractalPanel.disableSelecting();
-			fFractalPanel.repaint();
+			// disable selecting if the right mouse button was clicked
+			if (e.getButton() == MouseEvent.BUTTON3) {
+				fFractalPanel.disableSelecting();
+				fFractalPanel.repaint();
+			}
 		}
 	}
 
@@ -3128,10 +3180,12 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 	@Override
 	public void mouseReleased(MouseEvent e)
 	{
-		changeLocationMouseCursor();
-		if (fFractalPanel.getSelecting()) {
-			fFractalPanel.zoomToSelection();
-			updateStatusBar();
+		if (!fFractalPanel.getZoomThumbnailSelectionMode()) {
+			changeLocationMouseCursor();
+			if (fFractalPanel.getSelecting()) {
+				fFractalPanel.zoomToSelection();
+				updateStatusBar();
+			}
 		}
 	}
 
@@ -3141,16 +3195,18 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 	@Override
 	public void mouseDragged(MouseEvent e)
 	{
-		if (fFractalPanel.getSelecting()) {
-			// resize selection rectangle
-			Point mousePosition = fFractalPanel.getMousePosition();
-			if (mousePosition != null) {
-				double mouseX = mousePosition.getX();
-				double mouseY = mousePosition.getY();
-				fFractalPanel.setSelectionExtent(new ScreenLocation((int) mouseX,(int) mouseY));
+		if (!fFractalPanel.getZoomThumbnailSelectionMode()) {
+			if (fFractalPanel.getSelecting()) {
+				// resize selection rectangle
+				Point mousePosition = fFractalPanel.getMousePosition();
+				if (mousePosition != null) {
+					double mouseX = mousePosition.getX();
+					double mouseY = mousePosition.getY();
+					fFractalPanel.setSelectionExtent(new ScreenLocation((int) mouseX,(int) mouseY));
+				}
 			}
+			updateStatusBar();
 		}
-		updateStatusBar();
 	}
 
 	/**
@@ -3225,7 +3281,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 					sign = -1.0;
 				}
 				fIteratorController.getColoringParameters().fColorMapColorOffset = MathTools.frac(fIteratorController.getColoringParameters().fColorMapColorOffset + (sign * fColorCyclingSmoothness));;
-				fFractalPanel.applyPostProcessingFilters();
+				fFractalPanel.finaliseFractalImage();
 			}
 		};
 
@@ -3583,7 +3639,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 				menuItem.addActionListener(this);
 			menu.add(menuItem);
 
-//XXX
+//XXX Save zoom animation sequence [menu]
 /*
 			menu.addSeparator();
 
@@ -3652,9 +3708,13 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 				menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R,ActionEvent.CTRL_MASK));
 				menuItem.addActionListener(this);
 			menu.add(menuItem);
-				menuItem = constructMenuItem(kActionCommandMenuItemNavigationZoomToLevel,false);
-				menuItem.setActionCommand(kActionCommandMenuItemNavigationZoomToLevel);
+				menuItem = constructMenuItem(kActionCommandMenuItemNavigationZoomToLevelCoordinates,false);
+				menuItem.setActionCommand(kActionCommandMenuItemNavigationZoomToLevelCoordinates);
 				menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V,ActionEvent.CTRL_MASK));
+				menuItem.addActionListener(this);
+			menu.add(menuItem);
+				menuItem = constructMenuItem(kActionCommandMenuItemNavigationZoomToLevelGraphical,false);
+				menuItem.setActionCommand(kActionCommandMenuItemNavigationZoomToLevelGraphical);
 				menuItem.addActionListener(this);
 			menu.add(menuItem);
 
@@ -6720,6 +6780,22 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 
 	/**
 	 */
+	private void hideMenusAndToolBar()
+	{
+		getJMenuBar().setVisible(false);
+		fToolBar.setVisible(false);
+	}
+
+	/**
+	 */
+	private void showMenusAndToolBar()
+	{
+		getJMenuBar().setVisible(true);
+		fToolBar.setVisible(true);
+	}
+
+	/**
+	 */
 	private void setupMarkusLyapunovFractal()
 	{
 		AFractalIterator fractalIterator = fIteratorController.getFractalIterator();
@@ -6777,7 +6853,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 	 */
 	private void changeLocationMouseCursor()
 	{
-		if (fMenuItems.get(kActionCommandMenuItemNavigationShowCurrentLocation).isSelected() && fFractalPanel.isMouseInsideComplexPlane()) {
+		if (!fFractalPanel.getZoomThumbnailSelectionMode() && fMenuItems.get(kActionCommandMenuItemNavigationShowCurrentLocation).isSelected() && fFractalPanel.isMouseInsideComplexPlane()) {
 			hideMouseCursor();
 		}
 		else {
@@ -6930,7 +7006,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			}
 			else if (fBindingAction.equalsIgnoreCase(kActionCommandMenuItemMultithreadingInterrupt)) {
 				if (fIteratorController.isBusy()) {
-//XXX
+//XXX Interrupt calculation [escape]
 					JIncompleteWarningDialog.warn(fFractalPanel,"GUIApplication");
 				}
 			}
@@ -7233,9 +7309,11 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 				fIteratorController.setFractalResultBuffer(fractalResultBuffer);
 
 				// adjust the zoom stack
-				fFractalPanel.getZoomStack().clear();
-				fFractalPanel.getZoomStack().push(fractalIterator.getDefaultP1(),fractalIterator.getDefaultP2());
-				fFractalPanel.getZoomStack().push(fractalIterator.getP1(),fractalIterator.getP2());
+				ZoomStack zoomStack = fFractalPanel.getZoomStack();
+				zoomStack.clear();
+				zoomStack.push(fractalIterator.getDefaultP1(),fractalIterator.getDefaultP2());
+				zoomStack.addThumbnail(null);
+				zoomStack.push(fractalIterator.getP1(),fractalIterator.getP2());
 
 				adjustMenusToFractal();
 
