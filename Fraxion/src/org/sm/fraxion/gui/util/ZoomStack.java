@@ -1,12 +1,12 @@
 // ------------------------------
 // Filename      : ZoomStack.java
 // Author        : Sven Maerivoet
-// Last modified : 10/10/2014
+// Last modified : 17/05/2016
 // Target        : Java VM (1.8)
 // ------------------------------
 
 /**
- * Copyright 2003-2015 Sven Maerivoet
+ * Copyright 2003-2016 Sven Maerivoet
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@
 
 package org.sm.fraxion.gui.util;
 
+import java.awt.*;
 import java.util.*;
 import org.sm.smtools.exceptions.*;
 import org.sm.smtools.math.complex.*;
@@ -34,7 +35,7 @@ import org.sm.smtools.util.*;
  * <B>Note that this class cannot be subclassed!</B>
  * 
  * @author  Sven Maerivoet
- * @version 10/10/2014
+ * @version 17/05/2016
  */
 public final class ZoomStack implements Cloneable
 {
@@ -42,8 +43,10 @@ public final class ZoomStack implements Cloneable
 	private static final String kFieldSeparator = ",";
 
 	// datastructures
-	private ArrayDeque<ComplexNumber> fZoomP1Stack;
-	private ArrayDeque<ComplexNumber> fZoomP2Stack;
+	private ArrayDeque<ComplexNumber> fP1Stack;
+	private ArrayDeque<ComplexNumber> fP2Stack;
+	private boolean fIsDirty;
+	private ArrayList<Image> fThumbnails;
 
 	/*****************
 	 * CONSTRUCTORS  *
@@ -66,8 +69,10 @@ public final class ZoomStack implements Cloneable
 	 */
 	public void clear()
 	{
-		fZoomP1Stack = new ArrayDeque<ComplexNumber>();
-		fZoomP2Stack = new ArrayDeque<ComplexNumber>();
+		fP1Stack = new ArrayDeque<ComplexNumber>();
+		fP2Stack = new ArrayDeque<ComplexNumber>();
+		fIsDirty = false;
+		fThumbnails = new ArrayList<Image>();
 	}
 
 	/**
@@ -77,7 +82,7 @@ public final class ZoomStack implements Cloneable
 	 */
 	public boolean isEmpty()
 	{
-		return ((fZoomP1Stack == null) || (fZoomP2Stack == null) || (fZoomP1Stack.size() <= 1) || (fZoomP2Stack.size() <= 1));
+		return ((fP1Stack == null) || (fP2Stack == null) || (fP1Stack.size() <= 1) || (fP2Stack.size() <= 1));
 	}
 
 	/**
@@ -87,11 +92,11 @@ public final class ZoomStack implements Cloneable
 	 */
 	public int getZoomLevel()
 	{
-		if ((fZoomP1Stack == null) || (fZoomP2Stack == null)) {
+		if ((fP1Stack == null) || (fP2Stack == null)) {
 			return 0;
 		}
 		else {
-			return fZoomP1Stack.size();
+			return fP1Stack.size();
 		}
 	}
 
@@ -102,7 +107,7 @@ public final class ZoomStack implements Cloneable
 	 */
 	public ComplexNumber getTopP1()
 	{
-		return fZoomP1Stack.peekFirst();
+		return fP1Stack.peekFirst();
 	}
 
 	/**
@@ -112,7 +117,7 @@ public final class ZoomStack implements Cloneable
 	 */
 	public ComplexNumber getTopP2()
 	{
-		return fZoomP2Stack.peekFirst();
+		return fP2Stack.peekFirst();
 	}
 
 	/**
@@ -123,8 +128,8 @@ public final class ZoomStack implements Cloneable
 	 */
 	public ComplexNumber getP1(int zoomLevel)
 	{
-		ComplexNumber[] zoomP1Stack = fZoomP1Stack.toArray(new ComplexNumber[0]);
-		return zoomP1Stack[getZoomLevel() - zoomLevel];
+		ComplexNumber[] p1Stack = fP1Stack.toArray(new ComplexNumber[0]);
+		return p1Stack[getZoomLevel() - zoomLevel];
 	}
 
 	/**
@@ -135,8 +140,28 @@ public final class ZoomStack implements Cloneable
 	 */
 	public ComplexNumber getP2(int zoomLevel)
 	{
-		ComplexNumber[] zoomP2Stack = fZoomP2Stack.toArray(new ComplexNumber[0]);
-		return zoomP2Stack[getZoomLevel() - zoomLevel];
+		ComplexNumber[] p2Stack = fP2Stack.toArray(new ComplexNumber[0]);
+		return p2Stack[getZoomLevel() - zoomLevel];
+	}
+
+	/**
+	 * Returns whether or not the zoom stack is dirty and needs a fresh thumbnail.
+	 *
+	 * @return a <CODE>boolean</CODE> indicating whether or not the zoom stack is dirty and needs a fresh thumbnail
+	 */
+	public boolean isDirty()
+	{
+		return fIsDirty;
+	}
+
+	/**
+	 * Returns the number of available zoom levels.
+	 *
+	 * @return the number of available zoom levels
+	 */
+	public int getNrOfZoomLevels()
+	{
+		return fP1Stack.size();
 	}
 
 	/**
@@ -156,8 +181,12 @@ public final class ZoomStack implements Cloneable
 	 */
 	public void pop()
 	{
-		fZoomP1Stack.pop();
-		fZoomP2Stack.pop();
+		fP1Stack.pop();
+		fP2Stack.pop();
+		int nrOfThumbnails = fThumbnails.size();
+		if (nrOfThumbnails > 0) {
+			fThumbnails.remove(nrOfThumbnails - 1);
+		}
 	}
 
 	/**
@@ -168,8 +197,39 @@ public final class ZoomStack implements Cloneable
 	 */
 	public void push(ComplexNumber p1, ComplexNumber p2)
 	{
-		fZoomP1Stack.push((ComplexNumber) p1.clone());
-		fZoomP2Stack.push((ComplexNumber) p2.clone());
+		fP1Stack.push((ComplexNumber) p1.clone());
+		fP2Stack.push((ComplexNumber) p2.clone());
+		fIsDirty = true;
+	}
+
+	/**
+	 * Adds a thumbnail to the thumbnail list.
+	 *
+	 * @param thumbnail  the thumbnail to add to the thumbnail list
+	 */
+	public void addThumbnail(Image thumbnail)
+	{
+		if (fIsDirty) {
+			fThumbnails.add(thumbnail);
+			fIsDirty = false;
+		}
+	}
+
+	/**
+	 * Returns a thumbnail from the thumbnail list.
+	 *
+	 * @param zoomLevel  the zoom level to get the thumbnail from
+	 * @return the thumbnail corresponding to the specified zoom level
+	 */
+	public Image getThumbnail(int zoomLevel)
+	{
+System.out.println("zoomStack::getThumbail() -> " + zoomLevel);
+		if (fThumbnails.size() > 0) {
+			return fThumbnails.get(zoomLevel - 1);
+		}
+		else {
+			return null;
+		}
 	}
 
 	/**
@@ -201,7 +261,10 @@ public final class ZoomStack implements Cloneable
 			double p2Y = Double.parseDouble(p2YDesc);
 
 			push(new ComplexNumber(p1X,p1Y),new ComplexNumber(p2X,p2Y));
+			addThumbnail(null);
 		}
+
+		fIsDirty = false;
 	}
 
 	/**
@@ -215,8 +278,8 @@ public final class ZoomStack implements Cloneable
 	{
 		TextFileWriter tfw = new TextFileWriter(filename);
 
-		Iterator<ComplexNumber> i1 = fZoomP1Stack.descendingIterator();
-		Iterator<ComplexNumber> i2 = fZoomP2Stack.descendingIterator();
+		Iterator<ComplexNumber> i1 = fP1Stack.descendingIterator();
+		Iterator<ComplexNumber> i2 = fP2Stack.descendingIterator();
 
 		while (i1.hasNext() && i2.hasNext()) {
 			ComplexNumber p1 = i1.next();
@@ -243,8 +306,8 @@ public final class ZoomStack implements Cloneable
 	{
 		ZoomStack zoomStack = new ZoomStack();
 
-		Iterator<ComplexNumber> i1 = fZoomP1Stack.descendingIterator();
-		Iterator<ComplexNumber> i2 = fZoomP2Stack.descendingIterator();
+		Iterator<ComplexNumber> i1 = fP1Stack.descendingIterator();
+		Iterator<ComplexNumber> i2 = fP2Stack.descendingIterator();
 
 		while (i1.hasNext() && i2.hasNext()) {
 			zoomStack.push((ComplexNumber) i1.next().clone(),(ComplexNumber) i2.next().clone());
