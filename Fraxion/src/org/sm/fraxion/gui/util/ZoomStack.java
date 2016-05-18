@@ -223,7 +223,6 @@ public final class ZoomStack implements Cloneable
 	 */
 	public Image getThumbnail(int zoomLevel)
 	{
-System.out.println("zoomStack::getThumbail() -> " + zoomLevel);
 		if (fThumbnails.size() > 0) {
 			return fThumbnails.get(zoomLevel - 1);
 		}

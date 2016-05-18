@@ -1,7 +1,7 @@
 // ---------------------------------
 // Filename      : FractalPanel.java
 // Author        : Sven Maerivoet
-// Last modified : 17/05/2016
+// Last modified : 19/05/2016
 // Target        : Java VM (1.8)
 // ---------------------------------
 
@@ -59,7 +59,7 @@ import org.sm.smtools.util.*;
  * <B>Note that this class cannot be subclassed!</B>
  * 
  * @author  Sven Maerivoet
- * @version 17/05/2016
+ * @version 19/05/2016
  */
 public final class FractalPanel extends JPanel
 {
@@ -2047,34 +2047,79 @@ public final class FractalPanel extends JPanel
 			int centerX = screenWidth / 2;
 			int centerY = screenHeight / 2;
 
+			FontMetrics fontMetrics = fRenderBufferGraphics.getFontMetrics();
+			int textHeight = fontMetrics.getHeight();
+
+			Color primaryGridLineColor = Color.LIGHT_GRAY;
+			Color labelBoxTextColor = Color.WHITE;
+			Color labelBoxBackgroundColor = Color.DARK_GRAY;
+			Color labelBoxBorderColor = null;
+			double labelBoxTransparency = 0.25;
+			int kLabelBoxOffset = 2;
+			int yOffset = textHeight + (2 * kLabelBoxOffset) + kTextInsetSize;
+
+			double realWidth = Math.abs(p2.realComponent() - p1.realComponent());
+			double realHeight = Math.abs(p2.imaginaryComponent() - p1.imaginaryComponent());
+
+			// draw secondary grid lines
 			fRenderBufferGraphics.setColor(Color.DARK_GRAY);
 			for (int i = 0; i < kMaxNrOfGridSpacesPerDimension; ++i) {
-				// draw horizontal grid lines
-				int xLeft = (int) Math.round((double) centerX + ((gridDelta / 2.0) * (double) i));
+				// draw vertical grid lines
+				int xLeft = (int) Math.round((double) centerX - ((gridDelta / 2.0) * (double) i));
 				fRenderBufferGraphics.drawLine(xLeft,0,xLeft,screenHeight - 1);
-				int xRight = (int) Math.round((double) centerX - ((gridDelta / 2.0) * (double) i));
+				int xRight = (int) Math.round((double) centerX + ((gridDelta / 2.0) * (double) i));
 				fRenderBufferGraphics.drawLine(xRight,0,xRight,screenHeight - 1);
 
-				// draw vertical grid lines
-				int yTop = (int) Math.round((double) centerY + ((gridDelta / 2.0) * (double) i));
-				fRenderBufferGraphics.drawLine(0,yTop,screenWidth - 1,yTop);
-				int yBottom = (int) Math.round((double) centerY - ((gridDelta / 2.0) * (double) i));
+				// draw horizontal grid lines
+				int yBottom = (int) Math.round((double) centerY + ((gridDelta / 2.0) * (double) i));
 				fRenderBufferGraphics.drawLine(0,yBottom,screenWidth - 1,yBottom);
+				int yTop = (int) Math.round((double) centerY - ((gridDelta / 2.0) * (double) i));
+				fRenderBufferGraphics.drawLine(0,yTop,screenWidth - 1,yTop);
 			} // for (int i = 0; i <= kMaxNrOfGridSpacesPerDimension; ++i)
 
-			fRenderBufferGraphics.setColor(Color.LIGHT_GRAY);
-			for (int i = 0; i < (kMaxNrOfGridSpacesPerDimension / 2); ++i) {
-				// draw horizontal grid lines
-				int xLeft = (int) Math.round((double) centerX + (gridDelta * (double) i));
-				fRenderBufferGraphics.drawLine(xLeft,0,xLeft,screenHeight - 1);
-				int xRight = (int) Math.round((double) centerX - (gridDelta * (double) i));
-				fRenderBufferGraphics.drawLine(xRight,0,xRight,screenHeight - 1);
+			// draw label at left edge
+			JLabelBox.drawLabel(fRenderBufferGraphics,labelBoxTextColor,labelBoxBackgroundColor,labelBoxBorderColor,labelBoxTransparency,
+					kTextInsetSize,(screenHeight / 2) + kTextInsetSize,kLabelBoxOffset,String.valueOf(p1.realComponent()));
 
+			// draw label at bottom edge
+			JLabelBox.drawLabel(fRenderBufferGraphics,labelBoxTextColor,labelBoxBackgroundColor,labelBoxBorderColor,labelBoxTransparency,
+				(screenWidth / 2) + kTextInsetSize,screenHeight - yOffset,kLabelBoxOffset,String.valueOf(p2.imaginaryComponent()));
+
+			// draw primary grid lines
+			for (int i = 0; i < (kMaxNrOfGridSpacesPerDimension / 2); ++i) {
 				// draw vertical grid lines
-				int yTop = (int) Math.round((double) centerY + (gridDelta * (double) i));
-				fRenderBufferGraphics.drawLine(0,yTop,screenWidth - 1,yTop);
-				int yBottom = (int) Math.round((double) centerY - (gridDelta * (double) i));
+				int xLeft = (int) Math.round((double) centerX - (gridDelta * (double) i));
+				fRenderBufferGraphics.setColor(primaryGridLineColor);
+				fRenderBufferGraphics.drawLine(xLeft,0,xLeft,screenHeight - 1);
+				double factor = (double) xLeft / (double) screenWidth;
+				double position = p1.realComponent() + (factor * realWidth);
+				JLabelBox.drawLabel(fRenderBufferGraphics,labelBoxTextColor,labelBoxBackgroundColor,labelBoxBorderColor,labelBoxTransparency,
+					xLeft + kTextInsetSize,(screenHeight / 2) + kTextInsetSize,kLabelBoxOffset,String.valueOf(position));
+
+				int xRight = (int) Math.round((double) centerX + (gridDelta * (double) i));
+				fRenderBufferGraphics.setColor(primaryGridLineColor);
+				fRenderBufferGraphics.drawLine(xRight,0,xRight,screenHeight - 1);
+				factor = (double) xRight / (double) screenWidth;
+				position = p1.realComponent() + (factor * realWidth);
+				JLabelBox.drawLabel(fRenderBufferGraphics,labelBoxTextColor,labelBoxBackgroundColor,labelBoxBorderColor,labelBoxTransparency,
+					xRight + kTextInsetSize,(screenHeight / 2) + kTextInsetSize,kLabelBoxOffset,String.valueOf(position));
+
+				// draw horizontal grid lines
+				int yBottom = (int) Math.round((double) centerY + (gridDelta * (double) i));
+				fRenderBufferGraphics.setColor(primaryGridLineColor);
 				fRenderBufferGraphics.drawLine(0,yBottom,screenWidth - 1,yBottom);
+				factor = (double) yBottom / (double) screenHeight;
+				position = p2.imaginaryComponent() - (factor * realHeight);
+				JLabelBox.drawLabel(fRenderBufferGraphics,labelBoxTextColor,labelBoxBackgroundColor,labelBoxBorderColor,labelBoxTransparency,
+					(screenWidth / 2) + kTextInsetSize,yBottom - yOffset,kLabelBoxOffset,String.valueOf(position));
+
+				int yTop = (int) Math.round((double) centerY - (gridDelta * (double) i));
+				fRenderBufferGraphics.setColor(primaryGridLineColor);
+				fRenderBufferGraphics.drawLine(0,yTop,screenWidth - 1,yTop);
+				factor = (double) yTop / (double) screenHeight;
+				position = p2.imaginaryComponent() - (factor * realHeight);
+				JLabelBox.drawLabel(fRenderBufferGraphics,labelBoxTextColor,labelBoxBackgroundColor,labelBoxBorderColor,labelBoxTransparency,
+					(screenWidth / 2) + kTextInsetSize,yTop - yOffset,kLabelBoxOffset,String.valueOf(position));
 			} // for (int i = 0; i <= kMaxNrOfGridSpacesPerDimension; ++i)
 
 			// draw a cross and dot in the centre of the screen
@@ -2084,23 +2129,10 @@ public final class FractalPanel extends JPanel
 			fRenderBufferGraphics.fillOval(centerX - kCenterDotRadius,centerY - kCenterDotRadius,2 * kCenterDotRadius,2 * kCenterDotRadius);
 
 			// show size of the visible extent in the complex plane
-			double realWidth = Math.abs(p2.realComponent() - p1.realComponent());
-			double realHeight = Math.abs(p2.imaginaryComponent() - p1.imaginaryComponent());
 			String visibleExtent = String.valueOf(realWidth) + " x " + String.valueOf(realHeight);
-			FontMetrics fontMetrics = fRenderBufferGraphics.getFontMetrics();
 			int textWidth = fontMetrics.stringWidth(visibleExtent);
-			int textHeight = fontMetrics.getHeight();
-			int locationX = centerX - (textWidth / 2) - kTextInsetSize;
-			int locationY = centerY + textHeight + kTextInsetSize;
-			int locationWidth = textWidth + (2 * kTextInsetSize);
-			int locationHeight = textHeight + (2 * (kTextInsetSize / 2));
-
-			fRenderBufferGraphics.setColor(Color.WHITE);
-			fRenderBufferGraphics.fillRect(locationX,locationY,locationWidth,locationHeight);
-
-			fRenderBufferGraphics.setColor(Color.BLACK);
-			fRenderBufferGraphics.drawRect(locationX,locationY,locationWidth,locationHeight);
-			fRenderBufferGraphics.drawString(visibleExtent,locationX + kTextInsetSize,locationY + textHeight);
+			JLabelBox.drawLabel(fRenderBufferGraphics,Color.BLACK,Color.WHITE,Color.BLACK,0.0,
+				screenWidth - kLabelBoxOffset - textWidth - (2 * kTextInsetSize),kLabelBoxOffset + textHeight,kLabelBoxOffset,visibleExtent);
 		} // if (fShowOverlayGrid)
 
 		if (!fZoomThumbnailSelectionMode && (fShowOrbits || fShowOrbitAnalyses)) {
