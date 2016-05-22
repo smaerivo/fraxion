@@ -1,7 +1,7 @@
 // ---------------------------------
 // Filename      : FractalPanel.java
 // Author        : Sven Maerivoet
-// Last modified : 19/05/2016
+// Last modified : 22/05/2016
 // Target        : Java VM (1.8)
 // ---------------------------------
 
@@ -59,7 +59,7 @@ import org.sm.smtools.util.*;
  * <B>Note that this class cannot be subclassed!</B>
  * 
  * @author  Sven Maerivoet
- * @version 19/05/2016
+ * @version 22/05/2016
  */
 public final class FractalPanel extends JPanel
 {
@@ -2081,9 +2081,23 @@ public final class FractalPanel extends JPanel
 			JLabelBox.drawLabel(fRenderBufferGraphics,labelBoxTextColor,labelBoxBackgroundColor,labelBoxBorderColor,labelBoxTransparency,
 					kTextInsetSize,(screenHeight / 2) + kTextInsetSize,kLabelBoxOffset,String.valueOf(p1.realComponent()));
 
+			double p1Y = p1.imaginaryComponent();
+			double p2Y = p2.imaginaryComponent();
+			double yFactor = 1.0;
+			if (fractalIterator.getInvertYAxis()) {
+				double dummy = p1Y;
+				p1Y = p2Y;
+				p2Y = dummy;
+				yFactor = -1.0;
+			}
+
 			// draw label at bottom edge
 			JLabelBox.drawLabel(fRenderBufferGraphics,labelBoxTextColor,labelBoxBackgroundColor,labelBoxBorderColor,labelBoxTransparency,
-				(screenWidth / 2) + kTextInsetSize,screenHeight - yOffset,kLabelBoxOffset,String.valueOf(p2.imaginaryComponent()));
+				(screenWidth / 2) + kTextInsetSize,screenHeight - kLabelBoxOffset - kTextInsetSize - textHeight,kLabelBoxOffset,String.valueOf(p1Y));
+
+			// draw label at top edge
+			JLabelBox.drawLabel(fRenderBufferGraphics,labelBoxTextColor,labelBoxBackgroundColor,labelBoxBorderColor,labelBoxTransparency,
+				(screenWidth / 2) + kTextInsetSize,kTextInsetSize,kLabelBoxOffset,String.valueOf(p2Y));
 
 			// draw primary grid lines
 			for (int i = 0; i < (kMaxNrOfGridSpacesPerDimension / 2); ++i) {
@@ -2108,18 +2122,22 @@ public final class FractalPanel extends JPanel
 				int yBottom = (int) Math.round((double) centerY + (gridDelta * (double) i));
 				fRenderBufferGraphics.setColor(primaryGridLineColor);
 				fRenderBufferGraphics.drawLine(0,yBottom,screenWidth - 1,yBottom);
-				factor = (double) yBottom / (double) screenHeight;
-				position = p2.imaginaryComponent() - (factor * realHeight);
-				JLabelBox.drawLabel(fRenderBufferGraphics,labelBoxTextColor,labelBoxBackgroundColor,labelBoxBorderColor,labelBoxTransparency,
-					(screenWidth / 2) + kTextInsetSize,yBottom - yOffset,kLabelBoxOffset,String.valueOf(position));
+				if (i < ((kMaxNrOfGridSpacesPerDimension / 2) - 2)) {
+					factor = (double) yBottom / (double) screenHeight;
+					position = p2Y - (yFactor * factor * realHeight);
+					JLabelBox.drawLabel(fRenderBufferGraphics,labelBoxTextColor,labelBoxBackgroundColor,labelBoxBorderColor,labelBoxTransparency,
+						(screenWidth / 2) + kTextInsetSize,yBottom - yOffset,kLabelBoxOffset,String.valueOf(position));
+				}
 
 				int yTop = (int) Math.round((double) centerY - (gridDelta * (double) i));
 				fRenderBufferGraphics.setColor(primaryGridLineColor);
 				fRenderBufferGraphics.drawLine(0,yTop,screenWidth - 1,yTop);
-				factor = (double) yTop / (double) screenHeight;
-				position = p2.imaginaryComponent() - (factor * realHeight);
-				JLabelBox.drawLabel(fRenderBufferGraphics,labelBoxTextColor,labelBoxBackgroundColor,labelBoxBorderColor,labelBoxTransparency,
-					(screenWidth / 2) + kTextInsetSize,yTop - yOffset,kLabelBoxOffset,String.valueOf(position));
+				if (i < ((kMaxNrOfGridSpacesPerDimension / 2) - 2)) {
+					factor = (double) yTop / (double) screenHeight;
+					position = p2Y - (yFactor * factor * realHeight);
+					JLabelBox.drawLabel(fRenderBufferGraphics,labelBoxTextColor,labelBoxBackgroundColor,labelBoxBorderColor,labelBoxTransparency,
+						(screenWidth / 2) + kTextInsetSize,yTop - yOffset,kLabelBoxOffset,String.valueOf(position));
+				}
 			} // for (int i = 0; i <= kMaxNrOfGridSpacesPerDimension; ++i)
 
 			// draw a cross and dot in the centre of the screen
@@ -2231,10 +2249,10 @@ public final class FractalPanel extends JPanel
 									// increase the orbit's points' colours from medium to bright yellow or green, depending on the orbit finality
 									float intensity = 0.5f + ((float) iteration / (float) nrOfIterations) / 2.0f;
 									if (iterationResult.liesInInterior()) {
-										fRenderBufferGraphics.setColor(new Color(intensity,intensity,0.0f));
+										fRenderBufferGraphics.setColor(new Color(0.0f,intensity,0.0f));
 									}
 									else {
-										fRenderBufferGraphics.setColor(new Color(0.0f,intensity,0.0f));
+										fRenderBufferGraphics.setColor(new Color(intensity,0.0f,0.0f));
 									}
 
 									// enlarge the orbit points in case no Y-coordinates are used
@@ -2368,7 +2386,7 @@ public final class FractalPanel extends JPanel
 								int[] graphX = new int[nrOfIterationsToShow];
 								int[] modulusGraphY = new int[nrOfIterationsToShow];
 								int[] angleGraphY = new int[nrOfIterationsToShow];
-								fRenderBufferGraphics.setColor(Color.RED);
+								fRenderBufferGraphics.setColor(Color.LIGHT_GRAY);
 								for (int iteration = 0; iteration < nrOfIterationsToShow; ++iteration) {
 									graphX[iteration] = panelX1 + (int) (((double) iteration / (double) nrOfIterationsToShow) * panelWidth);
 
@@ -2399,10 +2417,10 @@ public final class FractalPanel extends JPanel
 
 								// draw the orbits
 								if (iterationResult.liesInInterior()) {
-									fRenderBufferGraphics.setColor(Color.YELLOW);
+									fRenderBufferGraphics.setColor(Color.GREEN);
 								}
 								else {
-									fRenderBufferGraphics.setColor(Color.GREEN);
+									fRenderBufferGraphics.setColor(Color.RED);
 								}
 								for (int iteration = 0; iteration < nrOfIterationsToShow; ++iteration) {
 									fRenderBufferGraphics.fillOval(graphX[iteration] - (orbitDiametre / 2),modulusGraphY[iteration] - (orbitDiametre / 2),orbitDiametre,orbitDiametre);
@@ -2551,18 +2569,21 @@ public final class FractalPanel extends JPanel
 			}
 			textWidth = (int) Math.max(textWidth,fontMetrics.stringWidth(zoomLevelDesc));
 
+			String pixelAreaDesc = I18NL10N.translate("text.Fractal.PixelArea",String.valueOf(screenWidth),String.valueOf(screenHeight));
+			textWidth = (int) Math.max(textWidth,fontMetrics.stringWidth(pixelAreaDesc));
+
 			fRenderBufferGraphics.setColor(Color.WHITE);
 			fRenderBufferGraphics.fillRect(
 				vpX1 + kPanelOffset,
 				vpY1 + kPanelOffset,
 				textWidth + kTextOffset + kTextOffset,
-				kTextOffset + (4 * (kTextOffset + kLineHeight)) + textDescent);
+				kTextOffset + (5 * (kTextOffset + kLineHeight)) + textDescent);
 			fRenderBufferGraphics.setColor(Color.BLACK);
 			fRenderBufferGraphics.drawRect(
 				vpX1 + kPanelOffset,
 				vpY1 + kPanelOffset,
 				textWidth + kTextOffset + kTextOffset,
-				kTextOffset + (4 * (kTextOffset + kLineHeight)) + textDescent);
+				kTextOffset + (5 * (kTextOffset + kLineHeight)) + textDescent);
 			fRenderBufferGraphics.drawString(
 				fractalDesc,
 				vpX1 + kPanelOffset + kTextOffset,
@@ -2595,6 +2616,12 @@ public final class FractalPanel extends JPanel
 					vpX1 + kPanelOffset + kTextOffset,
 					vpY1 + kPanelOffset + (4 * (kTextOffset + kLineHeight)));
 			}
+			fRenderBufferGraphics.setColor(Color.BLACK);
+			fRenderBufferGraphics.drawString(
+				pixelAreaDesc,
+				vpX1 + kPanelOffset + kTextOffset,
+				vpY1 + kPanelOffset + (5 * (kTextOffset + kLineHeight)));
+
 		} // if (fShowZoomInformation)
 
 		// indicate whether or not the Y-axis is inverted
