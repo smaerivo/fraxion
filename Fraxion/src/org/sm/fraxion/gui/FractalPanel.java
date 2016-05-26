@@ -1,7 +1,7 @@
 // ---------------------------------
 // Filename      : FractalPanel.java
 // Author        : Sven Maerivoet
-// Last modified : 22/05/2016
+// Last modified : 26/05/2016
 // Target        : Java VM (1.8)
 // ---------------------------------
 
@@ -59,7 +59,7 @@ import org.sm.smtools.util.*;
  * <B>Note that this class cannot be subclassed!</B>
  * 
  * @author  Sven Maerivoet
- * @version 22/05/2016
+ * @version 26/05/2016
  */
 public final class FractalPanel extends JPanel
 {
@@ -2374,7 +2374,7 @@ public final class FractalPanel extends JPanel
 										orbitDiametre = kMaxOrbitDiametre;
 								}
 
-								float strokeWidth = orbitDiametre / 2.0f;
+								float strokeWidth = orbitDiametre / 1.5f;
 								if (strokeWidth < kMinStrokeWidth) {
 									strokeWidth = kMinStrokeWidth;
 								}
@@ -2386,7 +2386,7 @@ public final class FractalPanel extends JPanel
 								int[] graphX = new int[nrOfIterationsToShow];
 								int[] modulusGraphY = new int[nrOfIterationsToShow];
 								int[] angleGraphY = new int[nrOfIterationsToShow];
-								fRenderBufferGraphics.setColor(Color.LIGHT_GRAY);
+								fRenderBufferGraphics.setColor(Color.WHITE);
 								for (int iteration = 0; iteration < nrOfIterationsToShow; ++iteration) {
 									graphX[iteration] = panelX1 + (int) (((double) iteration / (double) nrOfIterationsToShow) * panelWidth);
 
