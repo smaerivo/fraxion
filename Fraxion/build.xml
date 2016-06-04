@@ -20,12 +20,12 @@
 		<javac srcdir="${srcDir}" destdir="${binDir}" includeantruntime="false">
 			<classpath>
 	    	<pathelement location="smtools.jar" />
-	    	<pathelement location="D:/Eclipse GIT Repositories/SMToolsRepository/SMTools/smtools.jar" />
-	    	<pathelement location="D:/Eclipse Workspace/Software Development/Log4j/log4j-all-1.3alpha-8.jar" />
-	    	<pathelement location="D:/Eclipse Workspace/Software Development/JLayer/jl1.0.1.jar" />
-	    	<pathelement location="D:/Eclipse Workspace/Software Development/Java Native Access 3.5.1/jna-3.5.1.jar" />
-	    	<pathelement location="D:/Eclipse Workspace/Software Development/Java Native Access 3.5.1/platform-3.5.1.jar" />
-				<pathelement location="D:/Eclipse Workspace/Software Development/Java Help 2.0/javahelp/lib/jhbasic.jar" />
+	    	<pathelement location="E:/Eclipse GIT Repositories/SMToolsRepository/SMTools/smtools.jar" />
+	    	<pathelement location="E:/Eclipse Workspace/Software Development/Log4j/log4j-all-1.3alpha-8.jar" />
+	    	<pathelement location="E:/Eclipse Workspace/Software Development/JLayer/jl1.0.1.jar" />
+	    	<pathelement location="E:/Eclipse Workspace/Software Development/Java Native Access 3.5.1/jna-3.5.1.jar" />
+	    	<pathelement location="E:/Eclipse Workspace/Software Development/Java Native Access 3.5.1/platform-3.5.1.jar" />
+			<pathelement location="E:/Eclipse Workspace/Software Development/Java Help 2.0/javahelp/lib/jhbasic.jar" />
 	    </classpath>
 			<compilerarg value="-Xlint:deprecation" />
 			<compilerarg value="-Xlint:unchecked" />
@@ -85,9 +85,9 @@
 			<group title="Fractals" packages="fraxion.fractals:fraxion.fractals.convergent:fraxion.fractals.divergent:fraxion.fractals.magnet:fraxion.fractals.markuslyapunov:fraxion.fractals.util" />
 		  <classpath>
 		    <pathelement path="${classpath}"/>
-	    	<pathelement location="D:/Eclipse Workspace/Software Development/Java Help 2.0/javahelp/lib/jhbasic.jar" />
-		    <pathelement location="D:/Eclipse GIT Repositories/SMToolsRepository/SMTools/smtools.jar" />
-	    	<pathelement location="D:/Eclipse Workspace/Software Development/Log4j/log4j-all-1.3alpha-8.jar" />
+	    	<pathelement location="E:/Eclipse Workspace/Software Development/Java Help 2.0/javahelp/lib/jhbasic.jar" />
+		    <pathelement location="E:/Eclipse GIT Repositories/SMToolsRepository/SMTools/smtools.jar" />
+	    	<pathelement location="E:/Eclipse Workspace/Software Development/Log4j/log4j-all-1.3alpha-8.jar" />
 		  </classpath>
 		</javadoc>
 	</target>

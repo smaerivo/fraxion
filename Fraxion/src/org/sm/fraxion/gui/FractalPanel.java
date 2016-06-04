@@ -1,7 +1,7 @@
 // ---------------------------------
 // Filename      : FractalPanel.java
 // Author        : Sven Maerivoet
-// Last modified : 26/05/2016
+// Last modified : 04/06/2016
 // Target        : Java VM (1.8)
 // ---------------------------------
 
@@ -59,7 +59,7 @@ import org.sm.smtools.util.*;
  * <B>Note that this class cannot be subclassed!</B>
  * 
  * @author  Sven Maerivoet
- * @version 26/05/2016
+ * @version 04/06/2016
  */
 public final class FractalPanel extends JPanel
 {
@@ -2569,7 +2569,14 @@ public final class FractalPanel extends JPanel
 			}
 			textWidth = (int) Math.max(textWidth,fontMetrics.stringWidth(zoomLevelDesc));
 
-			String pixelAreaDesc = I18NL10N.translate("text.Fractal.PixelArea",String.valueOf(screenWidth),String.valueOf(screenHeight));
+			long pixelArea = (long) screenWidth * (long) screenHeight;
+			int pixelAreaOrderExponent = (int) (Math.round(Math.log10(pixelArea) - 1.0));
+			int pixelAreaOrderMantissa = (int) Math.round((double) pixelArea / Math.pow(10.0,pixelAreaOrderExponent));
+			String pixelAreaDesc = I18NL10N.translate("text.Fractal.PixelArea",
+				String.valueOf(screenWidth),
+				String.valueOf(screenHeight),
+				String.valueOf(pixelAreaOrderMantissa),
+				String.valueOf(pixelAreaOrderExponent));
 			textWidth = (int) Math.max(textWidth,fontMetrics.stringWidth(pixelAreaDesc));
 
 			fRenderBufferGraphics.setColor(Color.WHITE);
