@@ -1,7 +1,7 @@
 // -------------------------------
 // Filename      : FraxionGUI.java
 // Author        : Sven Maerivoet
-// Last modified : 17/05/2016
+// Last modified : 04/06/2016
 // Target        : Java VM (1.8)
 // -------------------------------
 
@@ -60,7 +60,7 @@ import org.sm.smtools.util.*;
  * <B>Note that this class cannot be subclassed!</B>
  *
  * @author  Sven Maerivoet
- * @version 17/05/2016
+ * @version 04/06/2016
  */
 public final class FraxionGUI extends JStandardGUIApplication implements ActionListener, MouseListener, MouseMotionListener
 {
@@ -128,6 +128,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 	private static final String kActionCommandMenuItemFractalShowOrbitsToggle = kActionCommandMenuItemFractalShowOrbits + ".Toggle";
 	private static final String kActionCommandMenuItemFractalShowOrbitPaths = "menuItem.Fractal.ShowOrbitPaths";
 	private static final String kActionCommandMenuItemFractalScaleOrbitsToScreen = "menuItem.Fractal.ScaleOrbitsToScreen";
+	private static final String kActionCommandMenuItemFractalScaleOrbitsToScreenToggle = kActionCommandMenuItemFractalScaleOrbitsToScreen + ".Toggle";
 	private static final String kActionCommandMenuItemFractalShowOrbitAnalyses = "menuItem.Fractal.ShowOrbitAnalyses";
 	private static final String kActionCommandMenuItemFractalShowOrbitAnalysesToggle = kActionCommandMenuItemFractalShowOrbitAnalyses + ".Toggle";
 	private static final String kActionCommandMenuItemFractalShowIterationDistribution = "menuItem.Fractal.ShowIterationDistribution";
@@ -1241,6 +1242,15 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemFractalScaleOrbitsToScreen)) {
 			fFractalPanel.setScaleOrbitsToScreen(fMenuItems.get(kActionCommandMenuItemFractalScaleOrbitsToScreen).isSelected());
+			// also show orbits simultaneously
+			if (fMenuItems.get(kActionCommandMenuItemFractalScaleOrbitsToScreen).isSelected()) {
+				fMenuItems.get(kActionCommandMenuItemFractalShowOrbits).setSelected(true);
+				fFractalPanel.setShowOrbits(true);
+			}
+		}
+		else if (command.equalsIgnoreCase(kActionCommandMenuItemFractalScaleOrbitsToScreenToggle)) {
+			fFractalPanel.setScaleOrbitsToScreen(fToolBarToggles.get(kActionCommandMenuItemFractalScaleOrbitsToScreenToggle).isSelected());
+			fMenuItems.get(kActionCommandMenuItemFractalScaleOrbitsToScreen).setSelected(fToolBarToggles.get(kActionCommandMenuItemFractalScaleOrbitsToScreenToggle).isSelected());
 			// also show orbits simultaneously
 			if (fMenuItems.get(kActionCommandMenuItemFractalScaleOrbitsToScreen).isSelected()) {
 				fMenuItems.get(kActionCommandMenuItemFractalShowOrbits).setSelected(true);
@@ -3497,6 +3507,12 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 					toggleButton.setActionCommand(kActionCommandMenuItemFractalShowOrbitsToggle);
 					toggleButton.addActionListener(this);
 					fToolBarToggles.put(kActionCommandMenuItemFractalShowOrbitsToggle,toggleButton);
+				fToolBar.add(toggleButton);
+					toggleButton = new JToggleButton(new ImageIcon(fResources.getImage("application-resources/icons/toggle-orbits-scaled-icon.png")));
+					toggleButton.setToolTipText(I18NL10N.translate(kActionCommandMenuItemFractalScaleOrbitsToScreen));
+					toggleButton.setActionCommand(kActionCommandMenuItemFractalScaleOrbitsToScreenToggle);
+					toggleButton.addActionListener(this);
+					fToolBarToggles.put(kActionCommandMenuItemFractalScaleOrbitsToScreenToggle,toggleButton);
 				fToolBar.add(toggleButton);
 					toggleButton = new JToggleButton(new ImageIcon(fResources.getImage("application-resources/icons/toggle-orbit-analyses-icon.png")));
 					toggleButton.setToolTipText(I18NL10N.translate(kActionCommandMenuItemFractalShowOrbitAnalyses));

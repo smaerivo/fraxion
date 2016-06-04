@@ -13,5 +13,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/Java Help 2.0"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Java Native Access 3.5.1"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/QuaQua Look-and-Feel"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/BigDecimalMath"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
