@@ -1,7 +1,7 @@
 // -------------------------------
 // Filename      : FraxionGUI.java
 // Author        : Sven Maerivoet
-// Last modified : 04/06/2016
+// Last modified : 08/06/2016
 // Target        : Java VM (1.8)
 // -------------------------------
 
@@ -60,7 +60,7 @@ import org.sm.smtools.util.*;
  * <B>Note that this class cannot be subclassed!</B>
  *
  * @author  Sven Maerivoet
- * @version 04/06/2016
+ * @version 08/06/2016
  */
 public final class FraxionGUI extends JStandardGUIApplication implements ActionListener, MouseListener, MouseMotionListener
 {
@@ -1238,6 +1238,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			if (fMenuItems.get(kActionCommandMenuItemFractalShowOrbitPaths).isSelected()) {
 				fMenuItems.get(kActionCommandMenuItemFractalShowOrbits).setSelected(true);
 				fFractalPanel.setShowOrbits(true);
+				fToolBarToggles.get(kActionCommandMenuItemFractalShowOrbitsToggle).setSelected(fMenuItems.get(kActionCommandMenuItemFractalShowOrbits).isSelected());
 			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemFractalScaleOrbitsToScreen)) {
@@ -1246,6 +1247,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			if (fMenuItems.get(kActionCommandMenuItemFractalScaleOrbitsToScreen).isSelected()) {
 				fMenuItems.get(kActionCommandMenuItemFractalShowOrbits).setSelected(true);
 				fFractalPanel.setShowOrbits(true);
+				fToolBarToggles.get(kActionCommandMenuItemFractalShowOrbitsToggle).setSelected(fMenuItems.get(kActionCommandMenuItemFractalShowOrbits).isSelected());
 			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemFractalScaleOrbitsToScreenToggle)) {
@@ -1255,6 +1257,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			if (fMenuItems.get(kActionCommandMenuItemFractalScaleOrbitsToScreen).isSelected()) {
 				fMenuItems.get(kActionCommandMenuItemFractalShowOrbits).setSelected(true);
 				fFractalPanel.setShowOrbits(true);
+				fToolBarToggles.get(kActionCommandMenuItemFractalShowOrbitsToggle).setSelected(fMenuItems.get(kActionCommandMenuItemFractalShowOrbits).isSelected());
 			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemFractalShowOrbitAnalyses)) {
