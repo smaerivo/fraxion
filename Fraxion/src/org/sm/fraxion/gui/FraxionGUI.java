@@ -2772,6 +2772,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			coloringParameters.fExteriorGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kBlackAndWhite);
 			coloringParameters.fExteriorColoringMethod = ColoringParameters.EColoringMethod.kSectorDecomposition;
 			coloringParameters.fColorMapExteriorSectorDecompositionRange = 2;
+			fToolBarToggles.get(kActionCommandMenuItemColorMapUseRankOrderScalingToggle).setSelected(false);
 
 			// disable tiger striping
 			coloringParameters.fUseTigerStripes = false;
@@ -2836,6 +2837,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			coloringParameters.fExteriorColorMapWrappedAround = false;
 			coloringParameters.fExteriorGradientColorMap.setColorMap(JGradientColorMap.EColorMap.kJet);
 			coloringParameters.fExteriorColoringMethod = ColoringParameters.EColoringMethod.kSmoothNICLevelSets;
+			fToolBarToggles.get(kActionCommandMenuItemColorMapUseRankOrderScalingToggle).setSelected(false);
 
 			// disable tiger striping
 			coloringParameters.fUseTigerStripes = false;
