@@ -1,7 +1,7 @@
 // -------------------------------
 // Filename      : FraxionGUI.java
 // Author        : Sven Maerivoet
-// Last modified : 08/06/2016
+// Last modified : 10/07/2016
 // Target        : Java VM (1.8)
 // -------------------------------
 
@@ -60,7 +60,7 @@ import org.sm.smtools.util.*;
  * <B>Note that this class cannot be subclassed!</B>
  *
  * @author  Sven Maerivoet
- * @version 08/06/2016
+ * @version 10/07/2016
  */
 public final class FraxionGUI extends JStandardGUIApplication implements ActionListener, MouseListener, MouseMotionListener
 {
@@ -82,6 +82,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 	private static final String kActionCommandMenuItemFileLoadZoomStack = "menuItem.File.LoadZoomStack";
 	private static final String kActionCommandMenuItemFileSaveZoomStack = "menuItem.File.SaveZoomStack";
 	private static final String kActionCommandMenuItemFileSaveZoomAnimationSequence = "menuItem.File.SaveZoomAnimationSequence";
+	private static final String kActionCommandMenuItemFilePrintFractal = "menuItem.File.PrintFractal";
 
 	private static final String kActionCommandMenuItemNavigationPanLeft = "menuItem.Navigation.PanLeft";
 	private static final String kActionCommandMenuItemNavigationPanRight = "menuItem.Navigation.PanRight";
@@ -1022,6 +1023,9 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			JIncompleteWarningDialog.warn(this,"GUIApplication::actionPerformed()");
 			// resetZoom();
 			// push new coords(); => zoomToStack()
+		}
+		else if (command.equalsIgnoreCase(kActionCommandMenuItemFilePrintFractal)) {
+//XXX Print fractal (menu)
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemNavigationPanLeft)) {
 			fFractalPanel.pan(FractalPanel.EPanDirection.kLeft,fNavigationPanningSize,fMenuItems.get(kActionCommandMenuItemNavigationInvertPanningDirections).isSelected());
@@ -3421,182 +3425,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			fFractalPanel.setViewport(fFractalScrollPane.getViewport());
 		contentPane.add(fFractalScrollPane,BorderLayout.CENTER);
 
-		// create the toolbar
-		JButton button = null;
-		JToggleButton toggleButton = null;
-		final int kSeparatorSpacing = 5;
-		fToolBarToggles = new HashMap<String,AbstractButton>();
-			fToolBar = new JToolBar(I18NL10N.translate("toolBar.QuickAccess.Title"));
-			try {
-					button = new JButton (new ImageIcon(fResources.getImage("application-resources/icons/load-parameters-icon.png")));
-					button.setToolTipText(I18NL10N.translate(kActionCommandMenuItemFileLoadFractalParameters));
-					button.setActionCommand(kActionCommandMenuItemFileLoadFractalParameters);
-					button.addActionListener(this);
-				fToolBar.add(button);
-					button = new JButton (new ImageIcon(fResources.getImage("application-resources/icons/save-parameters-icon.png")));
-					button.setToolTipText(I18NL10N.translate(kActionCommandMenuItemFileSaveFractalParameters));
-					button.setActionCommand(kActionCommandMenuItemFileSaveFractalParameters);
-					button.addActionListener(this);
-				fToolBar.add(button);
-					button = new JButton (new ImageIcon(fResources.getImage("application-resources/icons/export-to-png-icon.png")));
-					button.setToolTipText(I18NL10N.translate(kActionCommandMenuItemFileExportToPNG));
-					button.setActionCommand(kActionCommandMenuItemFileExportToPNG);
-					button.addActionListener(this);
-				fToolBar.add(button);
-
-				fToolBar.add(Box.createRigidArea(new Dimension(kSeparatorSpacing,0)));
-				fToolBar.addSeparator();
-				fToolBar.add(Box.createRigidArea(new Dimension(kSeparatorSpacing,0)));
-
-					toggleButton = new JToggleButton(new ImageIcon(fResources.getImage("application-resources/icons/toggle-zoom-information-icon.png")));
-					toggleButton.setToolTipText(I18NL10N.translate(kActionCommandMenuItemNavigationShowZoomInformation));
-					toggleButton.setSelected(true);
-					toggleButton.setActionCommand(kActionCommandMenuItemNavigationShowZoomInformationToggle);
-					toggleButton.addActionListener(this);
-					fToolBarToggles.put(kActionCommandMenuItemNavigationShowZoomInformationToggle,toggleButton);
-				fToolBar.add(toggleButton);
-					toggleButton = new JToggleButton(new ImageIcon(fResources.getImage("application-resources/icons/toggle-axes-icon.png")));
-					toggleButton.setToolTipText(I18NL10N.translate(kActionCommandMenuItemNavigationShowAxes));
-					toggleButton.setActionCommand(kActionCommandMenuItemNavigationShowAxesToggle);
-					toggleButton.addActionListener(this);
-					fToolBarToggles.put(kActionCommandMenuItemNavigationShowAxesToggle,toggleButton);
-				fToolBar.add(toggleButton);
-					toggleButton = new JToggleButton(new ImageIcon(fResources.getImage("application-resources/icons/toggle-overlay-grid-icon.png")));
-					toggleButton.setToolTipText(I18NL10N.translate(kActionCommandMenuItemNavigationShowOverlayGrid));
-					toggleButton.setActionCommand(kActionCommandMenuItemNavigationShowOverlayGridToggle);
-					toggleButton.addActionListener(this);
-					fToolBarToggles.put(kActionCommandMenuItemNavigationShowOverlayGridToggle,toggleButton);
-				fToolBar.add(toggleButton);
-					toggleButton = new JToggleButton(new ImageIcon(fResources.getImage("application-resources/icons/toggle-current-location-icon.png")));
-					toggleButton.setToolTipText(I18NL10N.translate(kActionCommandMenuItemNavigationShowCurrentLocation));
-					toggleButton.setSelected(true);
-					toggleButton.setActionCommand(kActionCommandMenuItemNavigationShowCurrentLocationToggle);
-					toggleButton.addActionListener(this);
-					fToolBarToggles.put(kActionCommandMenuItemNavigationShowCurrentLocationToggle,toggleButton);
-				fToolBar.add(toggleButton);
-					toggleButton = new JToggleButton(new ImageIcon(fResources.getImage("application-resources/icons/toggle-magnifying-glass-icon.png")));
-					toggleButton.setToolTipText(I18NL10N.translate(kActionCommandMenuItemNavigationShowMagnifyingGlass));
-					toggleButton.setActionCommand(kActionCommandMenuItemNavigationShowMagnifyingGlassToggle);
-					toggleButton.addActionListener(this);
-					fToolBarToggles.put(kActionCommandMenuItemNavigationShowMagnifyingGlassToggle,toggleButton);
-				fToolBar.add(toggleButton);
-
-				fToolBar.add(Box.createRigidArea(new Dimension(kSeparatorSpacing,0)));
-				fToolBar.addSeparator();
-				fToolBar.add(Box.createRigidArea(new Dimension(kSeparatorSpacing,0)));
-
-					button = new JButton (new ImageIcon(fResources.getImage("application-resources/icons/specify-screen-bounds-icon.png")));
-					button.setToolTipText(I18NL10N.translate(kActionCommandMenuItemNavigationSpecifyScreenBounds));
-					button.setActionCommand(kActionCommandMenuItemNavigationSpecifyScreenBounds);
-					button.addActionListener(this);
-				fToolBar.add(button);
-					button = new JButton (new ImageIcon(fResources.getImage("application-resources/icons/specify-complex-bounds-icon.png")));
-					button.setToolTipText(I18NL10N.translate(kActionCommandMenuItemNavigationSpecifyComplexBounds));
-					button.setActionCommand(kActionCommandMenuItemNavigationSpecifyComplexBounds);
-					button.addActionListener(this);
-				fToolBar.add(button);
-
-				fToolBar.add(Box.createRigidArea(new Dimension(kSeparatorSpacing,0)));
-				fToolBar.addSeparator();
-				fToolBar.add(Box.createRigidArea(new Dimension(kSeparatorSpacing,0)));
-
-					toggleButton = new JToggleButton(new ImageIcon(fResources.getImage("application-resources/icons/toggle-inset-icon.png")));
-					toggleButton.setToolTipText(I18NL10N.translate(kActionCommandMenuItemFractalShowInset));
-					toggleButton.setSelected(true);
-					toggleButton.setActionCommand(kActionCommandMenuItemFractalShowInsetToggle);
-					toggleButton.addActionListener(this);
-					fToolBarToggles.put(kActionCommandMenuItemFractalShowInsetToggle,toggleButton);
-				fToolBar.add(toggleButton);
-					toggleButton = new JToggleButton(new ImageIcon(fResources.getImage("application-resources/icons/toggle-orbits-icon.png")));
-					toggleButton.setToolTipText(I18NL10N.translate(kActionCommandMenuItemFractalShowOrbits));
-					toggleButton.setActionCommand(kActionCommandMenuItemFractalShowOrbitsToggle);
-					toggleButton.addActionListener(this);
-					fToolBarToggles.put(kActionCommandMenuItemFractalShowOrbitsToggle,toggleButton);
-				fToolBar.add(toggleButton);
-					toggleButton = new JToggleButton(new ImageIcon(fResources.getImage("application-resources/icons/toggle-orbits-scaled-icon.png")));
-					toggleButton.setToolTipText(I18NL10N.translate(kActionCommandMenuItemFractalScaleOrbitsToScreen));
-					toggleButton.setActionCommand(kActionCommandMenuItemFractalScaleOrbitsToScreenToggle);
-					toggleButton.addActionListener(this);
-					fToolBarToggles.put(kActionCommandMenuItemFractalScaleOrbitsToScreenToggle,toggleButton);
-				fToolBar.add(toggleButton);
-					toggleButton = new JToggleButton(new ImageIcon(fResources.getImage("application-resources/icons/toggle-orbit-analyses-icon.png")));
-					toggleButton.setToolTipText(I18NL10N.translate(kActionCommandMenuItemFractalShowOrbitAnalyses));
-					toggleButton.setActionCommand(kActionCommandMenuItemFractalShowOrbitAnalysesToggle);
-					toggleButton.addActionListener(this);
-					fToolBarToggles.put(kActionCommandMenuItemFractalShowOrbitAnalysesToggle,toggleButton);
-				fToolBar.add(toggleButton);
-
-				fToolBar.add(Box.createRigidArea(new Dimension(kSeparatorSpacing,0)));
-				fToolBar.addSeparator();
-				fToolBar.add(Box.createRigidArea(new Dimension(kSeparatorSpacing,0)));
-
-					button = new JButton (new ImageIcon(fResources.getImage("application-resources/icons/specify-number-of-iterations-icon.png")));
-					button.setToolTipText(I18NL10N.translate(kActionCommandMenuItemFractalSetMaxNrOfIterations));
-					button.setActionCommand(kActionCommandMenuItemFractalSetMaxNrOfIterations);
-					button.addActionListener(this);
-				fToolBar.add(button);
-					button = new JButton (new ImageIcon(fResources.getImage("application-resources/icons/specify-escape-radius-icon.png")));
-					button.setToolTipText(I18NL10N.translate(kActionCommandMenuItemFractalSetEscapeRadius));
-					button.setActionCommand(kActionCommandMenuItemFractalSetEscapeRadius);
-					button.addActionListener(this);
-				fToolBar.add(button);
-
-				fToolBar.add(Box.createRigidArea(new Dimension(kSeparatorSpacing,0)));
-				fToolBar.addSeparator();
-				fToolBar.add(Box.createRigidArea(new Dimension(kSeparatorSpacing,0)));
-
-					button = new JButton (new ImageIcon(fResources.getImage("application-resources/icons/use-binary-decomposition-icon.png")));
-					button.setToolTipText(I18NL10N.translate(kActionCommandMenuItemColorMapUseBinaryDecomposition));
-					button.setActionCommand(kActionCommandMenuItemColorMapUseBinaryDecomposition);
-					button.addActionListener(this);
-				fToolBar.add(button);
-					button = new JButton (new ImageIcon(fResources.getImage("application-resources/icons/reset-to-default-icon.png")));
-					button.setToolTipText(I18NL10N.translate(kActionCommandMenuItemColorMapResetToDefault));
-					button.setActionCommand(kActionCommandMenuItemColorMapResetToDefault);
-					button.addActionListener(this);
-				fToolBar.add(button);
-					toggleButton = new JToggleButton(new ImageIcon(fResources.getImage("application-resources/icons/toggle-rank-order-scaling-icon.png")));
-					toggleButton.setToolTipText(I18NL10N.translate(kActionCommandMenuItemColorMapUseRankOrderScaling));
-					toggleButton.setActionCommand(kActionCommandMenuItemColorMapUseRankOrderScalingToggle);
-					toggleButton.addActionListener(this);
-					fToolBarToggles.put(kActionCommandMenuItemColorMapUseRankOrderScalingToggle,toggleButton);
-				fToolBar.add(toggleButton);
-					toggleButton = new JToggleButton(new ImageIcon(fResources.getImage("application-resources/icons/toggle-restrict-high-iteration-counts-icon.png")));
-					toggleButton.setToolTipText(I18NL10N.translate(kActionCommandMenuItemColorMapRestrictHighIterationCountColors));
-					toggleButton.setActionCommand(kActionCommandMenuItemColorMapRestrictHighIterationCountColorsToggle);
-					toggleButton.addActionListener(this);
-					toggleButton.setSelected(true);
-					toggleButton.setEnabled(false);
-					fToolBarToggles.put(kActionCommandMenuItemColorMapRestrictHighIterationCountColorsToggle,toggleButton);
-				fToolBar.add(toggleButton);
-					button = new JButton (new ImageIcon(fResources.getImage("application-resources/icons/set-random-exterior-colormap-icon.png")));
-					button.setToolTipText(I18NL10N.translate(kActionCommandMenuItemColorMapExteriorRandom));
-					button.setActionCommand(kActionCommandMenuItemColorMapExteriorRandom);
-					button.addActionListener(this);
-				fToolBar.add(button);
-					button = new JButton (new ImageIcon(fResources.getImage("application-resources/icons/setup-post-processing-filters-icon.png")));
-					button.setToolTipText(I18NL10N.translate(kActionCommandMenuItemColorSetupPostProcessingFilters));
-					button.setActionCommand(kActionCommandMenuItemColorSetupPostProcessingFilters);
-					button.addActionListener(this);
-				fToolBar.add(button);
-
-				fToolBar.add(Box.createRigidArea(new Dimension(kSeparatorSpacing,0)));
-				fToolBar.addSeparator();
-				fToolBar.add(Box.createRigidArea(new Dimension(kSeparatorSpacing,0)));
-				
-					button = new JButton (new ImageIcon(fResources.getImage("application-resources/icons/help-general-information-icon.png")));
-					button.setToolTipText(I18NL10N.translate(kActionCommandMenuItemHelpGeneralInformation));
-					button.setActionCommand(kActionCommandMenuItemHelpGeneralInformation);
-					button.addActionListener(this);
-				fToolBar.add(button);
-			}
-			catch (FileDoesNotExistException exc) {
-				// ignore
-			}
-			fToolBar.setFloatable(true);
-			fToolBar.setRollover(true);
-
-		contentPane.add(fToolBar,BorderLayout.NORTH);
+		contentPane.add(getToolBar(),BorderLayout.NORTH);
 	}
 
 	/**
@@ -3669,6 +3498,12 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 				menuItem.addActionListener(this);
 			menu.add(menuItem);
 */
+			menu.addSeparator();
+
+				menuItem = constructMenuItem(kActionCommandMenuItemFilePrintFractal,false);
+				menuItem.setActionCommand(kActionCommandMenuItemFilePrintFractal);
+				menuItem.addActionListener(this);
+			menu.add(menuItem);
 		menus.add(menu);
 
 			// navigation menu
@@ -3800,7 +3635,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 				menuItem.addActionListener(this);
 			menu.add(menuItem);
 		menus.add(menu);
-//TTT
+
 			// fractal menu
 			menu = new JMenu(I18NL10N.translate("menu.Fractal"));
 			menu.setMnemonic(I18NL10N.translateMnemonic(I18NL10N.translate("menu.Fractal.Mnemonic")));
@@ -6304,6 +6139,187 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 		defaultFilename = defaultFilename.toLowerCase();
 
 		return defaultFilename;
+	}
+
+	/**
+	 */
+	private JToolBar getToolBar()
+	{
+		JButton button = null;
+		JToggleButton toggleButton = null;
+		final int kSeparatorSpacing = 5;
+		fToolBarToggles = new HashMap<String,AbstractButton>();
+			fToolBar = new JToolBar(I18NL10N.translate("toolBar.QuickAccess.Title"));
+			try {
+					button = new JButton (new ImageIcon(fResources.getImage("application-resources/icons/load-parameters-icon.png")));
+					button.setToolTipText(I18NL10N.translate(kActionCommandMenuItemFileLoadFractalParameters));
+					button.setActionCommand(kActionCommandMenuItemFileLoadFractalParameters);
+					button.addActionListener(this);
+				fToolBar.add(button);
+					button = new JButton (new ImageIcon(fResources.getImage("application-resources/icons/save-parameters-icon.png")));
+					button.setToolTipText(I18NL10N.translate(kActionCommandMenuItemFileSaveFractalParameters));
+					button.setActionCommand(kActionCommandMenuItemFileSaveFractalParameters);
+					button.addActionListener(this);
+				fToolBar.add(button);
+					button = new JButton (new ImageIcon(fResources.getImage("application-resources/icons/export-to-png-icon.png")));
+					button.setToolTipText(I18NL10N.translate(kActionCommandMenuItemFileExportToPNG));
+					button.setActionCommand(kActionCommandMenuItemFileExportToPNG);
+					button.addActionListener(this);
+				fToolBar.add(button);
+
+				fToolBar.add(Box.createRigidArea(new Dimension(kSeparatorSpacing,0)));
+				fToolBar.addSeparator();
+				fToolBar.add(Box.createRigidArea(new Dimension(kSeparatorSpacing,0)));
+
+					toggleButton = new JToggleButton(new ImageIcon(fResources.getImage("application-resources/icons/toggle-zoom-information-icon.png")));
+					toggleButton.setToolTipText(I18NL10N.translate(kActionCommandMenuItemNavigationShowZoomInformation));
+					toggleButton.setSelected(true);
+					toggleButton.setActionCommand(kActionCommandMenuItemNavigationShowZoomInformationToggle);
+					toggleButton.addActionListener(this);
+					fToolBarToggles.put(kActionCommandMenuItemNavigationShowZoomInformationToggle,toggleButton);
+				fToolBar.add(toggleButton);
+					toggleButton = new JToggleButton(new ImageIcon(fResources.getImage("application-resources/icons/toggle-axes-icon.png")));
+					toggleButton.setToolTipText(I18NL10N.translate(kActionCommandMenuItemNavigationShowAxes));
+					toggleButton.setActionCommand(kActionCommandMenuItemNavigationShowAxesToggle);
+					toggleButton.addActionListener(this);
+					fToolBarToggles.put(kActionCommandMenuItemNavigationShowAxesToggle,toggleButton);
+				fToolBar.add(toggleButton);
+					toggleButton = new JToggleButton(new ImageIcon(fResources.getImage("application-resources/icons/toggle-overlay-grid-icon.png")));
+					toggleButton.setToolTipText(I18NL10N.translate(kActionCommandMenuItemNavigationShowOverlayGrid));
+					toggleButton.setActionCommand(kActionCommandMenuItemNavigationShowOverlayGridToggle);
+					toggleButton.addActionListener(this);
+					fToolBarToggles.put(kActionCommandMenuItemNavigationShowOverlayGridToggle,toggleButton);
+				fToolBar.add(toggleButton);
+					toggleButton = new JToggleButton(new ImageIcon(fResources.getImage("application-resources/icons/toggle-current-location-icon.png")));
+					toggleButton.setToolTipText(I18NL10N.translate(kActionCommandMenuItemNavigationShowCurrentLocation));
+					toggleButton.setSelected(true);
+					toggleButton.setActionCommand(kActionCommandMenuItemNavigationShowCurrentLocationToggle);
+					toggleButton.addActionListener(this);
+					fToolBarToggles.put(kActionCommandMenuItemNavigationShowCurrentLocationToggle,toggleButton);
+				fToolBar.add(toggleButton);
+					toggleButton = new JToggleButton(new ImageIcon(fResources.getImage("application-resources/icons/toggle-magnifying-glass-icon.png")));
+					toggleButton.setToolTipText(I18NL10N.translate(kActionCommandMenuItemNavigationShowMagnifyingGlass));
+					toggleButton.setActionCommand(kActionCommandMenuItemNavigationShowMagnifyingGlassToggle);
+					toggleButton.addActionListener(this);
+					fToolBarToggles.put(kActionCommandMenuItemNavigationShowMagnifyingGlassToggle,toggleButton);
+				fToolBar.add(toggleButton);
+
+				fToolBar.add(Box.createRigidArea(new Dimension(kSeparatorSpacing,0)));
+				fToolBar.addSeparator();
+				fToolBar.add(Box.createRigidArea(new Dimension(kSeparatorSpacing,0)));
+
+					button = new JButton (new ImageIcon(fResources.getImage("application-resources/icons/specify-screen-bounds-icon.png")));
+					button.setToolTipText(I18NL10N.translate(kActionCommandMenuItemNavigationSpecifyScreenBounds));
+					button.setActionCommand(kActionCommandMenuItemNavigationSpecifyScreenBounds);
+					button.addActionListener(this);
+				fToolBar.add(button);
+					button = new JButton (new ImageIcon(fResources.getImage("application-resources/icons/specify-complex-bounds-icon.png")));
+					button.setToolTipText(I18NL10N.translate(kActionCommandMenuItemNavigationSpecifyComplexBounds));
+					button.setActionCommand(kActionCommandMenuItemNavigationSpecifyComplexBounds);
+					button.addActionListener(this);
+				fToolBar.add(button);
+
+				fToolBar.add(Box.createRigidArea(new Dimension(kSeparatorSpacing,0)));
+				fToolBar.addSeparator();
+				fToolBar.add(Box.createRigidArea(new Dimension(kSeparatorSpacing,0)));
+
+					toggleButton = new JToggleButton(new ImageIcon(fResources.getImage("application-resources/icons/toggle-inset-icon.png")));
+					toggleButton.setToolTipText(I18NL10N.translate(kActionCommandMenuItemFractalShowInset));
+					toggleButton.setSelected(true);
+					toggleButton.setActionCommand(kActionCommandMenuItemFractalShowInsetToggle);
+					toggleButton.addActionListener(this);
+					fToolBarToggles.put(kActionCommandMenuItemFractalShowInsetToggle,toggleButton);
+				fToolBar.add(toggleButton);
+					toggleButton = new JToggleButton(new ImageIcon(fResources.getImage("application-resources/icons/toggle-orbits-icon.png")));
+					toggleButton.setToolTipText(I18NL10N.translate(kActionCommandMenuItemFractalShowOrbits));
+					toggleButton.setActionCommand(kActionCommandMenuItemFractalShowOrbitsToggle);
+					toggleButton.addActionListener(this);
+					fToolBarToggles.put(kActionCommandMenuItemFractalShowOrbitsToggle,toggleButton);
+				fToolBar.add(toggleButton);
+					toggleButton = new JToggleButton(new ImageIcon(fResources.getImage("application-resources/icons/toggle-orbits-scaled-icon.png")));
+					toggleButton.setToolTipText(I18NL10N.translate(kActionCommandMenuItemFractalScaleOrbitsToScreen));
+					toggleButton.setActionCommand(kActionCommandMenuItemFractalScaleOrbitsToScreenToggle);
+					toggleButton.addActionListener(this);
+					fToolBarToggles.put(kActionCommandMenuItemFractalScaleOrbitsToScreenToggle,toggleButton);
+				fToolBar.add(toggleButton);
+					toggleButton = new JToggleButton(new ImageIcon(fResources.getImage("application-resources/icons/toggle-orbit-analyses-icon.png")));
+					toggleButton.setToolTipText(I18NL10N.translate(kActionCommandMenuItemFractalShowOrbitAnalyses));
+					toggleButton.setActionCommand(kActionCommandMenuItemFractalShowOrbitAnalysesToggle);
+					toggleButton.addActionListener(this);
+					fToolBarToggles.put(kActionCommandMenuItemFractalShowOrbitAnalysesToggle,toggleButton);
+				fToolBar.add(toggleButton);
+
+				fToolBar.add(Box.createRigidArea(new Dimension(kSeparatorSpacing,0)));
+				fToolBar.addSeparator();
+				fToolBar.add(Box.createRigidArea(new Dimension(kSeparatorSpacing,0)));
+
+					button = new JButton (new ImageIcon(fResources.getImage("application-resources/icons/specify-number-of-iterations-icon.png")));
+					button.setToolTipText(I18NL10N.translate(kActionCommandMenuItemFractalSetMaxNrOfIterations));
+					button.setActionCommand(kActionCommandMenuItemFractalSetMaxNrOfIterations);
+					button.addActionListener(this);
+				fToolBar.add(button);
+					button = new JButton (new ImageIcon(fResources.getImage("application-resources/icons/specify-escape-radius-icon.png")));
+					button.setToolTipText(I18NL10N.translate(kActionCommandMenuItemFractalSetEscapeRadius));
+					button.setActionCommand(kActionCommandMenuItemFractalSetEscapeRadius);
+					button.addActionListener(this);
+				fToolBar.add(button);
+
+				fToolBar.add(Box.createRigidArea(new Dimension(kSeparatorSpacing,0)));
+				fToolBar.addSeparator();
+				fToolBar.add(Box.createRigidArea(new Dimension(kSeparatorSpacing,0)));
+
+					button = new JButton (new ImageIcon(fResources.getImage("application-resources/icons/use-binary-decomposition-icon.png")));
+					button.setToolTipText(I18NL10N.translate(kActionCommandMenuItemColorMapUseBinaryDecomposition));
+					button.setActionCommand(kActionCommandMenuItemColorMapUseBinaryDecomposition);
+					button.addActionListener(this);
+				fToolBar.add(button);
+					button = new JButton (new ImageIcon(fResources.getImage("application-resources/icons/reset-to-default-icon.png")));
+					button.setToolTipText(I18NL10N.translate(kActionCommandMenuItemColorMapResetToDefault));
+					button.setActionCommand(kActionCommandMenuItemColorMapResetToDefault);
+					button.addActionListener(this);
+				fToolBar.add(button);
+					toggleButton = new JToggleButton(new ImageIcon(fResources.getImage("application-resources/icons/toggle-rank-order-scaling-icon.png")));
+					toggleButton.setToolTipText(I18NL10N.translate(kActionCommandMenuItemColorMapUseRankOrderScaling));
+					toggleButton.setActionCommand(kActionCommandMenuItemColorMapUseRankOrderScalingToggle);
+					toggleButton.addActionListener(this);
+					fToolBarToggles.put(kActionCommandMenuItemColorMapUseRankOrderScalingToggle,toggleButton);
+				fToolBar.add(toggleButton);
+					toggleButton = new JToggleButton(new ImageIcon(fResources.getImage("application-resources/icons/toggle-restrict-high-iteration-counts-icon.png")));
+					toggleButton.setToolTipText(I18NL10N.translate(kActionCommandMenuItemColorMapRestrictHighIterationCountColors));
+					toggleButton.setActionCommand(kActionCommandMenuItemColorMapRestrictHighIterationCountColorsToggle);
+					toggleButton.addActionListener(this);
+					toggleButton.setSelected(true);
+					toggleButton.setEnabled(false);
+					fToolBarToggles.put(kActionCommandMenuItemColorMapRestrictHighIterationCountColorsToggle,toggleButton);
+				fToolBar.add(toggleButton);
+					button = new JButton (new ImageIcon(fResources.getImage("application-resources/icons/set-random-exterior-colormap-icon.png")));
+					button.setToolTipText(I18NL10N.translate(kActionCommandMenuItemColorMapExteriorRandom));
+					button.setActionCommand(kActionCommandMenuItemColorMapExteriorRandom);
+					button.addActionListener(this);
+				fToolBar.add(button);
+					button = new JButton (new ImageIcon(fResources.getImage("application-resources/icons/setup-post-processing-filters-icon.png")));
+					button.setToolTipText(I18NL10N.translate(kActionCommandMenuItemColorSetupPostProcessingFilters));
+					button.setActionCommand(kActionCommandMenuItemColorSetupPostProcessingFilters);
+					button.addActionListener(this);
+				fToolBar.add(button);
+
+				fToolBar.add(Box.createRigidArea(new Dimension(kSeparatorSpacing,0)));
+				fToolBar.addSeparator();
+				fToolBar.add(Box.createRigidArea(new Dimension(kSeparatorSpacing,0)));
+				
+					button = new JButton (new ImageIcon(fResources.getImage("application-resources/icons/help-general-information-icon.png")));
+					button.setToolTipText(I18NL10N.translate(kActionCommandMenuItemHelpGeneralInformation));
+					button.setActionCommand(kActionCommandMenuItemHelpGeneralInformation);
+					button.addActionListener(this);
+				fToolBar.add(button);
+			}
+			catch (FileDoesNotExistException exc) {
+				// ignore
+			}
+			fToolBar.setFloatable(true);
+			fToolBar.setRollover(true);
+
+		return fToolBar;
 	}
 
 	/**
