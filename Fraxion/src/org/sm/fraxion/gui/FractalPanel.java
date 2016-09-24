@@ -1,7 +1,7 @@
 // ---------------------------------
 // Filename      : FractalPanel.java
 // Author        : Sven Maerivoet
-// Last modified : 04/06/2016
+// Last modified : 25/09/2016
 // Target        : Java VM (1.8)
 // ---------------------------------
 
@@ -27,6 +27,7 @@ import java.awt.*;
 import java.awt.font.*;
 import java.awt.geom.*;
 import java.awt.image.*;
+import java.awt.print.*;
 import java.io.*;
 import java.text.*;
 import java.util.*;
@@ -59,9 +60,9 @@ import org.sm.smtools.util.*;
  * <B>Note that this class cannot be subclassed!</B>
  * 
  * @author  Sven Maerivoet
- * @version 04/06/2016
+ * @version 25/09/2016
  */
-public final class FractalPanel extends JPanel
+public final class FractalPanel extends JPanel implements Printable
 {
 	/**
 	 * The different directions of panning.
@@ -964,6 +965,50 @@ public final class FractalPanel extends JPanel
 			// ignore
 		}
 	}
+
+	/**
+	 * Returns whether or not the screensize is in landscape orientation.
+	 *
+	 * @return a <CODE>boolean</CODE> indicating whether or not the screensize is in landscape orientation
+	 */
+	public boolean isLandscapeOriented()
+	{
+    Dimension imageSize = fIteratorController.getFractalIterator().getScreenBounds();
+    double imageWidth = imageSize.width;
+    double imageHeight = imageSize.height;
+
+    return (imageWidth > imageHeight);
+	}
+
+	/**
+	 * @param g          -
+	 * @param pageFormat -
+	 * @param pageIndex  -
+	 * @return           -
+	 */
+	@Override
+  public int print(Graphics g, PageFormat pageFormat, int pageIndex)
+	{
+    Graphics2D g2d = (Graphics2D) g;
+    g.translate((int) (pageFormat.getImageableX()),(int) (pageFormat.getImageableY()));
+    if (pageIndex == 0) {
+      double pageWidth = pageFormat.getImageableWidth();
+      double pageHeight = pageFormat.getImageableHeight();
+
+      Dimension imageSize = fIteratorController.getFractalIterator().getScreenBounds();
+      double imageWidth = imageSize.width;
+      double imageHeight = imageSize.height;
+
+      double scaleX = pageWidth / imageWidth;
+      double scaleY = pageHeight / imageHeight;
+      double scaleFactor = Math.min(scaleX,scaleY);
+      g2d.scale(scaleFactor, scaleFactor);
+
+      g.drawImage(fFractalImageBuffer,0,0,null);
+      return Printable.PAGE_EXISTS;
+    }
+    return Printable.NO_SUCH_PAGE;
+  }
 
 	/**
 	 */
@@ -1994,7 +2039,6 @@ public final class FractalPanel extends JPanel
 				}
 			} // if (showInsetFractal)
 		} // if (fShowInset)
-
 
 		if (fShowAxes && !fZoomThumbnailSelectionMode) {
 			// draw X and Y axes in the complex plane for the main fractal

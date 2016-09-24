@@ -1,7 +1,7 @@
 // -------------------------------
 // Filename      : FraxionGUI.java
 // Author        : Sven Maerivoet
-// Last modified : 10/07/2016
+// Last modified : 25/09/2016
 // Target        : Java VM (1.8)
 // -------------------------------
 
@@ -26,6 +26,7 @@ package org.sm.fraxion.gui;
 import java.awt.*;
 import java.awt.datatransfer.*;
 import java.awt.event.*;
+import java.awt.print.*;
 import java.io.*;
 import java.net.*;
 import java.util.*;
@@ -60,7 +61,7 @@ import org.sm.smtools.util.*;
  * <B>Note that this class cannot be subclassed!</B>
  *
  * @author  Sven Maerivoet
- * @version 10/07/2016
+ * @version 25/09/2016
  */
 public final class FraxionGUI extends JStandardGUIApplication implements ActionListener, MouseListener, MouseMotionListener
 {
@@ -172,6 +173,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 	private static final String kActionCommandMenuItemFractalFamilyBeauty1 = "menuItem.Fractal.Family.Beauty1";
 	private static final String kActionCommandMenuItemFractalFamilyBeauty2 = "menuItem.Fractal.Family.Beauty2";
 	private static final String kActionCommandMenuItemFractalFamilyDucks = "menuItem.Fractal.Family.Ducks";
+	private static final String kActionCommandMenuItemFractalFamilyDucksSecans = "menuItem.Fractal.Family.DucksSecans";
 	private static final String kActionCommandMenuItemFractalFamilyBarnsleyTree = "menuItem.Fractal.Family.BarnsleyTree";
 	private static final String kActionCommandMenuItemFractalFamilyCollatz = "menuItem.Fractal.Family.Collatz";
 	private static final String kActionCommandMenuItemFractalFamilyPhoenix = "menuItem.Fractal.Family.Phoenix";
@@ -182,6 +184,8 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 	private static final String kActionCommandMenuItemFractalFamilyIOfMedusa = "menuItem.Fractal.Family.IOfMedusa";
 	private static final String kActionCommandMenuItemFractalFamilyIOfTheStorm = "menuItem.Fractal.Family.IOfTheStorm";
 	private static final String kActionCommandMenuItemFractalFamilyAtTheCShore = "menuItem.Fractal.Family.AtTheCShore";
+	private static final String kActionCommandMenuItemFractalFamilyLogarithmicJulia = "menuItem.Fractal.Family.LogarithmicJulia";
+	private static final String kActionCommandMenuItemFractalFamilyHyperbolicSineJulia = "menuItem.Fractal.Family.HyperbolicSineJulia";
 
 	private static final String kActionCommandMenuItemFractalFamilyNewtonRaphsonPower = "menuItem.Fractal.Family.NewtonRaphsonPower";
 	private static final String kActionCommandMenuItemFractalFamilyNewtonRaphsonPowerPolynomial = "menuItem.Fractal.Family.NewtonRaphsonPowerPolynomial";
@@ -504,7 +508,6 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 	 *************************/
 
 	static {
-//XXX DevelopMode
 		DevelopMode.deactivate();
 
 		// hack for JDK7 and above
@@ -785,6 +788,9 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 						else if (familyName.equalsIgnoreCase((new DucksFractalIterator()).getFamilyName())) {
 							fIteratorController.setFractalIteratorFamily(new DucksFractalIterator());
 						}
+						else if (familyName.equalsIgnoreCase((new DucksSecansFractalIterator()).getFamilyName())) {
+							fIteratorController.setFractalIteratorFamily(new DucksSecansFractalIterator());
+						}
 						else if (familyName.equalsIgnoreCase((new BarnsleyTreeFractalIterator()).getFamilyName())) {
 							fIteratorController.setFractalIteratorFamily(new BarnsleyTreeFractalIterator());
 						}
@@ -814,6 +820,12 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 						}
 						else if (familyName.equalsIgnoreCase((new AtTheCShoreFractalIterator()).getFamilyName())) {
 							fIteratorController.setFractalIteratorFamily(new AtTheCShoreFractalIterator());
+						}
+						else if (familyName.equalsIgnoreCase((new LogarithmicJuliaFractalIterator()).getFamilyName())) {
+							fIteratorController.setFractalIteratorFamily(new LogarithmicJuliaFractalIterator());
+						}
+						else if (familyName.equalsIgnoreCase((new HyperbolicSineJuliaFractalIterator()).getFamilyName())) {
+							fIteratorController.setFractalIteratorFamily(new HyperbolicSineJuliaFractalIterator());
 						}
 						else if (familyName.equalsIgnoreCase((new NewtonRaphsonPowerFractalIterator()).getFamilyName())) {
 							fIteratorController.setFractalIteratorFamily(new NewtonRaphsonPowerFractalIterator());
@@ -1019,13 +1031,28 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemFileSaveZoomAnimationSequence)) {
-//XXX Save zoom animation sequence [action]
 			JIncompleteWarningDialog.warn(this,"GUIApplication::actionPerformed()");
 			// resetZoom();
 			// push new coords(); => zoomToStack()
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemFilePrintFractal)) {
-//XXX Print fractal (menu)
+			PrinterJob printerJob = PrinterJob.getPrinterJob();
+
+			PageFormat pageFormat = printerJob.defaultPage();
+			if (fFractalPanel.isLandscapeOriented()) {
+				pageFormat.setOrientation(PageFormat.LANDSCAPE);
+			}
+
+			printerJob.setPrintable(fFractalPanel,pageFormat);
+			boolean ok = printerJob.printDialog();
+			if (ok) {
+				try {
+					printerJob.print();
+				}
+				catch (PrinterException exc) {
+					kLogger.error(exc.getMessage());
+				}
+			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemNavigationPanLeft)) {
 			fFractalPanel.pan(FractalPanel.EPanDirection.kLeft,fNavigationPanningSize,fMenuItems.get(kActionCommandMenuItemNavigationInvertPanningDirections).isSelected());
@@ -1328,6 +1355,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 						command.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyBeauty1) ||
 						command.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyBeauty2) ||
 						command.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyDucks) ||
+						command.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyDucksSecans) ||
 						command.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyBarnsleyTree) ||
 						command.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyCollatz) ||
 						command.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyPhoenix) ||
@@ -1338,6 +1366,8 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 						command.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyIOfMedusa) ||
 						command.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyIOfTheStorm) ||
 						command.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyAtTheCShore) ||
+						command.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyLogarithmicJulia) ||
+						command.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyHyperbolicSineJulia) ||
 						command.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyNewtonRaphsonPower) ||
 						command.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyNewtonRaphsonPowerPolynomial) ||
 						command.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyNewtonRaphsonFixedPolynomial1) ||
@@ -1472,6 +1502,11 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 						coloringParameters.fExteriorColoringMethod = ColoringParameters.EColoringMethod.kAverageDistance;
 						adjustMenusToFractal();
 						break;
+					case kActionCommandMenuItemFractalFamilyDucksSecans:
+						fIteratorController.setFractalIteratorFamily(new DucksSecansFractalIterator());
+						coloringParameters.fExteriorColoringMethod = ColoringParameters.EColoringMethod.kAverageDistance;
+						adjustMenusToFractal();
+						break;
 					case kActionCommandMenuItemFractalFamilyBarnsleyTree:
 						fIteratorController.setFractalIteratorFamily(new BarnsleyTreeFractalIterator());
 						break;
@@ -1501,6 +1536,12 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 						break;
 					case kActionCommandMenuItemFractalFamilyAtTheCShore:
 						fIteratorController.setFractalIteratorFamily(new AtTheCShoreFractalIterator());
+						break;
+					case kActionCommandMenuItemFractalFamilyLogarithmicJulia:
+						fIteratorController.setFractalIteratorFamily(new LogarithmicJuliaFractalIterator());
+						break;
+					case kActionCommandMenuItemFractalFamilyHyperbolicSineJulia:
+						fIteratorController.setFractalIteratorFamily(new HyperbolicSineJuliaFractalIterator());
 						break;
 					case kActionCommandMenuItemFractalFamilyNewtonRaphsonPower:
 						fIteratorController.setFractalIteratorFamily(new NewtonRaphsonPowerFractalIterator());
@@ -3489,7 +3530,6 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 				menuItem.addActionListener(this);
 			menu.add(menuItem);
 
-//XXX Save zoom animation sequence [menu]
 /*
 			menu.addSeparator();
 
@@ -4164,6 +4204,14 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 						fMenuItems.put(kActionCommandMenuItemFractalFamilyDucks,radioButtonMenuItem);
 					subSubMenu.add(radioButtonMenuItem);
 
+						radioButtonMenuItem = constructRadioButtonMenuItem(kActionCommandMenuItemFractalFamilyDucksSecans,false);
+						radioButtonMenuItem.setSelected(false);
+						radioButtonMenuItem.setActionCommand(kActionCommandMenuItemFractalFamilyDucksSecans);
+						radioButtonMenuItem.addActionListener(this);
+						buttonGroup.add(radioButtonMenuItem);
+						fMenuItems.put(kActionCommandMenuItemFractalFamilyDucksSecans,radioButtonMenuItem);
+					subSubMenu.add(radioButtonMenuItem);
+
 					subSubMenu.addSeparator();
 
 						radioButtonMenuItem = constructRadioButtonMenuItem(kActionCommandMenuItemFractalFamilyBarnsleyTree,false);
@@ -4250,6 +4298,23 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 						radioButtonMenuItem.addActionListener(this);
 						buttonGroup.add(radioButtonMenuItem);
 						fMenuItems.put(kActionCommandMenuItemFractalFamilyAtTheCShore,radioButtonMenuItem);
+					subSubMenu.add(radioButtonMenuItem);
+
+					subSubMenu.addSeparator();
+
+						radioButtonMenuItem = constructRadioButtonMenuItem(kActionCommandMenuItemFractalFamilyLogarithmicJulia,false);
+						radioButtonMenuItem.setSelected(false);
+						radioButtonMenuItem.setActionCommand(kActionCommandMenuItemFractalFamilyLogarithmicJulia);
+						radioButtonMenuItem.addActionListener(this);
+						buttonGroup.add(radioButtonMenuItem);
+						fMenuItems.put(kActionCommandMenuItemFractalFamilyLogarithmicJulia,radioButtonMenuItem);
+					subSubMenu.add(radioButtonMenuItem);
+						radioButtonMenuItem = constructRadioButtonMenuItem(kActionCommandMenuItemFractalFamilyHyperbolicSineJulia,false);
+						radioButtonMenuItem.setSelected(false);
+						radioButtonMenuItem.setActionCommand(kActionCommandMenuItemFractalFamilyHyperbolicSineJulia);
+						radioButtonMenuItem.addActionListener(this);
+						buttonGroup.add(radioButtonMenuItem);
+						fMenuItems.put(kActionCommandMenuItemFractalFamilyHyperbolicSineJulia,radioButtonMenuItem);
 					subSubMenu.add(radioButtonMenuItem);
 				subMenu.add(subSubMenu);
 
@@ -6142,6 +6207,7 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 	}
 
 	/**
+	 * @return -
 	 */
 	private JToolBar getToolBar()
 	{
@@ -6164,6 +6230,16 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 					button = new JButton (new ImageIcon(fResources.getImage("application-resources/icons/export-to-png-icon.png")));
 					button.setToolTipText(I18NL10N.translate(kActionCommandMenuItemFileExportToPNG));
 					button.setActionCommand(kActionCommandMenuItemFileExportToPNG);
+					button.addActionListener(this);
+				fToolBar.add(button);
+
+				fToolBar.add(Box.createRigidArea(new Dimension(kSeparatorSpacing,0)));
+				fToolBar.addSeparator();
+				fToolBar.add(Box.createRigidArea(new Dimension(kSeparatorSpacing,0)));
+
+					button = new JButton (new ImageIcon(fResources.getImage("application-resources/icons/print-icon.png")));
+					button.setToolTipText(I18NL10N.translate(kActionCommandMenuItemFilePrintFractal));
+					button.setActionCommand(kActionCommandMenuItemFilePrintFractal);
 					button.addActionListener(this);
 				fToolBar.add(button);
 
@@ -6440,6 +6516,9 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 		else if (familyName.equalsIgnoreCase((new DucksFractalIterator()).getFamilyName())) {
 			familyMenuItem = kActionCommandMenuItemFractalFamilyDucks;
 		}
+		else if (familyName.equalsIgnoreCase((new DucksSecansFractalIterator()).getFamilyName())) {
+			familyMenuItem = kActionCommandMenuItemFractalFamilyDucksSecans;
+		}
 		else if (familyName.equalsIgnoreCase((new BarnsleyTreeFractalIterator()).getFamilyName())) {
 			familyMenuItem = kActionCommandMenuItemFractalFamilyBarnsleyTree;
 		}
@@ -6469,6 +6548,12 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 		}
 		else if (familyName.equalsIgnoreCase((new AtTheCShoreFractalIterator()).getFamilyName())) {
 			familyMenuItem = kActionCommandMenuItemFractalFamilyAtTheCShore;
+		}
+		else if (familyName.equalsIgnoreCase((new LogarithmicJuliaFractalIterator()).getFamilyName())) {
+			familyMenuItem = kActionCommandMenuItemFractalFamilyLogarithmicJulia;
+		}
+		else if (familyName.equalsIgnoreCase((new HyperbolicSineJuliaFractalIterator()).getFamilyName())) {
+			familyMenuItem = kActionCommandMenuItemFractalFamilyHyperbolicSineJulia;
 		}
 		else if (familyName.equalsIgnoreCase((new NewtonRaphsonPowerFractalIterator()).getFamilyName())) {
 			familyMenuItem = kActionCommandMenuItemFractalFamilyNewtonRaphsonPower;
@@ -7043,7 +7128,6 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			}
 			else if (fBindingAction.equalsIgnoreCase(kActionCommandMenuItemMultithreadingInterrupt)) {
 				if (fIteratorController.isBusy()) {
-//XXX Interrupt calculation [escape]
 					JIncompleteWarningDialog.warn(fFractalPanel,"GUIApplication");
 				}
 			}
@@ -7210,6 +7294,9 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 				else if (familyName.equalsIgnoreCase((new DucksFractalIterator()).getFamilyName())) {
 					fIteratorController.setFractalIteratorFamily(new DucksFractalIterator());
 				}
+				else if (familyName.equalsIgnoreCase((new DucksSecansFractalIterator()).getFamilyName())) {
+					fIteratorController.setFractalIteratorFamily(new DucksSecansFractalIterator());
+				}
 				else if (familyName.equalsIgnoreCase((new BarnsleyTreeFractalIterator()).getFamilyName())) {
 					fIteratorController.setFractalIteratorFamily(new BarnsleyTreeFractalIterator());
 				}
@@ -7239,6 +7326,12 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 				}
 				else if (familyName.equalsIgnoreCase((new AtTheCShoreFractalIterator()).getFamilyName())) {
 					fIteratorController.setFractalIteratorFamily(new AtTheCShoreFractalIterator());
+				}
+				else if (familyName.equalsIgnoreCase((new LogarithmicJuliaFractalIterator()).getFamilyName())) {
+					fIteratorController.setFractalIteratorFamily(new LogarithmicJuliaFractalIterator());
+				}
+				else if (familyName.equalsIgnoreCase((new HyperbolicSineJuliaFractalIterator()).getFamilyName())) {
+					fIteratorController.setFractalIteratorFamily(new HyperbolicSineJuliaFractalIterator());
 				}
 				else if (familyName.equalsIgnoreCase((new NewtonRaphsonPowerFractalIterator()).getFamilyName())) {
 					fIteratorController.setFractalIteratorFamily(new NewtonRaphsonPowerFractalIterator());

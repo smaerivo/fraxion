@@ -52,6 +52,7 @@
 	<mapID target="fractal_types_beauty1" url="content/fractal_types/special/fractal_types_beauty1.html"></mapID>
 	<mapID target="fractal_types_beauty2" url="content/fractal_types/special/fractal_types_beauty2.html"></mapID>
 	<mapID target="fractal_types_ducks" url="content/fractal_types/special/fractal_types_ducks.html"></mapID>
+	<mapID target="fractal_types_ducks_secans" url="content/fractal_types/special/fractal_types_ducks_secans.html"></mapID>
 	<mapID target="fractal_types_barnsley_tree" url="content/fractal_types/special/fractal_types_barnsley_tree.html"></mapID>
 	<mapID target="fractal_types_collatz" url="content/fractal_types/special/fractal_types_collatz.html"></mapID>
 	<mapID target="fractal_types_phoenix" url="content/fractal_types/special/fractal_types_phoenix.html"></mapID>
@@ -62,6 +63,8 @@
 	<mapID target="fractal_types_i_of_medusa" url="content/fractal_types/special/fractal_types_i_of_medusa.html"></mapID>
 	<mapID target="fractal_types_i_of_the_storm" url="content/fractal_types/special/fractal_types_i_of_the_storm.html"></mapID>
 	<mapID target="fractal_types_at_the_c_shore" url="content/fractal_types/special/fractal_types_at_the_c_shore.html"></mapID>
+	<mapID target="fractal_types_ln_julia" url="content/fractal_types/special/fractal_types_ln_julia.html"></mapID>
+	<mapID target="fractal_types_sinh_julia" url="content/fractal_types/special/fractal_types_sinh_julia.html"></mapID>
 
 	<mapID target="fractal_types_newton_raphson_power" url="content/fractal_types/newton_raphson/fractal_types_newton_raphson_power.html"></mapID>
 	<mapID target="fractal_types_newton_raphson_power_polynomial" url="content/fractal_types/newton_raphson/fractal_types_newton_raphson_power_polynomial.html"></mapID>

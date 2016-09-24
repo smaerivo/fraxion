@@ -76,6 +76,7 @@
 			<tocitem text="Beauty 1" target="fractal_types_beauty1" />
 			<tocitem text="Beauty 2" target="fractal_types_beauty2" />
 			<tocitem text="Ducks" target="fractal_types_ducks" />
+			<tocitem text="Ducks (secans)" target="fractal_types_ducks_secans" />
 			<tocitem text="Barnsley Tree" target="fractal_types_barnsley_tree" />
 			<tocitem text="Collatz" target="fractal_types_collatz" />
 			<tocitem text="Phoenix" target="fractal_types_phoenix" />
@@ -86,6 +87,8 @@
 			<tocitem text="i of Medusa" target="fractal_types_i_of_medusa" />
 			<tocitem text="i of the Storm" target="fractal_types_i_of_the_storm" />
 			<tocitem text="At the C-Shore" target="fractal_types_at_the_c_shore" />
+			<tocitem text="Logarithmic Julia" target="fractal_types_ln_julia" />
+			<tocitem text="Hyperbolic Sine Julia" target="fractal_types_sinh_julia" />
 		</tocitem>
 
 		<tocitem text="Newton / Raphson">
