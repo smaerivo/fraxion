@@ -1,7 +1,7 @@
 // -------------------------------
 // Filename      : FraxionGUI.java
 // Author        : Sven Maerivoet
-// Last modified : 25/09/2016
+// Last modified : 07/10/2016
 // Target        : Java VM (1.8)
 // -------------------------------
 
@@ -61,7 +61,7 @@ import org.sm.smtools.util.*;
  * <B>Note that this class cannot be subclassed!</B>
  *
  * @author  Sven Maerivoet
- * @version 25/09/2016
+ * @version 07/10/2016
  */
 public final class FraxionGUI extends JStandardGUIApplication implements ActionListener, MouseListener, MouseMotionListener
 {
@@ -7020,12 +7020,14 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 	 */
 	private void showHelpTopic(EHelpTopic helpTopic)
 	{
-		try {
-			fHelpBroker.setCurrentID(fHelpMapIDs.get(helpTopic));
-			fHelpBroker.setDisplayed(true);
-		}
-		catch (InvalidHelpSetContextException exc) {
-			kLogger.error(I18NL10N.translate("error.HelpInformationNotFound"));
+		if (fHelpMapIDs != null) {
+			try {
+				fHelpBroker.setCurrentID(fHelpMapIDs.get(helpTopic));
+				fHelpBroker.setDisplayed(true);
+			}
+			catch (InvalidHelpSetContextException exc) {
+				kLogger.error(I18NL10N.translate("error.HelpInformationNotFound"));
+			}
 		}
 	}
 

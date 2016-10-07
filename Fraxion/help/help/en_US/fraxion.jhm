@@ -4,6 +4,8 @@
          "http://java.sun.com/products/javahelp/map_1_0.dtd">
 
 <map version="1.0">
+	<mapID target="icon" url="../layout/icon.jpg" />
+
 	<mapID target="general_information_overview" url="content/general_information/overview.html"></mapID>
 	<mapID target="general_information_getting_started" url="content/general_information/getting_started.html"></mapID>
 	<mapID target="coloring_schemes" url="content/coloring_schemes/coloring_schemes.html"></mapID>

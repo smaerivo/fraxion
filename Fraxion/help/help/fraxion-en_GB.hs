@@ -28,6 +28,7 @@ PUBLIC "-//Sun Microsystems Inc.//DTD JavaHelp HelpSet Version 2.0//EN"
 		<size width="1000" height="600" />
 		<location x="200" y="200" />
 		<title>Fraxion Help</title>
+    <image>icon</image>
 		<toolbar>
 			<helpaction>javax.help.BackAction</helpaction>
 			<helpaction>javax.help.ForwardAction</helpaction>
