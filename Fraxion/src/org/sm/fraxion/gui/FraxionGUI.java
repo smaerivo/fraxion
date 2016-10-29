@@ -1,7 +1,7 @@
 // -------------------------------
 // Filename      : FraxionGUI.java
 // Author        : Sven Maerivoet
-// Last modified : 07/10/2016
+// Last modified : 29/10/2016
 // Target        : Java VM (1.8)
 // -------------------------------
 
@@ -61,7 +61,7 @@ import org.sm.smtools.util.*;
  * <B>Note that this class cannot be subclassed!</B>
  *
  * @author  Sven Maerivoet
- * @version 07/10/2016
+ * @version 29/10/2016
  */
 public final class FraxionGUI extends JStandardGUIApplication implements ActionListener, MouseListener, MouseMotionListener
 {
@@ -136,6 +136,12 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 	private static final String kActionCommandMenuItemFractalShowIterationDistribution = "menuItem.Fractal.ShowIterationDistribution";
 	private static final String kActionCommandMenuItemFractalSetOrbitAnalysesPanelSize = "menuItem.Fractal.SetOrbitAnalysesPanelSize";
 	private static final String kActionCommandMenuItemFractalSetMaxNrOfIterationsInOrbitAnalyses = "menuItem.Fractal.SetMaxNrOfIterationsInOrbitAnalyses";
+	private static final String kActionCommandMenuItemFractalShowBifurcationDiagram = "menuItem.Fractal.ShowBifurcationDiagram";
+	private static final String kActionCommandMenuItemFractalShowBifurcationDiagramToggle = kActionCommandMenuItemFractalShowBifurcationDiagram + ".Toggle";
+	private static final String kActionCommandMenuItemFractalSetGeneralBifurcationAxis = "menuItem.Fractal.SetGeneralBifurcationAxis";
+	private static final String kActionCommandMenuItemFractalFixHorizontalBifurcationAxis = "menuItem.Fractal.FixHorizontalBifurcationAxis";
+	private static final String kActionCommandMenuItemFractalSetNrOfBifurcationPointsPerOrbit = "menuItem.Fractal.SetNrOfBifurcationPointsPerOrbit";
+	private static final String kActionCommandMenuItemFractalSetBifurcationOutlierPercentileOffset = "menuItem.Fractal.SetBifurcationOutlierPercentileOffset";
 	private static final String kActionCommandMenuItemFractalSpecifyFractalFamily = "menu.Fractal.SpecifyFractalFamily";
 
 	private static final String kActionCommandMenuItemFractalFamilyDefaultMandelbrotJulia = "menuItem.Fractal.Family.DefaultMandelbrotJulia";
@@ -497,6 +503,8 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 	private ColorLabelDecorator fExteriorColorLabelDecorator;
 	private ColorLabelDecorator fTigerStripeColorLabelDecorator;
 	private EDoubleClickMode fDoubleClickMode;
+	private ComplexNumber fPreviousBifurcationAxisZ1;
+	private ComplexNumber fPreviousBifurcationAxisZ2;
 	private HelpSet fHelpSet;
 	private HelpBroker fHelpBroker;
 	private Hashtable<EHelpTopic,javax.help.Map.ID> fHelpMapIDs;
@@ -1318,6 +1326,41 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			MaxNrOfIterationsInOrbitAnalysesChooser maxNrOfIterationsInOrbitAnalysesChooser = new MaxNrOfIterationsInOrbitAnalysesChooser(this,fFractalPanel.getMaxNrOfIterationsInOrbitAnalyses(),fractalIterator.getMaxNrOfIterations());
 			if (!maxNrOfIterationsInOrbitAnalysesChooser.isCancelled()) {
 				fFractalPanel.setMaxNrOfIterationsInOrbitAnalyses(maxNrOfIterationsInOrbitAnalysesChooser.getSelectedMaxNrOfIterationsInOrbitAnalyses());
+			}
+		}
+		else if (command.equalsIgnoreCase(kActionCommandMenuItemFractalShowBifurcationDiagram)) {
+			fFractalPanel.setShowBifurcationDiagram(fMenuItems.get(kActionCommandMenuItemFractalShowBifurcationDiagram).isSelected());
+			fToolBarToggles.get(kActionCommandMenuItemFractalShowBifurcationDiagramToggle).setSelected(fMenuItems.get(kActionCommandMenuItemFractalShowBifurcationDiagram).isSelected());
+		}
+		else if (command.equalsIgnoreCase(kActionCommandMenuItemFractalShowBifurcationDiagramToggle)) {
+			fFractalPanel.setShowBifurcationDiagram(fToolBarToggles.get(kActionCommandMenuItemFractalShowBifurcationDiagramToggle).isSelected());
+			fMenuItems.get(kActionCommandMenuItemFractalShowBifurcationDiagram).setSelected(fToolBarToggles.get(kActionCommandMenuItemFractalShowBifurcationDiagramToggle).isSelected());
+		}
+		else if (command.equalsIgnoreCase(kActionCommandMenuItemFractalSetGeneralBifurcationAxis)) {
+			fFractalPanel.setShowBifurcationDiagram(false);
+			fFractalPanel.setBifurcationAxisSelectionMode(FractalPanel.EBifurcationAxisSelectionMode.kZ1);
+		}
+		else if (command.equalsIgnoreCase(kActionCommandMenuItemFractalFixHorizontalBifurcationAxis)) {
+			fFractalPanel.fixHorizontalBifurcationAxis();
+			// also show bifurcation diagram simultaneously
+			fMenuItems.get(kActionCommandMenuItemFractalShowBifurcationDiagram).setSelected(true);
+			fToolBarToggles.get(kActionCommandMenuItemFractalShowBifurcationDiagramToggle).setSelected(fMenuItems.get(kActionCommandMenuItemFractalShowBifurcationDiagram).isSelected());
+			fFractalPanel.setShowBifurcationDiagram(true);
+		}
+		else if (command.equalsIgnoreCase(kActionCommandMenuItemFractalSetNrOfBifurcationPointsPerOrbit)) {
+			NrOfBifurcationPointsPerOrbitChooser nrOfBifurcationPointsPerOrbitChooser =
+				new NrOfBifurcationPointsPerOrbitChooser(this,
+					fIteratorController.getFractalIterator().getNrOfBifurcationPointsToDiscard(),
+					fIteratorController.getFractalIterator().getNrOfBifurcationPointsPerOrbit());
+			if (!nrOfBifurcationPointsPerOrbitChooser.isCancelled()) {
+				fFractalPanel.setNrOfBifurcationPointsToDiscard(nrOfBifurcationPointsPerOrbitChooser.getSelectedNrOfBifurcationPointsToDiscard());
+				fFractalPanel.setNrOfBifurcationPointsPerOrbit(nrOfBifurcationPointsPerOrbitChooser.getSelectedNrOfBifurcationPointsPerOrbit());
+			}
+		}
+		else if (command.equalsIgnoreCase(kActionCommandMenuItemFractalSetBifurcationOutlierPercentileOffset)) {
+			BifurcationOutlierPercentileOffsetChooser bifurcationOutlierPercentileOffsetChooser = new BifurcationOutlierPercentileOffsetChooser(this,fIteratorController.getFractalIterator().getBifurcationOutlierPercentileOffset());
+			if (!bifurcationOutlierPercentileOffsetChooser.isCancelled()) {
+				fFractalPanel.setBifurcationOutlierPercentileOffset(bifurcationOutlierPercentileOffsetChooser.getSelectedBifurcationOutlierPercentileOffset());
 			}
 		}
 		else if (command.equalsIgnoreCase(kActionCommandMenuItemFractalFamilyDefaultMandelbrotJulia) ||
@@ -3140,55 +3183,85 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 		boolean consumed =  e.isConsumed();
 		e.consume();
 
-		if (fFractalPanel.getZoomThumbnailSelectionMode()) {
+		FractalPanel.EBifurcationAxisSelectionMode bifurcationAxisSelectionMode = fFractalPanel.getBifurcationAxisSelectionMode();
+		if (!(bifurcationAxisSelectionMode == FractalPanel.EBifurcationAxisSelectionMode.kNone)) {
+			AFractalIterator fractalIterator = fIteratorController.getFractalIterator();
 			if ((e.getButton() == MouseEvent.BUTTON1) && (clickCount == 1) && (!consumed)) {
-				// select zoom level image to zoom to
-				int selectedZoomLevel = fFractalPanel.getSelectedZoomLevel();
-				if (selectedZoomLevel > 0) {
-					fFractalPanel.zoomToLevel(selectedZoomLevel);
+				Point m = fFractalPanel.getMousePosition();
+				if (m != null) {
+					if (bifurcationAxisSelectionMode == FractalPanel.EBifurcationAxisSelectionMode.kZ1) {
+						fPreviousBifurcationAxisZ1 = fractalIterator.getBifurcationAxisZ1();
+						fPreviousBifurcationAxisZ2 = fractalIterator.getBifurcationAxisZ2();
+						fractalIterator.setBifurcationAxisZ1(fractalIterator.convertScreenLocationToComplexNumber(new ScreenLocation(m.x,m.y)));
+						fractalIterator.setBifurcationAxisZ2(fractalIterator.convertScreenLocationToComplexNumber(new ScreenLocation(m.x,m.y)));
+						fFractalPanel.setBifurcationAxisSelectionMode(FractalPanel.EBifurcationAxisSelectionMode.kZ2);
+					}
+					else if (bifurcationAxisSelectionMode == FractalPanel.EBifurcationAxisSelectionMode.kZ2) {
+						ComplexNumber z2 = fractalIterator.convertScreenLocationToComplexNumber(new ScreenLocation(m.x,m.y));
+						fFractalPanel.setBifurcationAxisSelectionMode(FractalPanel.EBifurcationAxisSelectionMode.kNone);
+						fFractalPanel.setGeneralBifurcationAxis(fractalIterator.getBifurcationAxisZ1(),z2);
+						fFractalPanel.setShowBifurcationDiagram(true);
+					}
+				}
+			}
+			else if ((e.getButton() == MouseEvent.BUTTON3) && (clickCount == 1) && (!consumed)) {
+				fractalIterator.setBifurcationAxisZ1(fPreviousBifurcationAxisZ1);
+				fractalIterator.setBifurcationAxisZ2(fPreviousBifurcationAxisZ2);
+				fFractalPanel.setBifurcationAxisSelectionMode(FractalPanel.EBifurcationAxisSelectionMode.kNone);
+				fFractalPanel.setBifurcationDiagramDirty();
+			}
+		}
+		else {
+			if (fFractalPanel.getZoomThumbnailSelectionMode()) {
+				if ((e.getButton() == MouseEvent.BUTTON1) && (clickCount == 1) && (!consumed)) {
+					// select zoom level image to zoom to
+					int selectedZoomLevel = fFractalPanel.getSelectedZoomLevel();
+					if (selectedZoomLevel > 0) {
+						fFractalPanel.zoomToLevel(selectedZoomLevel);
+						fFractalPanel.setZoomThumbnailSelectionMode(false);
+						showMenusAndToolBar();
+						fFractalPanel.repaint();
+					}
+				}
+				else if ((e.getButton() == MouseEvent.BUTTON3) && (clickCount == 1) && (!consumed)) {
+					// toggle showing and selecting the zoom thumbnails on a single right click
 					fFractalPanel.setZoomThumbnailSelectionMode(false);
 					showMenusAndToolBar();
 					fFractalPanel.repaint();
 				}
 			}
-			else if ((e.getButton() == MouseEvent.BUTTON3) && (clickCount == 1) && (!consumed)) {
-				// toggle showing and selecting the zoom thumbnails on a single right click
-				fFractalPanel.setZoomThumbnailSelectionMode(false);
-				showMenusAndToolBar();
-				fFractalPanel.repaint();
-			}
-		}
-		else {
-			if ((e.getButton() == MouseEvent.BUTTON1) && (clickCount == 2) && (!consumed)) {
-				if (fDoubleClickMode == EDoubleClickMode.kSwitchMainDualFractal) {
-					// switch main and inset fractal types on a double click
-					switchMainDualFractal();
-				}
-				else if (fDoubleClickMode == 	EDoubleClickMode.kChangeOrbitStartingPoint) {
-					Point mousePosition = fFractalPanel.getMousePosition();
-					if (mousePosition != null) {
-						double mouseX = mousePosition.getX();
-						double mouseY = mousePosition.getY();
-						ComplexNumber z0 = fIteratorController.getFractalIterator().convertScreenLocationToComplexNumber(new ScreenLocation((int) mouseX,(int) mouseY));
-						fIteratorController.getFractalIterator().setMainFractalOrbitStartingPoint(z0);
-						fIteratorController.recalc();
+			else {
+				if ((e.getButton() == MouseEvent.BUTTON1) && (clickCount == 2) && (!consumed)) {
+					if (fDoubleClickMode == EDoubleClickMode.kSwitchMainDualFractal) {
+						// switch main and inset fractal types on a double click
+						switchMainDualFractal();
+					}
+					else if (fDoubleClickMode == 	EDoubleClickMode.kChangeOrbitStartingPoint) {
+						Point mousePosition = fFractalPanel.getMousePosition();
+						if (mousePosition != null) {
+							double mouseX = mousePosition.getX();
+							double mouseY = mousePosition.getY();
+							ComplexNumber z0 = fIteratorController.getFractalIterator().convertScreenLocationToComplexNumber(new ScreenLocation((int) mouseX,(int) mouseY));
+							fIteratorController.getFractalIterator().setMainFractalOrbitStartingPoint(z0);
+							fIteratorController.recalc();
+						}
 					}
 				}
+				else if ((e.getButton() == MouseEvent.BUTTON3) && (clickCount == 2) && (!consumed)) {
+					// zoom out on a double right click
+					fFractalPanel.zoomOut();
+					fFractalPanel.setZoomThumbnailSelectionMode(false);
+					showMenusAndToolBar();
+					fFractalPanel.repaint();
+				}
+				else if ((e.getButton() == MouseEvent.BUTTON3) && (clickCount == 1) && (!consumed) && shiftKeyPressed) {
+					// toggle showing and selecting the zoom thumbnails on a single right click
+					fFractalPanel.setZoomThumbnailSelectionMode(true);
+					hideMenusAndToolBar();
+					fFractalPanel.repaint();
+				}
 			}
-			else if ((e.getButton() == MouseEvent.BUTTON3) && (clickCount == 2) && (!consumed)) {
-				// zoom out on a double right click
-				fFractalPanel.zoomOut();
-				fFractalPanel.setZoomThumbnailSelectionMode(false);
-				showMenusAndToolBar();
-				fFractalPanel.repaint();
-			}
-			else if ((e.getButton() == MouseEvent.BUTTON3) && (clickCount == 1) && (!consumed) && shiftKeyPressed) {
-				// toggle showing and selecting the zoom thumbnails on a single right click
-				fFractalPanel.setZoomThumbnailSelectionMode(true);
-				hideMenusAndToolBar();
-				fFractalPanel.repaint();
-			}
-		}
+		} // if (!(bifurcationAxisSelectionMode == FractalPanel.EBifurcationAxisSelectionMode.kNone))
 	}
 
 	/**
@@ -3214,23 +3287,25 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 	@Override
 	public void mousePressed(MouseEvent e)
 	{
-		if (!fFractalPanel.getZoomThumbnailSelectionMode()) {
-			changeLocationMouseCursor();
-			if (e.getButton() == MouseEvent.BUTTON1) {
-				// initiate selection rectangle
-				setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
-				Point mousePosition = fFractalPanel.getMousePosition();
-				if (mousePosition != null) {
-					double mouseX = mousePosition.getX();
-					double mouseY = mousePosition.getY();
-					fFractalPanel.setSelectionAnchor(new ScreenLocation((int) mouseX,(int) mouseY));
+		if (fFractalPanel.getBifurcationAxisSelectionMode() == FractalPanel.EBifurcationAxisSelectionMode.kNone) {
+			if (!fFractalPanel.getZoomThumbnailSelectionMode()) {
+				changeLocationMouseCursor();
+				if (e.getButton() == MouseEvent.BUTTON1) {
+					// initiate selection rectangle
+					setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
+					Point mousePosition = fFractalPanel.getMousePosition();
+					if (mousePosition != null) {
+						double mouseX = mousePosition.getX();
+						double mouseY = mousePosition.getY();
+						fFractalPanel.setSelectionAnchor(new ScreenLocation((int) mouseX,(int) mouseY));
+					}
 				}
-			}
-
-			// disable selecting if the right mouse button was clicked
-			if (e.getButton() == MouseEvent.BUTTON3) {
-				fFractalPanel.disableSelecting();
-				fFractalPanel.repaint();
+	
+				// disable selecting if the right mouse button was clicked
+				if (e.getButton() == MouseEvent.BUTTON3) {
+					fFractalPanel.disableSelecting();
+					fFractalPanel.repaint();
+				}
 			}
 		}
 	}
@@ -3240,11 +3315,13 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 	@Override
 	public void mouseReleased(MouseEvent e)
 	{
-		if (!fFractalPanel.getZoomThumbnailSelectionMode()) {
-			changeLocationMouseCursor();
-			if (fFractalPanel.getSelecting()) {
-				fFractalPanel.zoomToSelection();
-				updateStatusBar();
+		if (fFractalPanel.getBifurcationAxisSelectionMode() == FractalPanel.EBifurcationAxisSelectionMode.kNone) {
+			if (!fFractalPanel.getZoomThumbnailSelectionMode()) {
+				changeLocationMouseCursor();
+				if (fFractalPanel.getSelecting()) {
+					fFractalPanel.zoomToSelection();
+					updateStatusBar();
+				}
 			}
 		}
 	}
@@ -3255,17 +3332,19 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 	@Override
 	public void mouseDragged(MouseEvent e)
 	{
-		if (!fFractalPanel.getZoomThumbnailSelectionMode()) {
-			if (fFractalPanel.getSelecting()) {
-				// resize selection rectangle
-				Point mousePosition = fFractalPanel.getMousePosition();
-				if (mousePosition != null) {
-					double mouseX = mousePosition.getX();
-					double mouseY = mousePosition.getY();
-					fFractalPanel.setSelectionExtent(new ScreenLocation((int) mouseX,(int) mouseY));
+		if (fFractalPanel.getBifurcationAxisSelectionMode() == FractalPanel.EBifurcationAxisSelectionMode.kNone) {
+			if (!fFractalPanel.getZoomThumbnailSelectionMode()) {
+				if (fFractalPanel.getSelecting()) {
+					// resize selection rectangle
+					Point mousePosition = fFractalPanel.getMousePosition();
+					if (mousePosition != null) {
+						double mouseX = mousePosition.getX();
+						double mouseY = mousePosition.getY();
+						fFractalPanel.setSelectionExtent(new ScreenLocation((int) mouseX,(int) mouseY));
+					}
 				}
+				updateStatusBar();
 			}
-			updateStatusBar();
 		}
 	}
 
@@ -3780,6 +3859,31 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 			menu.add(menuItem);
 				menuItem = constructMenuItem(kMenuItemIndentation + kActionCommandMenuItemFractalSetMaxNrOfIterationsInOrbitAnalyses,false);
 				menuItem.setActionCommand(kActionCommandMenuItemFractalSetMaxNrOfIterationsInOrbitAnalyses);
+				menuItem.addActionListener(this);
+			menu.add(menuItem);
+
+			menu.addSeparator();
+
+				checkBoxMenuItem = constructCheckBoxMenuItem(kActionCommandMenuItemFractalShowBifurcationDiagram,false);
+				checkBoxMenuItem.setSelected(false);
+				checkBoxMenuItem.setActionCommand(kActionCommandMenuItemFractalShowBifurcationDiagram);
+				checkBoxMenuItem.addActionListener(this);
+				fMenuItems.put(kActionCommandMenuItemFractalShowBifurcationDiagram,checkBoxMenuItem);
+			menu.add(checkBoxMenuItem);
+				menuItem = constructMenuItem(kMenuItemIndentation + kActionCommandMenuItemFractalSetGeneralBifurcationAxis,false);
+				menuItem.setActionCommand(kActionCommandMenuItemFractalSetGeneralBifurcationAxis);
+				menuItem.addActionListener(this);
+			menu.add(menuItem);
+				menuItem = constructMenuItem(kMenuItemIndentation + kMenuItemIndentation + kActionCommandMenuItemFractalFixHorizontalBifurcationAxis,false);
+				menuItem.setActionCommand(kActionCommandMenuItemFractalFixHorizontalBifurcationAxis);
+				menuItem.addActionListener(this);
+			menu.add(menuItem);
+				menuItem = constructMenuItem(kMenuItemIndentation + kActionCommandMenuItemFractalSetNrOfBifurcationPointsPerOrbit,false);
+				menuItem.setActionCommand(kActionCommandMenuItemFractalSetNrOfBifurcationPointsPerOrbit);
+				menuItem.addActionListener(this);
+			menu.add(menuItem);
+				menuItem = constructMenuItem(kMenuItemIndentation + kActionCommandMenuItemFractalSetBifurcationOutlierPercentileOffset,false);
+				menuItem.setActionCommand(kActionCommandMenuItemFractalSetBifurcationOutlierPercentileOffset);
 				menuItem.addActionListener(this);
 			menu.add(menuItem);
 
@@ -6323,6 +6427,17 @@ public final class FraxionGUI extends JStandardGUIApplication implements ActionL
 					toggleButton.setActionCommand(kActionCommandMenuItemFractalShowOrbitAnalysesToggle);
 					toggleButton.addActionListener(this);
 					fToolBarToggles.put(kActionCommandMenuItemFractalShowOrbitAnalysesToggle,toggleButton);
+				fToolBar.add(toggleButton);
+
+				fToolBar.add(Box.createRigidArea(new Dimension(kSeparatorSpacing,0)));
+				fToolBar.addSeparator();
+				fToolBar.add(Box.createRigidArea(new Dimension(kSeparatorSpacing,0)));
+
+					toggleButton = new JToggleButton(new ImageIcon(fResources.getImage("application-resources/icons/toggle-bifurcation-diagram-icon.png")));
+					toggleButton.setToolTipText(I18NL10N.translate(kActionCommandMenuItemFractalShowBifurcationDiagram));
+					toggleButton.setActionCommand(kActionCommandMenuItemFractalShowBifurcationDiagramToggle);
+					toggleButton.addActionListener(this);
+					fToolBarToggles.put(kActionCommandMenuItemFractalShowBifurcationDiagramToggle,toggleButton);
 				fToolBar.add(toggleButton);
 
 				fToolBar.add(Box.createRigidArea(new Dimension(kSeparatorSpacing,0)));

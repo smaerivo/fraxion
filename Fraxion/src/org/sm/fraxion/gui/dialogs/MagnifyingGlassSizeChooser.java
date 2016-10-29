@@ -39,12 +39,12 @@ import org.sm.smtools.swing.dialogs.*;
  */
 public final class MagnifyingGlassSizeChooser extends JDefaultDialog implements ChangeListener
 {
-	/*
+	/**
 	 * The default magnifying glass region.
 	 */
 	public static final int kDefaultRegion = 100;
 
-	/*
+	/**
 	 * The default magnifying glass size.
 	 */
 	public static final int kDefaultSize = 400;
