@@ -1,7 +1,7 @@
 // ---------------------------------------------------------
 // Filename      : NrOfBifurcationPointsPerOrbitChooser.java
 // Author        : Sven Maerivoet
-// Last modified : 29/10/2016
+// Last modified : 01/11/2016
 // Target        : Java VM (1.8)
 // ---------------------------------------------------------
 
@@ -35,7 +35,7 @@ import org.sm.smtools.swing.dialogs.*;
  * <B>Note that this class cannot be subclassed!</B>
  *
  * @author  Sven Maerivoet
- * @version 29/10/2016
+ * @version 01/11/2016
  */
 public final class NrOfBifurcationPointsPerOrbitChooser extends JDefaultDialog implements ChangeListener
 {
@@ -45,7 +45,7 @@ public final class NrOfBifurcationPointsPerOrbitChooser extends JDefaultDialog i
 
 	// the minimum and maximum number of bifurcation points per orbit
 	private static final int kMinNrOfBifurcationPointsPerOrbit = 100;
-	private static final int kMaxNrOfBifurcationPointsPerOrbit = 10000;
+	private static final int kMaxNrOfBifurcationPointsPerOrbit = 25000;
 
 	// internal datastructures
 	private int fNrOfBifurcationPointsToDiscard;

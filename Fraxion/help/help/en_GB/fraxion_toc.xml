@@ -19,6 +19,9 @@
 	<tocitem text="Keyboard shortcuts" expand="true" target="keyboard_shortcuts">
 	</tocitem>
 
+	<tocitem text="Bifurcation diagrams" expand="true" target="bifurcation_diagrams">
+	</tocitem>
+
 	<tocitem text="Fractal types" expand="true">
 		<tocitem text="Classic">
 			<tocitem text="Mandelbrot / Julia" target="fractal_types_mandelbrot_julia" />

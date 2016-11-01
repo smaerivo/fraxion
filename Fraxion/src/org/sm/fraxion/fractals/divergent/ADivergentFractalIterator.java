@@ -1,7 +1,7 @@
 // ----------------------------------------------
 // Filename      : ADivergentFractalIterator.java
 // Author        : Sven Maerivoet
-// Last modified : 29/10/2016
+// Last modified : 31/10/2016
 // Target        : Java VM (1.8)
 // ----------------------------------------------
 
@@ -36,7 +36,7 @@ import org.sm.smtools.math.statistics.*;
  * <B>Note that this is an abstract class.</B>
  * 
  * @author  Sven Maerivoet
- * @version 29/10/2016
+ * @version 31/10/2016
  */
 public abstract class ADivergentFractalIterator extends AFractalIterator
 {
@@ -67,7 +67,7 @@ public abstract class ADivergentFractalIterator extends AFractalIterator
 				z = zNext;
 
 				// discard the first group iterations so the orbit can settle
-				if ((i >= fNrOfBifurcationPointsToDiscard) && (z.modulusSquared() <= fEscapeRadiusSqr)) {
+				if ((i >= fNrOfBifurcationPointsToDiscard) && (z != null) && (z.modulusSquared() <= fEscapeRadiusSqr)) {
 					double value = z.modulus();
 					if (!Double.isNaN(value)) {
 						fBifurcationPoints[x][fNrOfBifurcationPoints[x]] = value;

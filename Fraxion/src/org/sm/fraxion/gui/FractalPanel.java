@@ -1,7 +1,7 @@
 // ---------------------------------
 // Filename      : FractalPanel.java
 // Author        : Sven Maerivoet
-// Last modified : 29/10/2016
+// Last modified : 01/11/2016
 // Target        : Java VM (1.8)
 // ---------------------------------
 
@@ -61,7 +61,7 @@ import org.sm.smtools.util.*;
  * <B>Note that this class cannot be subclassed!</B>
  * 
  * @author  Sven Maerivoet
- * @version 29/10/2016
+ * @version 01/11/2016
  */
 public final class FractalPanel extends JPanel implements Printable
 {
@@ -273,6 +273,16 @@ public final class FractalPanel extends JPanel implements Printable
 	{
 		fShowBifurcationDiagram = showBifurcationDiagram;
 		repaint();
+	}
+
+	/**
+	 * Returns whether or not the bifurcation diagram is shown.
+	 *
+	 * @return a <CODE>boolean</CODE> that indicates whether or not the bifurcation diagram is shown
+	 */
+	public boolean getShowBifurcationDiagram()
+	{
+		return fShowBifurcationDiagram;
 	}
 
 	/**
@@ -2038,6 +2048,8 @@ public final class FractalPanel extends JPanel implements Printable
 			}
 		} // if (!(fBifurcationAxisSelectionMode == EBifurcationAxisSelectionMode.kNone))
 
+		Point bifurcationAxisLocation = new Point();
+
 		if (fShowBifurcationDiagram) {
 			boolean bifurcationDiagramSupported =
 				(fractalIterator instanceof FastMandelbrotJuliaFractalIterator) ||
@@ -2064,12 +2076,52 @@ public final class FractalPanel extends JPanel implements Printable
 				fRenderBufferGraphics.fillRect(s2.fX - (kBifurcationAxisEndPointWidth / 2),s2.fY - (kBifurcationAxisEndPointWidth / 2),kBifurcationAxisEndPointWidth,kBifurcationAxisEndPointWidth);
 				fRenderBufferGraphics.setStroke(stroke);
 
+				// check if we need to recreate the bifurcation diagram's image buffer
+				if (fBifurcationDiagramDirty) {
+					fBifurcationDiagramImageBuffer = new BufferedImage(width,height,BufferedImage.TYPE_INT_ARGB);
+					fractalIterator.iterateBifurcationDiagram(width);
+					JGradientColorMap gcm = new JGradientColorMap(JGradientColorMap.EColorMap.kBlueWhite);
+					for (int x = 0; x < width; ++x) {
+
+						int[] nrOfPoints = new int[height];
+						int maxNrOfPoints = 0;
+
+						// determine the number of orbit points landing on the same y-coordinate
+						for (int pointIndex = 0; pointIndex < fractalIterator.getNrOfBifurcationPoints(x); ++pointIndex) {
+							double yValue = fractalIterator.getBifurcationPoint(x,pointIndex);
+							int y = (int) Math.round(((yValue - fractalIterator.getMinBifurcationValue()) / (fractalIterator.getMaxBifurcationValue() - fractalIterator.getMinBifurcationValue())) * (height - 1));
+							y = (height - 1) - y; // invert the screen's Y-axis
+							++nrOfPoints[y];
+							if (nrOfPoints[y] > maxNrOfPoints) {
+								maxNrOfPoints = nrOfPoints[y];
+							}
+						}
+
+						for (int y = 0; y < height; ++y) {
+							int nrOfPointsAtY = nrOfPoints[y];
+							double u = (double) nrOfPointsAtY / (double) maxNrOfPoints;
+							Color color = gcm.interpolate(Math.sqrt(Math.sqrt(u))); // brighten the colours
+							int rgb = (new Color(color.getRed(),color.getGreen(),color.getBlue(),196)).getRGB();
+							if (nrOfPointsAtY > 0) {
+								fBifurcationDiagramImageBuffer.setRGB(x,y,rgb);
+							}
+						}
+					}
+
+					fBifurcationDiagramDirty = false;
+				}
+
+				// copy the bifurcation diagram's image buffer to the render buffer
+				fRenderBufferGraphics.drawImage(fBifurcationDiagramImageBuffer,0,0,null);
+
 				Point m = getMousePosition();
 				if (m != null) {
 					if (((s1.fX <= s2.fX) && (m.x >= s1.fX) && (m.x <= s2.fX)) ||
 							((s2.fX <= s1.fX) && (m.x >= s2.fX) && (m.x <= s1.fX))) {
 
-						// draw a narrow bar across the screen for the location in the bifurcation diagram corresponding to the selected point on the bifurcation axis
+						fRenderBufferGraphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,0.5f));
+
+						// draw a narrow bar (with a highlighting line in it) across the screen for the location in the bifurcation diagram corresponding to the selected point on the bifurcation axis
 						int minX = s1.fX;
 						int delta = s2.fX - s1.fX;
 						if (s2.fX <= s1.fX) {
@@ -2091,29 +2143,13 @@ public final class FractalPanel extends JPanel implements Printable
 						fRenderBufferGraphics.fillRect(m.x - (kBoxSize / 2),y - (kBoxSize / 2),kBoxSize,kBoxSize);
 						fRenderBufferGraphics.drawLine(m.x,y - kBoxSize,m.x,y + kBoxSize);
 						fRenderBufferGraphics.drawLine(m.x - kBoxSize,y,m.x + kBoxSize,y);
+
+						fRenderBufferGraphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,1.0f));
+
+						bifurcationAxisLocation.x = m.x;
+						bifurcationAxisLocation.y = y;
 					}
 				}
-
-				// check if we need to recreate the bifurcation diagram's image buffer
-				if (fBifurcationDiagramDirty) {
-					fBifurcationDiagramImageBuffer = new BufferedImage(width,height,BufferedImage.TYPE_INT_ARGB);
-					Color color = Color.WHITE;
-					int rgb = (new Color(color.getRed(),color.getGreen(),color.getBlue(),196)).getRGB();
-					fractalIterator.iterateBifurcationDiagram(width);
-					for (int x = 0; x < width; ++x) {
-						for (int pointIndex = 0; pointIndex < fractalIterator.getNrOfBifurcationPoints(x); ++pointIndex) {
-							double yValue = fractalIterator.getBifurcationPoint(x,pointIndex);
-							int y = (int) Math.round(((yValue - fractalIterator.getMinBifurcationValue()) / (fractalIterator.getMaxBifurcationValue() - fractalIterator.getMinBifurcationValue())) * (height - 1));
-							y = (height - 1) - y; // invert the screen's Y-axis
-							fBifurcationDiagramImageBuffer.setRGB(x,y,rgb);
-						}
-					}
-
-					fBifurcationDiagramDirty = false;
-				}
-
-				// copy the bifurcation diagram's image buffer to the render buffer
-				fRenderBufferGraphics.drawImage(fBifurcationDiagramImageBuffer,0,0,null);
 			} // if (bifurcationDiagramSupported && (fractalType == AFractalIterator.EFractalType.kMainFractal))
 			else {
 				FontMetrics fontMetrics = fRenderBufferGraphics.getFontMetrics();
@@ -2161,6 +2197,10 @@ public final class FractalPanel extends JPanel implements Printable
 					try {
 						Point m = getMousePosition();
 						if (m != null) {
+							// fix mouse position if necessary
+							if (fShowBifurcationDiagram) {
+								m = bifurcationAxisLocation;
+							}
 							dualParameter = fractalIterator.convertScreenLocationToComplexNumber(new ScreenLocation(m.x,m.y));
 							if (fShowDeformedMainFractal) {
 								deformedParameter = fractalIterator.convertScreenLocationToComplexNumber(new ScreenLocation(m.x,m.y));
@@ -2431,6 +2471,11 @@ public final class FractalPanel extends JPanel implements Printable
 			try {
 				Point m = getMousePosition();
 				if (m != null) {
+					// fix mouse position if necessary
+					if (fShowBifurcationDiagram) {
+						m = bifurcationAxisLocation;
+					}
+
 					int mX = (int) m.getX();
 					int mY = (int) m.getY();
 
@@ -2939,6 +2984,11 @@ public final class FractalPanel extends JPanel implements Printable
 			try {
 				Point m = getMousePosition();
 				if (m != null) {
+					// fix mouse position if necessary
+					if (fShowBifurcationDiagram) {
+						m = bifurcationAxisLocation;
+					}
+
 					int mX = (int) m.getX();
 					int mY = (int) m.getY();
 

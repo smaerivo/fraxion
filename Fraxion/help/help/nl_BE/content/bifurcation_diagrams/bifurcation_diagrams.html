@@ -1,0 +1,137 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+	<head>
+		<meta http-equiv="content-type" content="text/xhtml; charset=UTF-8" />
+		<meta name="author" content="Sven Maerivoet" />
+		<meta name="generator" content="author" />
+
+		<meta name="description" content="Fraxion Help" />
+		<meta name="robots" content="index,follow" />
+		<meta name="revisit-after" content="1 month" />
+
+		<link rel="stylesheet" type="text/css" href="../../../layout/page-screen-layout.css" media="screen" />
+		<link rel="stylesheet" type="text/css" href="../../../layout/page-screen-colours.css" media="screen" />
+
+		<title>
+			Fraxion Help
+		</title>
+	</head>
+
+	<body>
+		<h1>Bifurcatiediagrammen</h1>
+
+			<p>
+				Fraxion ondersteunt de berekening van bifurcatiediagrammen voor 
+				<i>divergente fractalen</i> (hoofdfractalen, geen duale). De bifurcatie 
+				parameter van het systeem komt overeen met de <i>c</i> waarde in het 
+				complexe vlak, welke gebonden wordt door een enkel recht lijnsegment.
+			</p>
+
+			<p>
+				Bifurcatie functionaliteit is bereikbaar via de volgende opties in het 
+				<b>Fractaal</b> menu:
+			</p>
+
+			<div id="example">
+				<img src="bifurcation-menu.png" style="border:solid; border-color:#000000; border-width:1px">
+			</div>
+
+			<p>
+				Selecteren van de <b>Toon bifurcatiediagram</b> menu optie start de 
+				berekening van het bifurcatiediagram voor de huidige fractaal. 
+				Aanvankelijk worden alle bifurcatiediagrammen getoond voor het bereik -
+				2.0 + 0 i tot 0.25 + 0 i. Dit leidt tot het volgend beeld voor de 
+				klassieke Mandelbrot verzameling (waarbij de rode lijn de grenzen van de 
+				bifurcatieparameter aanduidt, en de intensiteit van de grafiek de punten 
+				in de orbit aanduidt die meer dan andere bezocht worden):
+			</p>
+
+			<div id="example">
+				<img src="bifurcation-mandelbrot-default.png" style="border:solid; border-color:#000000; border-width:1px">
+			</div>
+
+			<p>
+				Door de optie <b>Stel algemene bifurcatie-as</b> in het menu te kiezen, 
+				kan men een willekeurige bifurcatie-as tekenen. Fraxion zal vragen om 
+				het begin- en eindpunt van de as in het complexe vlak aan te duiden (men 
+				kan dit annuleren door rechts te klikken). Merk op dat wanneer het 
+				bifurcatiediagram wordt getoond, men de muis in het complexe vlak kan 
+				laten bewegen. Fraxion zal dan automatisch de vertaling doen van punten 
+				op de bifurcatie-as (getoond met een klein witte vierkantje), en de 
+				overeenkomstige locatie in het getoonde bifurcatiediagram (getoond met 
+				een doorzichtige smalle verticale rechthoek). Een voorbeeld van een 
+				willekeurige as is te zien in de volgende figuur:
+			</p>
+
+			<div id="example">
+				<img src="bifurcation-mandelbrot-general.png" style="border:solid; border-color:#000000; border-width:1px">
+			</div>
+
+			<p>
+				Door de optie <b>Fixeer horizontale bifurcatie-as</b> in het menu te 
+				kiezen, wordt de bifurcatie-as automatisch gekozen voor de volledige 
+				breedte van het scherm, met een vaste imaginaire component van nul. Een 
+				voorbeeld van een vaste horizontale as is te zien in de volgende figuur:
+			</p>
+
+			<div id="example">
+		 		<img src="bifurcation-tetration-horizontal.png" style="border:solid; border-color:#000000; border-width:1px">
+		 	</div>
+
+			<p>
+				Merk op dat wanneer een bifurcatiediagram getoond wordt, de volgende 
+				eigenschappen op de muiscursor vastgezet worden op een locatie op de 
+				bifurcatie-as: de duale inzet fractaal, de orbitdiagrammen en de huidige 
+				locatie. Als de orbitdiagrammen worden getoond, dan ziet men hoe het 
+				aantal vaste aantrekkingspunten overeenkomen met de lijnen in het 
+				bifurcatiediagram, zoals te zien in volgende figuren:
+			</p>
+
+			<div id="example">
+				<img src="bifurcation-burning-multiship-general.png" style="border:solid; border-color:#000000; border-width:1px">
+			</div>
+
+			<div id="example">
+				<img src="bifurcation-logarithmic-julia-general.png" style="border:solid; border-color:#000000; border-width:1px">
+			</div>
+
+			<div id="example">
+				<img src="bifurcation-bird-of-prey-general.png" style="border:solid; border-color:#000000; border-width:1px">
+			</div>
+
+			<div id="example">
+				<img src="bifurcation-multibar-inverted-parameter-general.png" style="border:solid; border-color:#000000; border-width:1px">
+				&nbsp; &nbsp; &nbsp;
+				<img src="bifurcation-multibar-inverted-parameter-general-fractal.png" style="border:solid; border-color:#000000; border-width:1px">
+			</div>
+
+			<p>
+				Selecteren van de <b>Stel aantal bifurcatiepunten per orbit in</b> optie 
+				in het menu geeft een dialoogvenster waarin men volgende zaken kan 
+				specificeren: (1) het aantal weg te gooien punten in de orbit (waarbij 
+				de orbit zich kan nestelen en initi&euml;le transi&euml;nten worden 
+				verwijderd), en (2) het aantal te behouden punten in de orbit. Hoe meer 
+				punten gebruikt worden, hoe <i>zachter</i> het bifurcatiediagram er zal 
+				uitzien in de chaotische gebieden. Aansluitend laat de optie <b>Stel 
+				bifurcatie uitschieter percentieloffset in</b> toe om een percentiel te 
+				kiezen waarbij een aantal van de punten in het bifurcatiediagram niet 
+				getoond worden, en op die manier het mogelijk is om naar meer detail in 
+				te zoomen.
+			</p>
+
+			<div id="example">
+				<img src="bifurcation-ducks-general.png" style="border:solid; border-color:#000000; border-width:1px">
+				&nbsp; &nbsp; &nbsp;
+				<img src="bifurcation-ducks-general-fractal.png" style="border:solid; border-color:#000000; border-width:1px">
+			</div>
+
+		<hr />
+
+		<p>
+			XHTML 1.1 Transitional | CSS2 | <a href="http://creativecommons.org/licenses/by-nc-nd/2.0/be/deed.en_GB">Creative Commons License</a>
+		</p>
+
+		<p>
+			Sven Maerivoet (<a href="http://www.maerivoet.org/">www</a>)
+		</p>
+	</body>
+</html>
