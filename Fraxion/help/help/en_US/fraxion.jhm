@@ -11,6 +11,7 @@
 	<mapID target="coloring_schemes" url="content/coloring_schemes/coloring_schemes.html"></mapID>
 	<mapID target="resizing_for_quality_printing" url="content/resizing_for_quality_printing/resizing_for_quality_printing.html"></mapID>
 	<mapID target="keyboard_shortcuts" url="content/keyboard_shortcuts/keyboard_shortcuts.html"></mapID>
+	<mapID target="bifurcation_diagrams" url="content/bifurcation_diagrams/bifurcation_diagrams.html"></mapID>
 
 	<mapID target="fractal_types_mandelbrot_julia" url="content/fractal_types/classic/fractal_types_mandelbrot_julia.html"></mapID>
 	<mapID target="fractal_types_mandelbar" url="content/fractal_types/classic/fractal_types_mandelbar.html"></mapID>

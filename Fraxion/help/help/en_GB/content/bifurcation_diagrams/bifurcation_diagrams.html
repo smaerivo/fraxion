@@ -1,0 +1,133 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+	<head>
+		<meta http-equiv="content-type" content="text/xhtml; charset=UTF-8" />
+		<meta name="author" content="Sven Maerivoet" />
+		<meta name="generator" content="author" />
+
+		<meta name="description" content="Fraxion Help" />
+		<meta name="robots" content="index,follow" />
+		<meta name="revisit-after" content="1 month" />
+
+		<link rel="stylesheet" type="text/css" href="../../../layout/page-screen-layout.css" media="screen" />
+		<link rel="stylesheet" type="text/css" href="../../../layout/page-screen-colours.css" media="screen" />
+
+		<title>
+			Fraxion Help
+		</title>
+	</head>
+
+	<body>
+		<h1>Bifurcation diagrams</h1>
+
+			<p>
+				Fraxion supports the calculation of bifurcation diagrams for <i>divergent 
+				fractals</i> (main fractals, not dual ones). The bifurcation parameter of 
+				the system corresponds to the <i>c</i> value in the complex plane, which 
+				is bounded by a single straight line segment.
+			</p>
+
+			<p>
+				Bifurcation functionality is accessed via the following options in the 
+				<b>Fractal</b> menu:
+			</p>
+
+			<div id="example">
+				<img src="bifurcation-menu.png" style="border:solid; border-color:#000000; border-width:1px">
+			</div>
+
+			<p>
+				Selecting the <b>Show bifurcation diagram</b> menu option triggers the 
+				calculation of the bifurcation diagram for the current fractal. 
+				Initially all bifurcation diagrams are shown for the range -2.0 + 0 i to 
+				0.25 + 0 i. This results in the following image for the classic 
+				Mandelbrot set (with the red line indicating the bounds for the 
+				bifurcation parameter, and the intensity of the plot denoting points in 
+				the orbits that are visited more than others):
+			</p>
+
+			<div id="example">
+				<img src="bifurcation-mandelbrot-default.png" style="border:solid; border-color:#000000; border-width:1px">
+			</div>
+
+			<p>
+				By selecting the <b>Set general bifurcation axis</b> menu option, you 
+				can draw an arbitrary bifurcation axis. Fraxion will ask you to select 
+				the axis' begin and end points in the complex plane (you right click at 
+				anytime to cancel). Note that when the bifurcation diagram is shown, you 
+				can move the mouse around the complex plane. Fraxion will automatically 
+				translate between a point on the bifurcation axis (shown as a small 
+				white box), and the corresponding location in the shown bifurcation 
+				diagram (shown as a transparent small vertical rectangle). An example of 
+				an arbitrary axis is shown in the following figure:
+			</p>
+
+			<div id="example">
+				<img src="bifurcation-mandelbrot-general.png" style="border:solid; border-color:#000000; border-width:1px">
+			</div>
+
+			<p>
+				By selecting the <b>Fix horizontal bifurcation axis</b> menu option, you 
+				automatically set the bifurcation axis to the width of the screen, with 
+				a fixed imaginary component of zero. An example of a fixed horizontal 
+				axis is shown in the following figure:
+			</p>
+
+			<div id="example">
+		 		<img src="bifurcation-tetration-horizontal.png" style="border:solid; border-color:#000000; border-width:1px">
+		 	</div>
+
+			<p>
+				Note that when a bifurcation diagram is shown, the following properties 
+				at the mouse cursor are fixed to a location on the bifurcation axis: the 
+				dual inset fractal, the orbit diagrams, and the current location. 
+				Activating the orbit diagrams shows how the number of fixed attracting 
+				points correspond to the lines in the bifurcation diagram, as shown in 
+				the following figures:
+			</p>
+
+			<div id="example">
+				<img src="bifurcation-burning-multiship-general.png" style="border:solid; border-color:#000000; border-width:1px">
+			</div>
+
+			<div id="example">
+				<img src="bifurcation-logarithmic-julia-general.png" style="border:solid; border-color:#000000; border-width:1px">
+			</div>
+
+			<div id="example">
+				<img src="bifurcation-bird-of-prey-general.png" style="border:solid; border-color:#000000; border-width:1px">
+			</div>
+
+			<div id="example">
+				<img src="bifurcation-multibar-inverted-parameter-general.png" style="border:solid; border-color:#000000; border-width:1px">
+				&nbsp; &nbsp; &nbsp;
+				<img src="bifurcation-multibar-inverted-parameter-general-fractal.png" style="border:solid; border-color:#000000; border-width:1px">
+			</div>
+
+			<p>
+				Selecting the <b>Set number of bifurcation points per orbit</b> opens a 
+				dialog box in which you can specify (1) the number of points in the 
+				orbit to discard (allowing the orbit to settle and remove initial 
+				transients), and (2) the number of points in the orbit to retain. The 
+				more points used, the <i>smoother</i> the bifurcation diagram will look 
+				in the chaotic regions. Additionally, the <b>Set bifurcation outlier 
+				percentile offset</b> allows to set a percentile to exclude some of the 
+				points in the bifurcation diagrams, thereby zooming in on more detail.
+			</p>
+
+			<div id="example">
+				<img src="bifurcation-ducks-general.png" style="border:solid; border-color:#000000; border-width:1px">
+				&nbsp; &nbsp; &nbsp;
+				<img src="bifurcation-ducks-general-fractal.png" style="border:solid; border-color:#000000; border-width:1px">
+			</div>
+
+		<hr />
+
+		<p>
+			XHTML 1.1 Transitional | CSS2 | <a href="http://creativecommons.org/licenses/by-nc-nd/2.0/be/deed.en_GB">Creative Commons License</a>
+		</p>
+
+		<p>
+			Sven Maerivoet (<a href="http://www.maerivoet.org/">www</a>)
+		</p>
+	</body>
+</html>

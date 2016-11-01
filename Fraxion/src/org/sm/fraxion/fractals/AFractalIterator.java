@@ -1,7 +1,7 @@
 // -------------------------------------
 // Filename      : AFractalIterator.java
 // Author        : Sven Maerivoet
-// Last modified : 20/04/2016
+// Last modified : 30/10/2016
 // Target        : Java VM (1.8)
 // -------------------------------------
 
@@ -40,7 +40,7 @@ import org.sm.smtools.util.*;
  * <B>Note that this is an abstract class.</B>
  * 
  * @author  Sven Maerivoet
- * @version 20/04/2016
+ * @version 30/10/2016
  */
 public abstract class AFractalIterator
 {
@@ -96,6 +96,15 @@ public abstract class AFractalIterator
 	protected double fExteriorOrbitTrapTangensMultiplicativeFactor;
 	protected double fInteriorOrbitTrapTangensAdditiveFactor;
 	protected double fExteriorOrbitTrapTangensAdditiveFactor;
+	protected ComplexNumber fBifurcationAxisZ1;
+	protected ComplexNumber fBifurcationAxisZ2;
+	protected int fNrOfBifurcationPointsToDiscard;
+	protected int fNrOfBifurcationPointsPerOrbit;
+	protected double fBifurcationOutlierPercentileOffset;
+	protected double[][] fBifurcationPoints;
+	protected int[] fNrOfBifurcationPoints;
+	protected double fMinBifurcationValue;
+	protected double fMaxBifurcationValue;
 
 	/****************
 	 * CONSTRUCTORS *
@@ -133,6 +142,11 @@ public abstract class AFractalIterator
 		setExteriorOrbitTrapTangensMultiplicativeFactor(1.0);
 		setInteriorOrbitTrapTangensAdditiveFactor(0.0);
 		setExteriorOrbitTrapTangensAdditiveFactor(0.0);
+		setBifurcationAxisZ1(new ComplexNumber(-2.0));
+		setBifurcationAxisZ2(new ComplexNumber(0.25));
+		setNrOfBifurcationPointsToDiscard(1000);
+		setNrOfBifurcationPointsPerOrbit(1000);
+		setBifurcationOutlierPercentileOffset(0.1);
 	}
 
 	/******************
@@ -803,6 +817,149 @@ public abstract class AFractalIterator
 	}
 
 	/**
+	 * Sets the starting point of the bifurcation axis.
+	 * 
+	 * @param bifurcationAxisZ1  the starting point of the bifurcation axis
+	 */
+	public final void setBifurcationAxisZ1(ComplexNumber bifurcationAxisZ1)
+	{
+		fBifurcationAxisZ1 = bifurcationAxisZ1;
+	}
+
+	/**
+	 * Returns the starting point of the bifurcation axis.
+	 * 
+	 * @return the starting point of the bifurcation axis
+	 */
+	public final ComplexNumber getBifurcationAxisZ1()
+	{
+		return fBifurcationAxisZ1;
+	}
+
+	/**
+	 * Sets the ending point of the bifurcation axis.
+	 * 
+	 * @param bifurcationAxisZ2  the ending point of the bifurcation axis
+	 */
+	public final void setBifurcationAxisZ2(ComplexNumber bifurcationAxisZ2)
+	{
+		fBifurcationAxisZ2 = bifurcationAxisZ2;
+	}
+
+	/**
+	 * Returns the ending point of the bifurcation axis.
+	 * 
+	 * @return the ending point of the bifurcation axis
+	 */
+	public final ComplexNumber getBifurcationAxisZ2()
+	{
+		return fBifurcationAxisZ2;
+	}
+
+	/**
+	 * Sets the number of bifurcation points to discard.
+	 * 
+	 * @param nrOfBifurcationPointsToDiscard  the number of bifurcation points to discard
+	 */
+	public final void setNrOfBifurcationPointsToDiscard(int nrOfBifurcationPointsToDiscard)
+	{
+		fNrOfBifurcationPointsToDiscard = nrOfBifurcationPointsToDiscard;
+	}
+
+	/**
+	 * Returns the number of bifurcation points to discard.
+	 * 
+	 * @return the number of bifurcation points to discard
+	 */
+	public final int getNrOfBifurcationPointsToDiscard()
+	{
+		return fNrOfBifurcationPointsToDiscard;
+	}
+	
+	/**
+	 * Sets the number of bifurcation points per orbit.
+	 * 
+	 * @param nrOfBifurcationPointsPerOrbit  the number of bifurcation points per orbit
+	 */
+	public final void setNrOfBifurcationPointsPerOrbit(int nrOfBifurcationPointsPerOrbit)
+	{
+		fNrOfBifurcationPointsPerOrbit = nrOfBifurcationPointsPerOrbit;
+	}
+
+	/**
+	 * Returns the number of bifurcation points per orbit.
+	 * 
+	 * @return the number of bifurcation points per orbit
+	 */
+	public final int getNrOfBifurcationPointsPerOrbit()
+	{
+		return fNrOfBifurcationPointsPerOrbit;
+	}
+
+	/**
+	 * Sets the bifurcation outlier percentile offset.
+	 * 
+	 * @param bifurcationOutlierPercentileOffset  the bifurcation outlier percentile offset
+	 */
+	public final void setBifurcationOutlierPercentileOffset(double bifurcationOutlierPercentileOffset)
+	{
+		fBifurcationOutlierPercentileOffset = bifurcationOutlierPercentileOffset;
+	}
+
+	/**
+	 * Returns the bifurcation outlier percentile offset.
+	 * 
+	 * @return the bifurcation outlier percentile offset
+	 */
+	public final double getBifurcationOutlierPercentileOffset()
+	{
+		return fBifurcationOutlierPercentileOffset;
+	}
+
+	/**
+	 * Returns a bifurcation point.
+	 * 
+	 * @param x           the position
+	 * @param pointIndex  the index of the point at the bifurcation fork
+	 * @return            a bifurcation point
+	 */
+	public final double getBifurcationPoint(int x, int pointIndex)
+	{
+		return fBifurcationPoints[x][pointIndex];
+	}
+
+	/**
+	 * Returns the number of bifurcation points at a given position.
+	 * 
+	 * @param x  the position
+	 * @return   the number of bifurcation points at a given position
+	 */
+	public final double getNrOfBifurcationPoints(int x)
+	{
+		return fNrOfBifurcationPoints[x];
+	}
+
+	/**
+	 * Returns the minimum bifurcation value.
+	 * 
+	 * @return the minimum bifurcation value
+	 */
+	public final double getMinBifurcationValue()
+	{
+		return fMinBifurcationValue;
+	}
+
+	/**
+	 * Returns the maximum bifurcation value.
+	 * 
+	 * @return the maximum bifurcation value
+	 */
+	public final double getMaxBifurcationValue()
+	{
+		return fMaxBifurcationValue;
+	}
+
+	/**
 	 * Helper method for converting a complex number to a screen location.
 	 *
 	 * @param c  the complex number
@@ -1094,6 +1251,15 @@ public abstract class AFractalIterator
 	public final IterationResult iterateDualFractal(ScreenLocation s, ComplexNumber c, boolean saveOrbit, int screenWidth, int screenHeight)
 	{
 		return iterate(convertScreenLocationToComplexNumber(s,screenWidth,screenHeight),c,saveOrbit);
+	}
+
+	/**
+	 * Iterates all points in the bifurcation diagram.
+	 *
+	 * @param width  the width of the diagram in pixels
+	 */
+	public void iterateBifurcationDiagram(int width)
+	{
 	}
 
 	/**

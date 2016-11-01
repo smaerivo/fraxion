@@ -1,7 +1,7 @@
 // ---------------------------------
 // Filename      : FractalPanel.java
 // Author        : Sven Maerivoet
-// Last modified : 25/09/2016
+// Last modified : 01/11/2016
 // Target        : Java VM (1.8)
 // ---------------------------------
 
@@ -36,6 +36,7 @@ import javax.swing.*;
 import org.sm.fraxion.concurrent.*;
 import org.sm.fraxion.fractals.*;
 import org.sm.fraxion.fractals.convergent.*;
+import org.sm.fraxion.fractals.divergent.*;
 import org.sm.fraxion.fractals.markuslyapunov.*;
 import org.sm.fraxion.fractals.util.*;
 import org.sm.fraxion.gui.dialogs.*;
@@ -60,7 +61,7 @@ import org.sm.smtools.util.*;
  * <B>Note that this class cannot be subclassed!</B>
  * 
  * @author  Sven Maerivoet
- * @version 25/09/2016
+ * @version 01/11/2016
  */
 public final class FractalPanel extends JPanel implements Printable
 {
@@ -68,6 +69,11 @@ public final class FractalPanel extends JPanel implements Printable
 	 * The different directions of panning.
 	 */
 	public static enum EPanDirection {kLeft, kRight, kUp, kDown};
+
+	/**
+	 * The different modes for selecting the bifurcation axis.
+	 */
+	public static enum EBifurcationAxisSelectionMode {kNone, kZ1, kZ2};
 
 	// the minimum horizontal and vertical screen region size (expressed in pixels) to zoom in on
 	private static final int kMinimumZoomSize = 25;
@@ -92,6 +98,8 @@ public final class FractalPanel extends JPanel implements Printable
 	private static final int kMaxNrOfGridSpacesPerDimension = 8; // must be even
 	private static final int kThumbnailStoredWidth = 500;
 	private static final int kThumbnailStoredHeight = 500;
+	private static final float kBifurcationAxisWidth = 3.0f;
+	private static final int kBifurcationAxisEndPointWidth = 10;
 
 	// internal datastructures
 	private JViewport fViewport;
@@ -125,6 +133,10 @@ public final class FractalPanel extends JPanel implements Printable
 	private int fMaxNrOfIterationsInOrbitAnalyses;
 	private boolean fShowZoomInformation;
 	private boolean fShowCurrentLocation;
+	private EBifurcationAxisSelectionMode fBifurcationAxisSelectionMode;
+	private boolean fShowBifurcationDiagram;
+	private BufferedImage fBifurcationDiagramImageBuffer;
+	private boolean fBifurcationDiagramDirty;
 	private FractalIterationRangeInformation fMainFractalIterationRangeInformation;
 	private FractalIterationRangeInformation fDualFractalIterationRangeInformation;
 	private boolean fSelecting;
@@ -250,6 +262,117 @@ public final class FractalPanel extends JPanel implements Printable
 	{
 		fShowCurrentLocation = showCurrentLocation;
 		repaint();
+	}
+
+	/**
+	 * Controls whether or not the bifurcation diagram should be shown.
+	 *
+	 * @param showBifurcationDiagram  a <CODE>boolean</CODE> that indicates whether or not the bifurcation diagram should be shown
+	 */
+	public void setShowBifurcationDiagram(boolean showBifurcationDiagram)
+	{
+		fShowBifurcationDiagram = showBifurcationDiagram;
+		repaint();
+	}
+
+	/**
+	 * Returns whether or not the bifurcation diagram is shown.
+	 *
+	 * @return a <CODE>boolean</CODE> that indicates whether or not the bifurcation diagram is shown
+	 */
+	public boolean getShowBifurcationDiagram()
+	{
+		return fShowBifurcationDiagram;
+	}
+
+	/**
+	 * Sets the bifurcation axis selection mode.
+	 * 
+	 * @param bifurcationAxisSelectionMode  the bifurcation axis selection mode
+	 */
+	public void setBifurcationAxisSelectionMode(EBifurcationAxisSelectionMode bifurcationAxisSelectionMode)
+	{
+		fBifurcationAxisSelectionMode = bifurcationAxisSelectionMode;
+	}
+
+	/**
+	 * Returns the bifurcation axis selection mode.
+	 * 
+	 * @return the bifurcation axis selection mode
+	 */
+	public EBifurcationAxisSelectionMode getBifurcationAxisSelectionMode()
+	{
+		return fBifurcationAxisSelectionMode;
+	}
+
+	/**
+	 * Sets a general bifurcation axis.
+	 *
+	 * @param z1  the starting point of the bifurcation axis
+	 * @param z2  the ending point of the bifurcation axis
+	 */
+	public void setGeneralBifurcationAxis(ComplexNumber z1, ComplexNumber z2)
+	{
+		AFractalIterator fractalIterator = fIteratorController.getFractalIterator();
+
+		fractalIterator.setBifurcationAxisZ1(z1);
+		fractalIterator.setBifurcationAxisZ2(z2);
+
+		setBifurcationDiagramDirty();
+	}
+
+	/**
+	 * Explicitly forces 	a recalculation of the bifurcation diagram.
+	 */
+	public void setBifurcationDiagramDirty()
+	{
+		fBifurcationDiagramDirty = true;
+		repaint();
+	}
+
+	/**
+	 * Fixes the horizontal bifurcation axis.
+	 */
+	public void fixHorizontalBifurcationAxis()
+	{
+		AFractalIterator fractalIterator = fIteratorController.getFractalIterator();
+
+		setGeneralBifurcationAxis(
+			new ComplexNumber((fractalIterator.convertScreenLocationToComplexNumber(new ScreenLocation(0,0))).realComponent()),
+			new ComplexNumber((fractalIterator.convertScreenLocationToComplexNumber(new ScreenLocation(fractalIterator.getScreenWidth(),0))).realComponent()));
+	}
+
+	/**
+	 * Sets the number of bifurcation points to discard.
+	 *
+	 * @param nrOfBifurcationPointsToDiscard  the number of bifurcation points to discard
+	 */
+	public void setNrOfBifurcationPointsToDiscard(int nrOfBifurcationPointsToDiscard)
+	{
+		fIteratorController.getFractalIterator().setNrOfBifurcationPointsToDiscard(nrOfBifurcationPointsToDiscard);
+		setBifurcationDiagramDirty();
+	}
+
+	/**
+	 * Sets the number of bifurcation points per orbit.
+	 *
+	 * @param nrOfBifurcationPointsPerOrbit  the number of bifurcation points per orbit
+	 */
+	public void setNrOfBifurcationPointsPerOrbit(int nrOfBifurcationPointsPerOrbit)
+	{
+		fIteratorController.getFractalIterator().setNrOfBifurcationPointsPerOrbit(nrOfBifurcationPointsPerOrbit);
+		setBifurcationDiagramDirty();
+	}
+
+	/**
+	 * Sets the bifurcation outlier percentage offset.
+	 *
+	 * @param bifurcationOutlierPercentileOffset  the bifurcation outlier percentage offset
+	 */
+	public void setBifurcationOutlierPercentileOffset(double bifurcationOutlierPercentileOffset)
+	{
+		fIteratorController.getFractalIterator().setBifurcationOutlierPercentileOffset(bifurcationOutlierPercentileOffset);
+		setBifurcationDiagramDirty();
 	}
 
 	/**
@@ -767,6 +890,7 @@ public final class FractalPanel extends JPanel implements Printable
 			fractalIterator.setMaxNrOfIterations(maxNrOfIterations);
 		}
 
+		fBifurcationDiagramDirty = true;
 		fIteratorController.recalc();
 	}
 
@@ -1082,6 +1206,9 @@ public final class FractalPanel extends JPanel implements Printable
 		fMaxNrOfIterationsInOrbitAnalyses = 100;
 		fShowZoomInformation = true;
 		fShowCurrentLocation = true;
+		fShowBifurcationDiagram = false;
+		fBifurcationAxisSelectionMode = EBifurcationAxisSelectionMode.kNone;
+		fBifurcationDiagramDirty = true;
 		fZoomThumbnailSelectionMode = false;
 
 		ColoringParameters coloringParameters = fIteratorController.getColoringParameters();
@@ -1792,7 +1919,7 @@ public final class FractalPanel extends JPanel implements Printable
 		ComplexNumber p1 = new ComplexNumber(fractalIterator.getP1());
 		ComplexNumber p2 = new ComplexNumber(fractalIterator.getP2());
 		ComplexNumber previousDeformedParameter = fractalIterator.getMainFractalOrbitStartingPoint();
-		ComplexNumber deformedParameter = new ComplexNumber();
+		ComplexNumber deformedParameter = ComplexNumber.kZero;
 
 		fRenderBufferGraphics = (Graphics2D) fRenderBuffer.createGraphics();
 		fRenderBufferGraphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
@@ -1842,10 +1969,10 @@ public final class FractalPanel extends JPanel implements Printable
 	
 			fRenderBufferGraphics.setColor(Color.BLACK);
 			fRenderBufferGraphics.drawRect(vpX1 + kRescaledMainFractalXOffset,vpY2 - kRescaledMainFractalYOffset - rescaledMainFractalHeight,rescaledMainFractalWidth,rescaledMainFractalHeight);
-		} // if (fShowMainFractalOverview)
+		} // if (fShowMainFractalOverview && !fZoomThumbnailSelectionMode)
 
 		// overlay the selection rectangle if necessary
-		if (fSelecting && (fSelectionAnchor != null) && (fSelectionExtent != null)) {
+		if (fSelecting && (fSelectionAnchor != null) && (fSelectionExtent != null) && (fBifurcationAxisSelectionMode == EBifurcationAxisSelectionMode.kNone)) {
 			Point2D.Double mouseSelectionAnchor = new Point2D.Double(fSelectionAnchor.fX,fSelectionAnchor.fY);
 			Point2D.Double mouseSelectionExtent = new Point2D.Double(fSelectionExtent.fX,fSelectionExtent.fY);
 			if (!fCentredZooming) {
@@ -1896,7 +2023,146 @@ public final class FractalPanel extends JPanel implements Printable
 			fRenderBufferGraphics.fillRect(mX2 - kHalfCornerSize - 1,mY2 - kHalfCornerSize - 1,2 * kHalfCornerSize,2 * kHalfCornerSize);
 			fRenderBufferGraphics.drawLine((mX1 + mX2) / 2,mY1 - (kHalfCornerSize / 2),(mX1 + mX2) / 2,mY2 + (kHalfCornerSize / 2));
 			fRenderBufferGraphics.drawLine(mX1 - (kHalfCornerSize / 2),(mY1 + mY2) / 2,mX2 + (kHalfCornerSize / 2),(mY1 + mY2) / 2);
-		} // if (fSelecting && (fSelectionAnchor != null) && (fSelectionExtent != null))
+		} // if (fSelecting && (fSelectionAnchor != null) && (fSelectionExtent != null) && (fBifurcationAxisSelectionMode == EBifurcationAxisSelectionMode.kNone))
+
+		if (!(fBifurcationAxisSelectionMode == EBifurcationAxisSelectionMode.kNone)) {
+			Point m = getMousePosition();
+			if (m != null) {
+				ScreenLocation s = new ScreenLocation(m.x,m.y);
+
+				fRenderBufferGraphics.setColor(Color.RED);
+				if (fBifurcationAxisSelectionMode == EBifurcationAxisSelectionMode.kZ1) {
+					// draw the bifurcation starting point
+					fRenderBufferGraphics.fillRect(s.fX - (kBifurcationAxisEndPointWidth / 2),s.fY - (kBifurcationAxisEndPointWidth / 2),kBifurcationAxisEndPointWidth,kBifurcationAxisEndPointWidth);
+				}
+				else if (fBifurcationAxisSelectionMode == EBifurcationAxisSelectionMode.kZ2) {
+					// draw the bifurcation axis
+					ScreenLocation s1 = fractalIterator.convertComplexNumberToScreenLocation(fractalIterator.getBifurcationAxisZ1());
+					Stroke stroke = fRenderBufferGraphics.getStroke();
+					fRenderBufferGraphics.setStroke(new BasicStroke(kBifurcationAxisWidth));
+					fRenderBufferGraphics.drawLine(s1.fX,s1.fY,s.fX,s.fY);
+					fRenderBufferGraphics.setStroke(stroke);
+					fRenderBufferGraphics.fillRect(s1.fX - (kBifurcationAxisEndPointWidth / 2),s1.fY - (kBifurcationAxisEndPointWidth / 2),kBifurcationAxisEndPointWidth,kBifurcationAxisEndPointWidth);
+					fRenderBufferGraphics.fillRect(s.fX - (kBifurcationAxisEndPointWidth / 2),s.fY - (kBifurcationAxisEndPointWidth / 2),kBifurcationAxisEndPointWidth,kBifurcationAxisEndPointWidth);
+				}
+			}
+		} // if (!(fBifurcationAxisSelectionMode == EBifurcationAxisSelectionMode.kNone))
+
+		Point bifurcationAxisLocation = new Point();
+
+		if (fShowBifurcationDiagram) {
+			boolean bifurcationDiagramSupported =
+				(fractalIterator instanceof FastMandelbrotJuliaFractalIterator) ||
+				(fractalIterator instanceof ADivergentFractalIterator);
+			if (bifurcationDiagramSupported && (fractalType == AFractalIterator.EFractalType.kMainFractal)) {
+				int width = screenWidth;
+				int height = screenHeight;
+
+				// mask the main screen
+				fRenderBufferGraphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,0.7f));
+				fRenderBufferGraphics.setColor(Color.BLUE.darker().darker());
+				fRenderBufferGraphics.fillRect(0,0,width,height);
+				fRenderBufferGraphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,1.0f));
+
+				ScreenLocation s1 = fractalIterator.convertComplexNumberToScreenLocation(fractalIterator.getBifurcationAxisZ1());
+				ScreenLocation s2 = fractalIterator.convertComplexNumberToScreenLocation(fractalIterator.getBifurcationAxisZ2());
+
+				// draw the bifurcation axis
+				fRenderBufferGraphics.setColor(Color.RED);
+				Stroke stroke = fRenderBufferGraphics.getStroke();
+				fRenderBufferGraphics.setStroke(new BasicStroke(kBifurcationAxisWidth));
+				fRenderBufferGraphics.drawLine(s1.fX,s1.fY,s2.fX,s2.fY);
+				fRenderBufferGraphics.fillRect(s1.fX - (kBifurcationAxisEndPointWidth / 2),s1.fY - (kBifurcationAxisEndPointWidth / 2),kBifurcationAxisEndPointWidth,kBifurcationAxisEndPointWidth);
+				fRenderBufferGraphics.fillRect(s2.fX - (kBifurcationAxisEndPointWidth / 2),s2.fY - (kBifurcationAxisEndPointWidth / 2),kBifurcationAxisEndPointWidth,kBifurcationAxisEndPointWidth);
+				fRenderBufferGraphics.setStroke(stroke);
+
+				// check if we need to recreate the bifurcation diagram's image buffer
+				if (fBifurcationDiagramDirty) {
+					fBifurcationDiagramImageBuffer = new BufferedImage(width,height,BufferedImage.TYPE_INT_ARGB);
+					fractalIterator.iterateBifurcationDiagram(width);
+					JGradientColorMap gcm = new JGradientColorMap(JGradientColorMap.EColorMap.kBlueWhite);
+					for (int x = 0; x < width; ++x) {
+
+						int[] nrOfPoints = new int[height];
+						int maxNrOfPoints = 0;
+
+						// determine the number of orbit points landing on the same y-coordinate
+						for (int pointIndex = 0; pointIndex < fractalIterator.getNrOfBifurcationPoints(x); ++pointIndex) {
+							double yValue = fractalIterator.getBifurcationPoint(x,pointIndex);
+							int y = (int) Math.round(((yValue - fractalIterator.getMinBifurcationValue()) / (fractalIterator.getMaxBifurcationValue() - fractalIterator.getMinBifurcationValue())) * (height - 1));
+							y = (height - 1) - y; // invert the screen's Y-axis
+							++nrOfPoints[y];
+							if (nrOfPoints[y] > maxNrOfPoints) {
+								maxNrOfPoints = nrOfPoints[y];
+							}
+						}
+
+						for (int y = 0; y < height; ++y) {
+							int nrOfPointsAtY = nrOfPoints[y];
+							double u = (double) nrOfPointsAtY / (double) maxNrOfPoints;
+							Color color = gcm.interpolate(Math.sqrt(Math.sqrt(u))); // brighten the colours
+							int rgb = (new Color(color.getRed(),color.getGreen(),color.getBlue(),196)).getRGB();
+							if (nrOfPointsAtY > 0) {
+								fBifurcationDiagramImageBuffer.setRGB(x,y,rgb);
+							}
+						}
+					}
+
+					fBifurcationDiagramDirty = false;
+				}
+
+				// copy the bifurcation diagram's image buffer to the render buffer
+				fRenderBufferGraphics.drawImage(fBifurcationDiagramImageBuffer,0,0,null);
+
+				Point m = getMousePosition();
+				if (m != null) {
+					if (((s1.fX <= s2.fX) && (m.x >= s1.fX) && (m.x <= s2.fX)) ||
+							((s2.fX <= s1.fX) && (m.x >= s2.fX) && (m.x <= s1.fX))) {
+
+						fRenderBufferGraphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,0.5f));
+
+						// draw a narrow bar (with a highlighting line in it) across the screen for the location in the bifurcation diagram corresponding to the selected point on the bifurcation axis
+						int minX = s1.fX;
+						int delta = s2.fX - s1.fX;
+						if (s2.fX <= s1.fX) {
+							minX = s2.fX;
+							delta = s1.fX - s2.fX;
+						}
+						double factor = (double) (m.x - minX) / (((double) delta) - 1.0);
+						int barPosition = (int) Math.round(factor * ((double) width));
+						final int kBarWidth = 21;
+						fRenderBufferGraphics.setColor(Color.GRAY);
+						fRenderBufferGraphics.fillRect(barPosition - (kBarWidth / 2),0,kBarWidth,screenHeight);
+						fRenderBufferGraphics.setColor(Color.WHITE);
+						fRenderBufferGraphics.drawLine(barPosition,0,barPosition,screenHeight);
+
+						// draw a small box (with a cross) at the current location on the bifurcation axis
+						int y = (int) Math.round(((((double) s2.fY - (double) s1.fY) / ((double) s2.fX - (double) s1.fX)) * ((double) m.x - (double) s1.fX)) + (double) s1.fY);
+						final int kBoxSize = 11;
+						fRenderBufferGraphics.setColor(Color.WHITE);
+						fRenderBufferGraphics.fillRect(m.x - (kBoxSize / 2),y - (kBoxSize / 2),kBoxSize,kBoxSize);
+						fRenderBufferGraphics.drawLine(m.x,y - kBoxSize,m.x,y + kBoxSize);
+						fRenderBufferGraphics.drawLine(m.x - kBoxSize,y,m.x + kBoxSize,y);
+
+						fRenderBufferGraphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,1.0f));
+
+						bifurcationAxisLocation.x = m.x;
+						bifurcationAxisLocation.y = y;
+					}
+				}
+			} // if (bifurcationDiagramSupported && (fractalType == AFractalIterator.EFractalType.kMainFractal))
+			else {
+				FontMetrics fontMetrics = fRenderBufferGraphics.getFontMetrics();
+				String bifurcationDiagramNotSupportedStr = "(" + I18NL10N.translate("text.Fractal.BifurcationDiagramNotSupported") + ")";
+				int strWidth =  fontMetrics.stringWidth(bifurcationDiagramNotSupportedStr);
+				int strHeight = fontMetrics.getHeight();
+				final int kTextInsetSize = 5;
+				int x = vpX2 - strWidth - kTextInsetSize;
+				int y = vpY1 + (2 * strHeight) + (2 * kTextInsetSize);
+				fRenderBufferGraphics.setColor(Color.RED);
+				fRenderBufferGraphics.drawString(bifurcationDiagramNotSupportedStr,x,y);
+			}
+		} // if (fShowBifurcationDiagram)
 
 		if (fShowInset && !fZoomThumbnailSelectionMode) {
 			boolean showInsetFractal = true;
@@ -1931,6 +2197,10 @@ public final class FractalPanel extends JPanel implements Printable
 					try {
 						Point m = getMousePosition();
 						if (m != null) {
+							// fix mouse position if necessary
+							if (fShowBifurcationDiagram) {
+								m = bifurcationAxisLocation;
+							}
 							dualParameter = fractalIterator.convertScreenLocationToComplexNumber(new ScreenLocation(m.x,m.y));
 							if (fShowDeformedMainFractal) {
 								deformedParameter = fractalIterator.convertScreenLocationToComplexNumber(new ScreenLocation(m.x,m.y));
@@ -2042,7 +2312,7 @@ public final class FractalPanel extends JPanel implements Printable
 
 		if (fShowAxes && !fZoomThumbnailSelectionMode) {
 			// draw X and Y axes in the complex plane for the main fractal
-			ScreenLocation origin = fractalIterator.convertComplexNumberToScreenLocation(new ComplexNumber());
+			ScreenLocation origin = fractalIterator.convertComplexNumberToScreenLocation(ComplexNumber.kZero);
 			fRenderBufferGraphics.setColor(Color.WHITE);
 			if ((origin.fY >= vpY1) && (origin.fY <= vpY2)) {
 				fRenderBufferGraphics.drawLine(vpX1,origin.fY,vpX2,origin.fY);
@@ -2056,7 +2326,7 @@ public final class FractalPanel extends JPanel implements Printable
 				if (!fAutoZoomInset) {
 					fractalIterator.setComplexBounds(fractalIterator.getDefaultP1(),fractalIterator.getDefaultP2());
 				}
-				origin = fractalIterator.convertComplexNumberToScreenLocation(new ComplexNumber(),fInsetWidth,fInsetHeight);
+				origin = fractalIterator.convertComplexNumberToScreenLocation(ComplexNumber.kZero,fInsetWidth,fInsetHeight);
 				fRenderBufferGraphics.setColor(Color.WHITE);
 				if ((origin.fY >= 0) && (origin.fY <= fInsetHeight)) {
 					fRenderBufferGraphics.drawLine(fInsetX,fInsetY + origin.fY,fInsetX + fInsetWidth - 1,fInsetY + origin.fY);
@@ -2201,6 +2471,11 @@ public final class FractalPanel extends JPanel implements Printable
 			try {
 				Point m = getMousePosition();
 				if (m != null) {
+					// fix mouse position if necessary
+					if (fShowBifurcationDiagram) {
+						m = bifurcationAxisLocation;
+					}
+
 					int mX = (int) m.getX();
 					int mY = (int) m.getY();
 
@@ -2709,6 +2984,11 @@ public final class FractalPanel extends JPanel implements Printable
 			try {
 				Point m = getMousePosition();
 				if (m != null) {
+					// fix mouse position if necessary
+					if (fShowBifurcationDiagram) {
+						m = bifurcationAxisLocation;
+					}
+
 					int mX = (int) m.getX();
 					int mY = (int) m.getY();
 

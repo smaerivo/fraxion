@@ -1,12 +1,12 @@
 // ----------------------------------------------
 // Filename      : ADivergentFractalIterator.java
 // Author        : Sven Maerivoet
-// Last modified : 07/06/2015
+// Last modified : 31/10/2016
 // Target        : Java VM (1.8)
 // ----------------------------------------------
 
 /**
- * Copyright 2003-2015 Sven Maerivoet
+ * Copyright 2003-2016 Sven Maerivoet
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,10 +23,12 @@
 
 package org.sm.fraxion.fractals.divergent;
 
+import java.util.*;
 import org.sm.fraxion.fractals.*;
 import org.sm.fraxion.fractals.util.*;
 import org.sm.smtools.math.*;
 import org.sm.smtools.math.complex.*;
+import org.sm.smtools.math.statistics.*;
 
 /**
  * The <CODE>ADivergentFractalIterator</CODE> class provides a base class for divergent fractals (e.g., Mandelbrot).
@@ -34,10 +36,75 @@ import org.sm.smtools.math.complex.*;
  * <B>Note that this is an abstract class.</B>
  * 
  * @author  Sven Maerivoet
- * @version 07/06/2015
+ * @version 31/10/2016
  */
 public abstract class ADivergentFractalIterator extends AFractalIterator
 {
+	/******************
+	 * PUBLIC METHODS *
+	 ******************/
+
+	/**
+	 * Iterates all points in the bifurcation diagram.
+	 *
+	 * @param width  the width of the diagram in pixels
+	 */
+	@Override
+	public final void iterateBifurcationDiagram(int width)
+	{
+		fBifurcationPoints = new double[width][fNrOfBifurcationPointsPerOrbit];
+		fNrOfBifurcationPoints = new int[width];
+		ArrayList<Double> bifurcationDataList = new ArrayList<Double>();
+
+		for (int x = 0; x < width; ++x) {
+			ComplexNumber complexFactor = new ComplexNumber((double) x / (((double) width) - 1.0));
+			ComplexNumber c = fBifurcationAxisZ1.add(complexFactor.multiply(fBifurcationAxisZ2.subtract(fBifurcationAxisZ1)));
+
+			ComplexNumber z = ComplexNumber.kZero;
+			for (int i = 0; i < (fNrOfBifurcationPointsToDiscard + fNrOfBifurcationPointsPerOrbit); ++i) {
+				// iterate fractal function
+				ComplexNumber zNext = evaluateFractalFunction(z,c);
+				z = zNext;
+
+				// discard the first group iterations so the orbit can settle
+				if ((i >= fNrOfBifurcationPointsToDiscard) && (z != null) && (z.modulusSquared() <= fEscapeRadiusSqr)) {
+					double value = z.modulus();
+					if (!Double.isNaN(value)) {
+						fBifurcationPoints[x][fNrOfBifurcationPoints[x]] = value;
+						bifurcationDataList.add(value);
+						++fNrOfBifurcationPoints[x];
+					}
+				} // if ((i >= kNrOfIterationsToDiscardForBifurcationDiagram) && (modulusSqr <= fEscapeRadiusSqr))
+			} // for (int i = 0; i < (kNrOfIterationsToDiscardForBifurcationDiagram + kNrOfBifurcationPoints); ++i)
+		} // for (int x = 0; x < width; ++x)
+
+		// convert all bifurcation points into an array and set up an empirical distribution
+		Double[] bifurcationDataObject = bifurcationDataList.toArray(new Double[bifurcationDataList.size()]);
+		double[] bifurcationData = new double[bifurcationDataList.size()];
+		for (int i = 0; i < bifurcationDataObject.length; ++i) {
+			bifurcationData[i] = bifurcationDataObject[i];
+		}
+		EmpiricalDistribution empiricalDistribution = new EmpiricalDistribution(bifurcationData);
+		empiricalDistribution.analyse();
+
+		// remove the outliers
+		fMinBifurcationValue = empiricalDistribution.getPercentile(fBifurcationOutlierPercentileOffset);
+		fMaxBifurcationValue = empiricalDistribution.getPercentile(100.0 - fBifurcationOutlierPercentileOffset);
+		double[][] bifurcationPoints = new double[width][fNrOfBifurcationPointsPerOrbit];
+		int[] nrOfBifurcationPoints = new int[width];
+		for (int x = 0; x < width; ++x) {
+			for (int pointIndex = 0; pointIndex < fNrOfBifurcationPoints[x]; ++pointIndex) {
+				double value = fBifurcationPoints[x][pointIndex];
+				if ((value >= fMinBifurcationValue) && (value <= fMaxBifurcationValue)) {
+					bifurcationPoints[x][nrOfBifurcationPoints[x]] = value;
+					++nrOfBifurcationPoints[x];
+				}
+			}
+		}
+		fBifurcationPoints = bifurcationPoints;
+		fNrOfBifurcationPoints = nrOfBifurcationPoints;
+	}
+
 	/*********************
 	 * PROTECTED METHODS *
 	 *********************/

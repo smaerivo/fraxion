@@ -19,6 +19,9 @@
 	<tocitem text="Toetsenbord toewijzingen" expand="true" target="keyboard_shortcuts">
 	</tocitem>
 
+	<tocitem text="Bifurcatiediagrammen" expand="true" target="bifurcation_diagrams">
+	</tocitem>
+
 	<tocitem text="Fractaal types" expand="true">
 		<tocitem text="Klassiek">
 			<tocitem text="Mandelbrot / Julia" target="fractal_types_mandelbrot_julia" />
